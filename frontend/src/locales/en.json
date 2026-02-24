@@ -1,0 +1,30 @@
+{
+  "footer": {
+    "legal": "Legal Information",
+    "cgu": "Terms of Service",
+    "legal_mentions": "Legal Mentions",
+    "contact": "Contact Us",
+    "social": "Social Media",
+    "rights_reserved": "All rights reserved"
+  },
+  "menu": {
+    "settings": "My Settings",
+    "orders": "My Orders",
+    "logout": "Log Out",
+    "login": "Log In",
+    "register": "Sign Up",
+    "cgu": "TOS",
+    "contact": "Contact"
+  },
+  "home": {
+    "welcome_title": "Welcome to CYNA BOOKS",
+    "welcome_subtitle": "Discover our vast catalog of books.",
+    "explore_btn": "Explore Catalog",
+    "top_books": "Trending Now"
+  },
+  "genres": {
+    "romans": "Novels",
+    "manga": "Manga",
+    "promotions": "Sales"
+  }
+}

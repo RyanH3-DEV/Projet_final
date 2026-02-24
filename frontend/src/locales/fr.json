@@ -1,0 +1,30 @@
+{
+  "footer": {
+    "legal": "Informations Légales",
+    "cgu": "Conditions Générales d'Utilisation",
+    "legal_mentions": "Mentions Légales",
+    "contact": "Nous contacter",
+    "social": "Réseaux Sociaux",
+    "rights_reserved": "Tous droits réservés"
+  },
+  "menu": {
+    "settings": "Mes paramètres",
+    "orders": "Mes commandes",
+    "logout": "Se déconnecter",
+    "login": "Connexion",
+    "register": "Inscription",
+    "cgu": "CGU",
+    "contact": "Contact"
+  },
+  "home": {
+    "welcome_title": "Bienvenue chez lee groupe de Yahia, Johanne, Francis, Ryan",
+    "welcome_subtitle": "Découvrez notre vaste catalogue de livres.",
+    "explore_btn": "Explorer le catalogue",
+    "top_books": "Top du moment"
+  },
+  "genres": {
+    "romans": "Romans",
+    "manga": "Mangas",
+    "promotions": "Promotions"
+  }
+}
