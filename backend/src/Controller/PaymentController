@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Controller;
+
+use Stripe\Stripe;
+use Stripe\Customer;
+use Stripe\PaymentIntent;
+use Doctrine\ORM\EntityManagerInterface;
+// ... autres imports
+
+class PaymentController extends AbstractController
+{
+    #[Route('/api/create-payment-intent', name: 'create_payment_intent', methods: ['POST'])]
+    public function createPaymentIntent(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        Stripe::setApiKey('sk_test_VOTRE_CLE_SECRETE_STRIPE');
+        $donnees = json_decode($request->getContent(), true);
+
+        // Je récupère l'utilisateur actuellement connecté
+        $user = $this->getUser();
+        $montant = intval(round($donnees['montant'] * 100));
+
+        $parametres = [
+            'amount' => $montant,
+            'currency' => 'eur',
+            'payment_method_types' => ['card'],
+        ];
+
+        // Si l'utilisateur veut sauvegarder sa carte
+        if ($donnees['sauvegarderCarte'] && $user) {
+
+            // Si l'utilisateur n'a pas encore d'identifiant Stripe dans ma base de données
+            if (!$user->getStripeCustomerId()) {
+                // Je demande à Stripe de lui créer un coffre-fort
+                $customerStripe = Customer::create([
+                    'email' => $user->getEmail(),
+                    'name' => $donnees['prenom'] . ' ' . $donnees['nom'],
+                ]);
+
+                // J'enregistre la clé du coffre-fort dans MA base de données
+                $user->setStripeCustomerId($customerStripe->id);
+                $em->flush(); // Je sauvegarde dans MySQL/PostgreSQL
+            }
+
+            // J'indique à Stripe de lier ce paiement au coffre-fort du client
+            $parametres['customer'] = $user->getStripeCustomerId();
+            $parametres['setup_future_usage'] = 'off_session'; // Autorise la sauvegarde de la carte
+        }
+
+        $paymentIntent = PaymentIntent::create($parametres);
+
+        return new JsonResponse(['clientSecret' => $paymentIntent->client_secret]);
+    }
+}

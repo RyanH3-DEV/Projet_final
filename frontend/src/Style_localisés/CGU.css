@@ -1,0 +1,75 @@
+.cgu-page {
+  background-color: #f4f6f9;
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cgu-container {
+  background-color: #ffffff;
+  max-width: 900px;
+  width: 100%;
+  padding: 50px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  line-height: 1.6;
+  color: #333333;
+}
+
+.cgu-container h1 {
+  text-align: center;
+  font-size: 28px;
+  color: #1a1a1a;
+  margin-bottom: 40px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 15px;
+}
+
+.cgu-section {
+  margin-bottom: 35px;
+}
+
+.cgu-section h2 {
+  font-size: 20px;
+  color: #0056b3;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 5px;
+}
+
+.cgu-section h3 {
+  font-size: 16px;
+  color: #444;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.cgu-section p {
+  margin-bottom: 12px;
+  text-align: justify;
+}
+
+.cgu-section ul {
+  margin-bottom: 15px;
+  padding-left: 20px;
+}
+
+.cgu-section li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .cgu-container {
+    padding: 25px;
+  }
+  
+  .cgu-container h1 {
+    font-size: 22px;
+  }
+  
+  .cgu-section h2 {
+    font-size: 18px;
+  }
+}

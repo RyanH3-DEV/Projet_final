@@ -1,0 +1,203 @@
+/* --- Global --- */
+.home-container {
+  width: 100%;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* --- Héros (Bannière) --- */
+.hero-section {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 8rem 2rem;
+  text-align: center;
+}
+
+/* --- Héros (Bannière) --- */
+.hero-section {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 4rem 2rem; /* Je divise la hauteur par deux */
+  text-align: center;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.hero-title {
+  font-size: 2.2rem; /* Titre beaucoup moins massif */
+  font-weight: 400;
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  color: #cccccc;
+  margin-bottom: 2rem;
+  font-weight: 300;
+}
+
+.hero-cta-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 25px;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-cta-button:hover {
+  background-color: #cccccc;
+}
+
+.icon-right { margin-left: 10px; }
+
+/* --- Sections --- */
+.home-section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bg-white { background-color: #ffffff; }
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #000000;
+  margin-bottom: 4rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* --- Catégories --- */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.category-card {
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-card:hover {
+  border-color: #000000;
+  background-color: #fafafa;
+}
+
+.category-icon { margin-bottom: 1.5rem; color: #000000; }
+.category-card h3 {
+  font-size: 1.2rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- Livres à la une --- */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 3rem;
+}
+
+.featured-card {
+  background: #ffffff;
+  padding-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.featured-card:hover { transform: translateY(-5px); }
+
+.featured-image-container {
+  height: 280px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  background-color: #f8f8f8;
+}
+
+.featured-image {
+  max-height: 90%;
+  max-width: 90%;
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+}
+
+.featured-info { text-align: center; }
+.featured-title {
+  font-size: 1rem;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.featured-author {
+  color: #666666;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.featured-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.featured-price {
+  font-size: 1.1rem;
+  color: #000000;
+  font-weight: 600;
+}
+
+/* --- Bouton Ajouter au panier --- */
+.add-to-cart-btn {
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+  background: #333333;
+  transform: scale(1.05);
+}
+
+/* --- Bouton Secondaire --- */
+.view-all-container { text-align: center; margin-top: 4rem; }
+.btn-secondary {
+  padding: 12px 30px;
+  background-color: transparent;
+  color: #000000;
+  border: 1px solid #000000;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+  background-color: #000000;
+  color: #ffffff;
+}

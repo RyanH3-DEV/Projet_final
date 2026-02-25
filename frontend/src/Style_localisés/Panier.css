@@ -1,0 +1,102 @@
+.panier-container {
+    padding: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: sans-serif;
+}
+
+.panier-container h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.panier-items {
+    border: 1px solid #eee;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    background-color: #fafafa;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.item-row p {
+    margin: 5px 0;
+}
+
+.divider {
+    margin: 15px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+.total-text {
+    text-align: right;
+    color: #1a252f;
+}
+
+.paiement-section h3 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.paiement-desc {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* ... garde le début de ton fichier ... */
+
+.item-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* J'ajoute de l'espace entre les boutons + et - */
+}
+
+.btn-quantite {
+    width: 35px;
+    height: 35px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.btn-supprimer {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin-left: 20px; /* J'éloigne la poubelle du reste */
+    color: #e74c3c;
+}
+
+.btn-mastercard {
+    padding: 0 20px;
+    height: 45px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+    background-color: #34495e;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.2s;
+}
+
+.btn-mastercard:hover {
+    background-color: #2c3e50;
+}
+
+.paypal-wrapper {
+    /* Je donne une largeur fixe au conteneur pour que le bouton PayPal ait la même taille que l'autre */
+    width: 250px;
+}
