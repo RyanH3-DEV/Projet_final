@@ -1,115 +1,158 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ArrowLeft, BookOpen, ShoppingCart, Star, Library } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Filter, ShoppingCart, Loader } from "lucide-react";
+import axios from "axios";
+import '../style_localisés/Catalogue.css';
 
 export default function Catalogue() {
-  const { t } = useTranslation();
-  const [activeGenre, setActiveGenre] = useState("roman");
-  const [selectedBook, setSelectedBook] = useState(null);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Je remplace les entraînements par un catalogue de livres
-  const books = [
-    {
-      id: 1,
-      genre: "roman",
-      title: "Les Misérables",
-      author: "Victor Hugo",
-      price: "15.90€",
-      image: "/images/livres/les-miserables.jpg",
-      description: "Une fresque historique et sociale du XIXe siècle français.",
-      details: [
-        { label: "Éditeur", value: "Hachette" },
-        { label: "Pages", value: "1488" },
-        { label: "Parution", value: "1862" }
-      ]
-    },
-    {
-      id: 2,
-      genre: "manga",
-      title: "One Piece Vol. 1",
-      author: "Eiichiro Oda",
-      price: "6.99€",
-      image: "/images/livres/one-piece-1.jpg",
-      description: "L'aventure commence pour Luffy, le garçon au chapeau de paille.",
-      details: [
-        { label: "Format", value: "Tankobon" },
-        { label: "Série", value: "En cours" }
-      ]
+  const [searchTerm, setSearchTerm] = useState("");
+  const [genre, setGenre] = useState("fiction");
+  const [sortBy, setSortBy] = useState("relevance");
+
+  const searchBooks = async (e) => {
+    if (e) e.preventDefault();
+    setLoading(true);
+
+    try {
+      let query = `subject:${genre}`;
+      if (searchTerm.trim() !== "") {
+        query = `${searchTerm}+subject:${genre}`;
+      }
+
+      const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&orderBy=${sortBy}&maxResults=16&langRestrict=fr`);
+      const data = response.data;
+
+      if (data.items) {
+        const formattedBooks = data.items.map(item => {
+          const vol = item.volumeInfo;
+          const sale = item.saleInfo;
+
+          const imageUrl = vol.imageLinks?.thumbnail
+            ? vol.imageLinks.thumbnail.replace("http:", "https:")
+            : "https://via.placeholder.com/150x200?text=Pas+de+couverture";
+
+          let prix = 12.99;
+          if (sale && sale.retailPrice) {
+             prix = sale.retailPrice.amount;
+          } else if (vol.pageCount) {
+             prix = (vol.pageCount * 0.04).toFixed(2);
+          } else {
+             prix = ((vol.title?.length || 10) % 15) + 8.99;
+          }
+
+          return {
+            id: item.id,
+            title: vol.title || "Titre inconnu",
+            author: vol.authors ? vol.authors.join(", ") : "Auteur inconnu",
+            price: Number(prix).toFixed(2) + " €",
+            image: imageUrl,
+            description: vol.description || "Aucune description disponible."
+          };
+        });
+        setBooks(formattedBooks);
+      } else {
+        setBooks([]);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération des livres", error);
+      setBooks([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const filteredBooks = books.filter(book => book.genre === activeGenre);
+  useEffect(() => {
+    searchBooks();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [genre, sortBy]);
 
-  // Vue Détail du livre
-  if (selectedBook) {
-    return (
-      <div className="catalog-wrapper">
-        <button className="back-btn" onClick={() => setSelectedBook(null)}>
-          <ArrowLeft size={18} /> {t('catalog.back')}
-        </button>
-
-        <header className="book-header">
-          <h2>{selectedBook.title}</h2>
-          <p className="book-author">Par {selectedBook.author}</p>
-          <p className="book-desc">{selectedBook.description}</p>
-          <button className="add-to-cart-btn">
-            <ShoppingCart size={18} /> Ajouter au panier ({selectedBook.price})
-          </button>
-        </header>
-
-        <div className="book-details-list">
-          <h3>Informations techniques</h3>
-          {selectedBook.details.map((detail, index) => (
-            <div key={index} className="detail-item">
-              <strong>{detail.label} :</strong> {detail.value}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Vue Liste (Catalogue)
   return (
-    <div className="catalog-wrapper">
-      <header className="catalog-header">
-        <h1><Library size={32} /> {t('catalog.title')}</h1>
-        <p className="catalog-subtitle">Explorez notre sélection de livres.</p>
+    <div className="catalogue-container">
+      <header className="catalogue-header">
+        <h1 className="catalogue-title">Notre Bibliothèque</h1>
+
+        <form onSubmit={searchBooks} className="search-filter-form">
+
+          <div className="search-bar-container">
+            <div className="search-icon-wrapper">
+              <Search size={20} />
+            </div>
+            <input
+              type="text"
+              placeholder="Rechercher un titre, un auteur..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <div className="filter-group">
+            <Filter size={20} className="filter-icon" />
+
+            <select
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              className="filter-select"
+            >
+              <option value="fiction">Romans & Fiction</option>
+              <option value="comics">Mangas & BD</option>
+              <option value="history">Histoire</option>
+              <option value="science">Science</option>
+              <option value="computers">Informatique</option>
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="filter-select"
+            >
+              <option value="relevance">Plus pertinents</option>
+              <option value="newest">Plus récents</option>
+            </select>
+
+            <button type="submit" className="search-button">
+              Rechercher
+            </button>
+          </div>
+        </form>
       </header>
 
-      {/* Barre d'onglets pour les genres */}
-      <div className="tabs-container">
-        {["roman", "manga", "bd", "jeunesse"].map((genre) => (
-          <button
-            key={genre}
-            className={activeGenre === genre ? "tab active-tab" : "tab"}
-            onClick={() => setActiveGenre(genre)}
-          >
-            {genre.charAt(0).toUpperCase() + genre.slice(1)}
-          </button>
-        ))}
-      </div>
+      {loading ? (
+        <div className="loading-container">
+          <Loader size={48} className="spinner" />
+          <p>Recherche dans nos étagères...</p>
+        </div>
+      ) : (
+        <div className="books-grid">
+          {books.length > 0 ? (
+            books.map((book) => (
+              <div key={book.id} className="book-card">
+                <div className="book-image-container">
+                  <img src={book.image} alt={book.title} className="book-image" />
+                </div>
 
-      <div className="catalog-grid">
-        {filteredBooks.map((book) => (
-          <div key={book.id} className="book-card">
-            <div className="card-image" style={{ backgroundImage: `url(${book.image})` }}>
-              <span className="card-price">{book.price}</span>
-            </div>
+                <div className="book-info">
+                  <h3 className="book-title">{book.title}</h3>
+                  <p className="book-author">{book.author}</p>
 
-            <div className="card-content">
-              <h3 className="card-title">{book.title}</h3>
-              <p className="card-author">{book.author}</p>
-
-              <div className="card-actions">
-                <button className="view-btn" onClick={() => setSelectedBook(book)}>
-                  <BookOpen size={16} /> Voir les détails
-                </button>
+                  <div className="book-footer">
+                    <span className="book-price">{book.price}</span>
+                    <button className="cart-button" title="Ajouter au panier">
+                      <ShoppingCart size={18} />
+                    </button>
+                  </div>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="no-results">
+              Aucun livre ne correspond à votre recherche.
             </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -40,3 +40,21 @@
 .read-the-docs {
   color: #888;
 }
+/* Je m'assure que tout l'écran est utilisé par le navigateur */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Je crée une colonne flexible sur toute la hauteur de la vue */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* C'est ici que la magie opère : la zone de contenu prend tout l'espace libre */
+.main-content {
+  flex: 1;
+}

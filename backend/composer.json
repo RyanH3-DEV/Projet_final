@@ -7,14 +7,20 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^3.2",
+        "doctrine/doctrine-migrations-bundle": "*",
+        "doctrine/orm": "^3.6",
+        "nelmio/cors-bundle": "^2.6",
+        "stripe/stripe-php": "^19.3",
         "symfony/console": "8.0.*",
         "symfony/dotenv": "8.0.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "8.0.*",
+        "symfony/mailer": "8.0.*",
+        "symfony/rate-limiter": "8.0.*",
         "symfony/runtime": "8.0.*",
+        "symfony/security-bundle": "8.0.*",
         "symfony/yaml": "8.0.*"
-    },
-    "require-dev": {
     },
     "config": {
         "allow-plugins": {
@@ -64,8 +70,11 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "8.0.*"
         }
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.66"
     }
 }

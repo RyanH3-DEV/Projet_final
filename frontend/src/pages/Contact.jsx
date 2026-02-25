@@ -1,44 +1,46 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import '../style_localisés/Contact.css';
 
-export default function Contact() {
-  const [formData, setFormData] = useState({ nom: '', email: '', message: '' });
+function Contact() {
+  const [statut, setStatut] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const envoyerAssistance = async (e) => {
     e.preventDefault();
-    // Je remplace la logique PHP par un appel API vers mon backend Symfony
+    const data = Object.fromEntries(new FormData(e.target));
+
     try {
-      await axios.post('https://api.tonprojet.com/contact', formData);
-      alert("Message envoyé !");
-    } catch (error) {
-      console.error("Erreur d'envoi", error);
+      const reponse = await fetch("http://127.0.0.1:8000/api/contact-assistance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (reponse.ok) {
+        setStatut("succes");
+        e.target.reset();
+      }
+    } catch (erreur) {
+      setStatut("erreur");
     }
   };
 
   return (
-    <div className="contact-container">
-      <h2>Contactez-nous</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Nom"
-          onChange={(e) => setFormData({...formData, nom: e.target.value})}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setFormData({...formData, email: e.target.value})}
-          required
-        />
-        <textarea
-          placeholder="Message"
-          onChange={(e) => setFormData({...formData, message: e.target.value})}
-          required
-        />
-        <button type="submit"><Send size={18} /> Envoyer</button>
-      </form>
+    <div className="contact-page">
+      <div className="contact-card">
+        <h2>🆘 Assistance Client</h2>
+        <p>Un problème ? Je suis là pour vous aider.</p>
+
+        {statut === "succes" && <p className="msg-ok">Message envoyé ! Je vous répondrai très vite.</p>}
+
+        <form onSubmit={envoyerAssistance} className="contact-form">
+          <input type="text" name="nom" placeholder="Votre nom" required />
+          <input type="email" name="email" placeholder="Votre email" required />
+          <textarea name="message" placeholder="Décrivez votre problème..." required></textarea>
+          <button type="submit">Contacter l'assistance</button>
+        </form>
+      </div>
     </div>
   );
 }
+
+export default Contact;

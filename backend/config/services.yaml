@@ -16,8 +16,13 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
+        # makes classes in src/ available to be used as services
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Correction ici : On force le lien entre l'argument et le service
+    Symfony\Component\RateLimiter\RateLimiterFactory $loginLimiter: '@limiter.login_limiter'
