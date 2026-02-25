@@ -1,0 +1,12 @@
+# Je masque les dossiers de dépendances très lourds
+/backend/vendor/
+/frontend/node_modules/
+
+# Je protège mes fichiers de variables d'environnement (mots de passe BDD)
+.env
+.env.local
+.env.*.local
+
+# J'ignore les fichiers générés automatiquement par le système
+.DS_Store
+Thumbs.db
