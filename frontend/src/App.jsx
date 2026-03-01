@@ -1,103 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+
 import Header from './layout/Header';
-import Footer from './layout/Footer';
-import Home from './pages/Home';
-import Catalogue from './pages/Catalogue';
-import Connexion from './pages/Connexion';
 import Inscription from './pages/Inscription';
-import ReinitialiserMotDePasse from './pages/ReinitialiserMotDePasse';
-import Contact from './pages/Contact';
+import Connexion from './pages/Connexion';
+import Home from './pages/Home';
 import Panier from './pages/Panier';
-import Paiement from './pages/Paiement';
+import Footer from './layout/Footer';
+
 import CGV from './components/CGV';
 import CGU from './components/CGU';
 
+import { getCart, addToCart } from './api/cartApi';
+
+function PageManager({ currentPage, setCurrentPage, user, setUser, panier, rafraichirPanier, ajouterAuPanier }) {
+  const location = useLocation();
+
+  if (location.pathname === "/cgv" || location.pathname === "/cgu") return null;
+
+  return (
+    <>
+      {currentPage === 'home' && (
+        <Home ajouterAuPanier={ajouterAuPanier} naviguerVersCatalogue={setCurrentPage} />
+      )}
+      {currentPage === 'connexion' && (
+        <Connexion setUser={setUser} setCurrentPage={setCurrentPage} />
+      )}
+      {currentPage === 'inscription' && (
+        <Inscription setCurrentPage={setCurrentPage} />
+      )}
+      {currentPage === 'panier' && user && (
+        <Panier panier={panier} setCurrentPage={setCurrentPage} rafraichirPanier={rafraichirPanier} />
+      )}
+      {currentPage === 'panier' && !user && (
+        <Connexion setUser={setUser} setCurrentPage={setCurrentPage} />
+      )}
+    </>
+  );
+}
+
 function App() {
-  // ... (le début du fichier avec pageInitiale reste le même)
-  const pageInitiale = () => {
-    const chemin = window.location.pathname;
-    if (chemin === '/reinitialiser-mot-de-passe') return 'reset-password';
-    if (chemin === '/cgv') return 'cgv';
-    if (chemin === '/cgu') return 'cgu';
-    return 'home';
-  };
-
-  const [currentPage, setCurrentPage] = useState(pageInitiale());
+  const [currentPage, setCurrentPage] = useState('home');
   const [user, setUser] = useState(null);
-
-  // État global du panier
   const [panier, setPanier] = useState([]);
-  const [categorieInitiale, setCategorieInitiale] = useState('fiction');
 
-  const naviguer = (page) => {
-    setCurrentPage(page);
-    window.history.pushState({}, '', '/');
-  };
+  // ✅ Ce ref évite que le useEffect vide le panier après connexion
+  const vientDeSeConnecter = useRef(false);
 
-  const naviguerVersCatalogue = (categorie = 'fiction') => {
-    setCategorieInitiale(categorie);
-    naviguer('catalogue');
-  };
-
-  // LA FONCTION CLÉ POUR AJOUTER AU PANIER
-  const ajouterAuPanier = (livre) => {
-    const livreExistant = panier.find(item => item.id === livre.id);
-
-    if (livreExistant) {
-      // Si le livre existe déjà, on augmente la quantité
-      setPanier(panier.map(item =>
-        item.id === livre.id ? { ...item, quantite: item.quantite + 1 } : item
-      ));
-    } else {
-      // Sinon, on l'ajoute. On s'assure que le prix est bien un nombre.
-      // Le prix arrive sous forme de chaîne "12.99", on le convertit en nombre float.
-      const prixNumerique = parseFloat(livre.price);
-      setPanier([...panier, { ...livre, prix: prixNumerique, quantite: 1 }]);
+  const rafraichirPanier = useCallback(async (emailOverride = null) => {
+    try {
+      const email = emailOverride || localStorage.getItem('userEmail');
+      if (!email) return;
+      const data = await getCart(email);
+      setPanier(data.items || []);
+    } catch (error) {
+      console.error("Erreur de récupération du panier", error);
+      setPanier([]);
     }
-    // Petite confirmation visuelle pour l'utilisateur
-    alert(`"${livre.title}" a été ajouté à votre panier.`);
+  }, []);
+
+  // ✅ useEffect surveillé : on ne vide le panier QUE si ce n'est pas
+  // une connexion fraîche (le panier est déjà chargé dans connecterUtilisateur)
+  useEffect(() => {
+    if (user) {
+      if (!vientDeSeConnecter.current) {
+        // Reconnexion normale via useEffect
+        rafraichirPanier(user.email);
+      }
+      // Reset le flag après usage
+      vientDeSeConnecter.current = false;
+    } else {
+      setPanier([]);
+    }
+  }, [user, rafraichirPanier]);
+
+  const ajouterAuPanier = async (livre) => {
+    if (!user) {
+      alert("Tu dois être connecté pour ajouter un livre au panier.");
+      setCurrentPage('connexion');
+      return;
+    }
+    try {
+      await addToCart(livre);
+      await rafraichirPanier(user.email);
+      alert(`"${livre.title}" a été ajouté à ton panier !`);
+    } catch (error) {
+      alert("Erreur lors de l'ajout au panier : " + error.message);
+    }
+  };
+
+  const deconnexion = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setPanier([]);
+    setCurrentPage('home');
+  };
+
+  const connecterUtilisateur = (userData) => {
+    localStorage.setItem('userEmail', userData.email);
+
+    // ✅ On connecte l'utilisateur IMMÉDIATEMENT — pas de latence
+    vientDeSeConnecter.current = true;
+    setUser(userData);
+
+    // ✅ Le panier se charge en arrière-plan sans bloquer la navigation
+    getCart(userData.email)
+      .then(data => setPanier(data.items || []))
+      .catch(() => setPanier([]));
   };
 
   return (
-    <div className="app-layout">
-      {/* On passe la longueur du panier au Header pour le petit badge */}
-      <Header setCurrentPage={naviguer} user={user} panierCount={panier.length} />
-
-      <main className="main-content">
-        {currentPage === 'home' && (
-          <Home
-            naviguerVersCatalogue={naviguerVersCatalogue}
-            ajouterAuPanier={ajouterAuPanier}
-          />
-        )}
-
-        {currentPage === 'catalogue' && (
-          <Catalogue
-            categorieInitiale={categorieInitiale}
-            ajouterAuPanier={ajouterAuPanier}
-          />
-        )}
-
-        {/* ... les autres pages ... */}
-        {currentPage === 'connexion' && <Connexion setCurrentPage={naviguer} setUser={setUser} />}
-        {currentPage === 'inscription' && <Inscription setCurrentPage={naviguer} setUser={setUser} />}
-        {currentPage === 'reset-password' && <ReinitialiserMotDePasse setCurrentPage={naviguer} />}
-        {currentPage === 'contact' && <Contact />}
-        {currentPage === 'cgv' && <CGV />}
-        {currentPage === 'cgu' && <CGU />}
-
-        {currentPage === 'panier' && (
-          <Panier
-            panier={panier}
-            setPanier={setPanier}
-            setCurrentPage={naviguer}
-          />
-        )}
-
-        {currentPage === 'paiement' && <Paiement setCurrentPage={naviguer} user={user} />}
+    <Router>
+      <Header user={user} setCurrentPage={setCurrentPage} onLogout={deconnexion} />
+      <main style={{ minHeight: '80vh' }}>
+        <Routes>
+          <Route path="/cgv" element={<CGV />} />
+          <Route path="/cgu" element={<CGU />} />
+        </Routes>
+        <PageManager
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          user={user}
+          setUser={connecterUtilisateur}
+          panier={panier}
+          rafraichirPanier={rafraichirPanier}
+          ajouterAuPanier={ajouterAuPanier}
+        />
       </main>
-      <Footer setCurrentPage={naviguer} />
-    </div>
+      <Footer setCurrentPage={setCurrentPage} />
+    </Router>
   );
 }
 

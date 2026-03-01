@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -46,6 +48,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resetTokenExpiresAt = null;
 
+    // Je crée la relation avec les articles du panier
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CartItem::class, orphanRemoval: true)]
+    private Collection $cartItems;
+
+    public function __construct()
+    {
+        // J'initialise la collection pour éviter des erreurs lors de l'ajout d'articles
+        $this->cartItems = new ArrayCollection();
+    }
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): ?string { return $this->email; }
@@ -77,27 +89,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getConfirmationToken(): ?string { return $this->confirmationToken; }
     public function setConfirmationToken(?string $confirmationToken): self { $this->confirmationToken = $confirmationToken; return $this; }
 
-    public function getResetToken(): ?string
+    public function getResetToken(): ?string { return $this->resetToken; }
+    public function setResetToken(?string $resetToken): static { $this->resetToken = $resetToken; return $this; }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }
+    public function setResetTokenExpiresAt(?\DateTimeImmutable $resetTokenExpiresAt): static { $this->resetTokenExpiresAt = $resetTokenExpiresAt; return $this; }
+
+    /**
+     * @return Collection<int, CartItem>
+     */
+    public function getCartItems(): Collection
     {
-        return $this->resetToken;
+        return $this->cartItems;
     }
 
-    public function setResetToken(?string $resetToken): static
+    public function addCartItem(CartItem $cartItem): self
     {
-        $this->resetToken = $resetToken;
-
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems[] = $cartItem;
+            $cartItem->setUser($this);
+        }
         return $this;
     }
 
-    public function getResetTokenExpiresAt(): ?\DateTimeImmutable
+    public function removeCartItem(CartItem $cartItem): self
     {
-        return $this->resetTokenExpiresAt;
-    }
-
-    public function setResetTokenExpiresAt(?\DateTimeImmutable $resetTokenExpiresAt): static
-    {
-        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
-
+        if ($this->cartItems->removeElement($cartItem)) {
+            if ($cartItem->getUser() === $this) {
+                $cartItem->setUser(null);
+            }
+        }
         return $this;
     }
 }

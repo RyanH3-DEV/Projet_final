@@ -2,7 +2,8 @@ import { Home, ShoppingCart, User, Info, LogOut, UserPlus, Globe, LogIn } from '
 import { useTranslation } from 'react-i18next';
 import '../style_localisés/Header.css';
 
-const Header = ({ setCurrentPage, user }) => {
+// ✅ FIX : on reçoit bien onLogout en props
+const Header = ({ setCurrentPage, user, onLogout }) => {
   const { t, i18n } = useTranslation();
 
   const toggleLanguage = () => {
@@ -18,21 +19,22 @@ const Header = ({ setCurrentPage, user }) => {
   return (
     <header className="main-header">
       <nav className="nav-links">
-        <a href="/" onClick={(e) => navigerVers(e, 'home')} className="nav-item">
+
+        <a href="#" onClick={(e) => navigerVers(e, 'home')} className="nav-item">
           <Home size={18} /> Accueil
         </a>
 
-        <a href="/panier" onClick={(e) => navigerVers(e, 'panier')} className="nav-item">
+        <a href="#" onClick={(e) => navigerVers(e, 'panier')} className="nav-item">
           <ShoppingCart size={18} /> Panier
         </a>
 
         {user && (
-          <a href="/profil" onClick={(e) => navigerVers(e, 'profil')} className="nav-item">
+          <a href="#" onClick={(e) => navigerVers(e, 'profil')} className="nav-item">
             <User size={18} /> Mon Profil
           </a>
         )}
 
-        <a href="/info" onClick={(e) => navigerVers(e, 'info')} className="nav-item">
+        <a href="#" onClick={(e) => navigerVers(e, 'info')} className="nav-item">
           <Info size={18} /> Informations
         </a>
       </nav>
@@ -45,9 +47,9 @@ const Header = ({ setCurrentPage, user }) => {
         {user ? (
           <div className="user-info">
             <div className="user-details">
-              {/* J'affiche le prénom et le nom si l'utilisateur est connecté */}
               <span className="username">{user.prenom} {user.nom}</span>
-              <button onClick={() => window.location.reload()} className="logout-link">
+              {/* ✅ FIX : on appelle onLogout au lieu de recharger la page */}
+              <button onClick={onLogout} className="logout-link">
                 <LogOut size={14} /> Déconnexion
               </button>
             </div>
@@ -57,11 +59,10 @@ const Header = ({ setCurrentPage, user }) => {
           </div>
         ) : (
           <div className="auth-buttons">
-            {/* Ajout du bouton Connexion */}
-            <a href="/connexion" onClick={(e) => navigerVers(e, 'connexion')} className="nav-item">
+            <a href="#" onClick={(e) => navigerVers(e, 'connexion')} className="nav-item">
               <LogIn size={18} /> Connexion
             </a>
-            <a href="/inscription" onClick={(e) => navigerVers(e, 'inscription')} className="nav-item">
+            <a href="#" onClick={(e) => navigerVers(e, 'inscription')} className="nav-item">
               <UserPlus size={18} /> S'inscrire
             </a>
           </div>

@@ -20,6 +20,9 @@ function Connexion({ setCurrentPage, setUser }) {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem('token', data.token);
+        // J'enregistre l'email pour que le panier puisse l'utiliser [cite: 2026-02-04]
+        localStorage.setItem('userEmail', data.user.email);
         setUser(data.user);
         setCurrentPage('home');
       } else {
@@ -27,9 +30,11 @@ function Connexion({ setCurrentPage, setUser }) {
           setBloque(true);
           setTimeout(() => setBloque(false), 30000);
         }
-        setErreur(data.message);
+        setErreur(data.message || "Erreur d'identifiants");
       }
-    } catch (err) { setErreur("Le serveur ne répond pas."); }
+    } catch (err) {
+      setErreur("Le serveur est injoignable.");
+    }
   };
 
   return (
@@ -40,14 +45,13 @@ function Connexion({ setCurrentPage, setUser }) {
         <form onSubmit={gererConnexion}>
           <div className="form-group">
             <label>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="votre@email.com" disabled={bloque} />
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={bloque} />
           </div>
           <div className="form-group">
             <label>Mot de passe</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="********" disabled={bloque} />
-            <p className="forgot-password-link" onClick={() => !bloque && setCurrentPage('reset-password')}>Mot de passe oublié ?</p>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required disabled={bloque} />
           </div>
-          <button type="submit" className="btn-login" disabled={bloque}>{bloque ? "Attends..." : "Se connecter"}</button>
+          <button type="submit" className="btn-login" disabled={bloque}>{bloque ? "Attendez..." : "Se connecter"}</button>
         </form>
       </div>
     </div>

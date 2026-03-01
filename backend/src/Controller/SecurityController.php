@@ -48,6 +48,8 @@ class SecurityController extends AbstractController
         $limiter->reset();
 
         return new JsonResponse([
+            // Je génère et je renvoie le token pour débloquer l'accès au panier
+            'token' => bin2hex(random_bytes(32)),
             'user' => [
                 'email' => $user->getEmail(),
                 'nom' => $user->getNom(),
@@ -71,12 +73,10 @@ class SecurityController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        // 1. Vérification des CGV
         if (!isset($data['cgv']) || $data['cgv'] !== true) {
             return new JsonResponse(['message' => "Vous devez accepter les conditions pour continuer."], 400);
         }
 
-        // 2. Vérification de l'âge
         if (!isset($data['dateNaissance']) || empty($data['dateNaissance'])) {
             return new JsonResponse(['message' => "La date de naissance est obligatoire."], 400);
         }
@@ -86,21 +86,18 @@ class SecurityController extends AbstractController
         $age = $birthDate->diff($now)->y;
 
         if ($age < 18) {
-            return new JsonResponse(['message' => "Vous ne pouvez  pas vous inscrire si vous etes  mineur."], 400);
+            return new JsonResponse(['message' => "Vous ne pouvez pas vous inscrire si vous etes mineur."], 400);
         }
 
-        // 3. Vérification de l'email
         if ($userRepository->findOneBy(['email' => $data['email']])) {
             return new JsonResponse(['message' => "Cet email est déjà utilisé par un autre compte."], 400);
         }
 
-        // 4. Création de l'utilisateur
         $user = new User();
         $user->setEmail($data['email']);
         $user->setPrenom($data['prenom']);
         $user->setNom($data['nom']);
 
-        // Je vérifie si un avatar a été envoyé, sinon je n'essaie pas de le setter (évite une erreur si l'entité n'a pas ce champ)
         if (isset($data['avatar']) && method_exists($user, 'setAvatar')) {
              $user->setAvatar($data['avatar']);
         }
@@ -114,7 +111,6 @@ class SecurityController extends AbstractController
         $em->persist($user);
         $em->flush();
 
-        // Envoi de l'email fictif
         $email = (new Email())
             ->from('livre@gmail.com')
             ->to($user->getEmail())
@@ -124,7 +120,6 @@ class SecurityController extends AbstractController
         try {
             $mailer->send($email);
         } catch (\Exception $e) {
-            // Optionnel: Gérer l'erreur d'envoi de mail sans bloquer l'inscription
         }
 
         return new JsonResponse(['status' => 'OK'], 201);

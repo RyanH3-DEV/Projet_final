@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import '../style_localisés/Inscription.css';
 
 function Inscription({ setCurrentPage }) {
-  // Je définis les avatars par style de lecture
   const categoriesLecteurs = [
-    { id: 'mysterieux', label: 'Le Mystérieux', seed: 'mystic', desc: 'Lit dans l\'ombre' },
-    { id: 'connu', label: 'Le Célèbre', seed: 'star', desc: 'Influenceur littéraire' },
-    { id: 'rigoureux', label: 'Le Rigoureux', seed: 'pro', desc: 'Analyse chaque ligne' },
-    { id: 'passionne', label: 'Le Passionné', seed: 'fire', desc: 'Dévore les chapitres' },
-    { id: 'voyageur', label: 'Le Voyageur', seed: 'map', desc: 'S\'évade par les mots' },
-    { id: 'classique', label: 'Le Classique', seed: 'ancient', desc: 'Amoureux du papier' }
+    { id: 'mysterieux', label: 'Le Mystérieux', imgUrl: '/avatars/Mysterieux.png' },
+    { id: 'celebre', label: 'Le Célèbre', imgUrl: '/avatars/celebre.png' },
+    { id: 'rigoureux', label: 'Le Rigoureux', imgUrl: '/avatars/liseur.jpg' },
+    { id: 'passionne', label: 'Le Passionné', imgUrl: '/avatars/ancien-lecteur.jpg' },
+    { id: 'voyageur', label: 'Le Voyageur', imgUrl: '/avatars/liseuse.jpg' },
   ];
 
   const [formData, setFormData] = useState({
@@ -30,8 +28,35 @@ function Inscription({ setCurrentPage }) {
     e.preventDefault();
     setErreur('');
 
+    // ✅ Vérification 1 : CGV/CGU obligatoires
+    if (!formData.cgv) {
+      setErreur("Tu dois accepter les CGV et les CGU pour pouvoir t'inscrire.");
+      return;
+    }
+
+    // ✅ Vérification 2 : âge minimum 18 ans
+    if (!formData.dateNaissance) {
+      setErreur("Veuillez entrer votre date de naissance.");
+      return;
+    }
+
+    const dateNaissance = new Date(formData.dateNaissance);
+    const aujourdhui = new Date();
+    let age = aujourdhui.getFullYear() - dateNaissance.getFullYear();
+    const moisPasse =
+      aujourdhui.getMonth() > dateNaissance.getMonth() ||
+      (aujourdhui.getMonth() === dateNaissance.getMonth() &&
+        aujourdhui.getDate() >= dateNaissance.getDate());
+    if (!moisPasse) age--;
+
+    if (age < 18) {
+      setErreur("Tu dois avoir au moins 18 ans pour t'inscrire sur notre plateforme.");
+      return;
+    }
+
+    // ✅ Vérification 3 : mots de passe identiques
     if (formData.password !== formData.confirmPassword) {
-      setErreur("Je constate que les mots de passe ne correspondent pas.");
+      setErreur("Les mots de passe ne correspondent pas.");
       return;
     }
 
@@ -45,28 +70,31 @@ function Inscription({ setCurrentPage }) {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Ton aventure commence !");
+        alert("Ton aventure commence ! Connecte-toi maintenant.");
         setCurrentPage('connexion');
       } else {
-        setErreur(data.message);
+        setErreur(data.message || "Une erreur est survenue lors de l'inscription.");
       }
     } catch (err) {
-      setErreur("Je n'arrive pas à joindre le serveur.");
+      setErreur("Impossible de joindre le serveur. Vérifie ta connexion.");
     }
   };
 
   return (
     <div className="inscription-container">
       <div className="inscription-card">
-        <header className="card-header">
-          <h2>Choisis ton profil de lecteur</h2>
-          <p>Rejoins la communauté des passionnés</p>
-        </header>
+        <h2>Choisis ton profil de lecteur</h2>
 
-        {erreur && <div className="error-box">{erreur}</div>}
+        {/* ✅ Message d'erreur bien visible */}
+        {erreur && (
+          <div className="error-box">
+            {erreur}
+          </div>
+        )}
 
-        <form onSubmit={soumettre}>
-          {/* Grille de sélection d'avatar style "Champion Select" */}
+        {/* ⚠️ IMPORTANT : noValidate désactive la validation HTML native
+            pour que notre JS prenne le contrôle */}
+        <form onSubmit={soumettre} noValidate>
           <div className="avatar-grid">
             {categoriesLecteurs.map((cat) => (
               <div
@@ -74,59 +102,42 @@ function Inscription({ setCurrentPage }) {
                 className={`avatar-item ${formData.avatar === cat.id ? 'active' : ''}`}
                 onClick={() => setFormData({ ...formData, avatar: cat.id })}
               >
-                <div className="avatar-frame">
-                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${cat.seed}`} alt={cat.label} />
-                </div>
-                <span className="avatar-label">{cat.label}</span>
+                <img
+                  src={cat.imgUrl}
+                  alt={cat.label}
+                />
+                <span>{cat.label}</span>
               </div>
             ))}
           </div>
 
           <div className="form-content">
-            <div className="form-row">
-              <div className="form-group">
-                <label>Prénom</label>
-                <input type="text" name="prenom" onChange={handleChange} required placeholder="Jean" />
-              </div>
-              <div className="form-group">
-                <label>Nom</label>
-                <input type="text" name="nom" onChange={handleChange} required placeholder="Dupont" />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>E-mail</label>
-              <input type="email" name="email" onChange={handleChange} required placeholder="nom@exemple.com" />
-            </div>
-
-            <div className="form-group">
-              <label>Date de naissance</label>
-              <input type="date" name="dateNaissance" onChange={handleChange} required />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Mot de passe</label>
-                <input type="password" name="password" onChange={handleChange} required placeholder="••••••••" />
-              </div>
-              <div className="form-group">
-                <label>Confirmation</label>
-                <input type="password" name="confirmPassword" onChange={handleChange} required placeholder="••••••••" />
-              </div>
-            </div>
+            <input type="text" name="prenom" placeholder="Prénom" onChange={handleChange} required />
+            <input type="text" name="nom" placeholder="Nom" onChange={handleChange} required />
+            <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+            <input type="date" name="dateNaissance" onChange={handleChange} required />
+            <input type="password" name="password" placeholder="Mot de passe" onChange={handleChange} required />
+            <input type="password" name="confirmPassword" placeholder="Confirmation du mot de passe" onChange={handleChange} required />
 
             <div className="checkbox-group">
-              <input type="checkbox" name="cgv" id="cgv" checked={formData.cgv} onChange={handleChange} />
-              <label htmlFor="cgv">J'accepte les <strong>CGU / CGV</strong></label>
+              <input
+                type="checkbox"
+                name="cgv"
+                checked={formData.cgv}
+                onChange={handleChange}
+                /* ⚠️ PAS de required ici, on gère ça manuellement dans soumettre() */
+              />
+              <span className="cgv-text">
+                J'accepte les
+                <a className="cgv-link" href="/cgv" target="_blank" rel="noopener noreferrer"> CGV </a>
+                et les
+                <a className="cgv-link" href="/cgu" target="_blank" rel="noopener noreferrer"> CGU</a>.
+              </span>
             </div>
 
             <button type="submit" className="btn-submit">Valider mon profil</button>
           </div>
         </form>
-
-        <button onClick={() => setCurrentPage('connexion')} className="btn-link">
-          Déjà un compte ? Connecte-toi ici
-        </button>
       </div>
     </div>
   );

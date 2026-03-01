@@ -9,11 +9,14 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
   const [featuredBooks, setFeaturedBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Je stocke la clé API ici pour l'utiliser dans la requête
+  const API_KEY = "AIzaSyB1o3kgiLpA6FoIO4-m67SPsNUH9b7vb6k";
+
   useEffect(() => {
-    // ... (La logique de récupération des livres reste la même)
     const fetchTopBooks = async () => {
       try {
-        const response = await axios.get('https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=newest&maxResults=4&langRestrict=fr');
+        // J'ajoute la clé API à la fin de l'URL pour débloquer la limite de requêtes
+        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=newest&maxResults=4&langRestrict=fr&key=${API_KEY}`);
         const data = response.data;
         if (data.items) {
           const formattedBooks = data.items.map(item => {
@@ -29,7 +32,7 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
               id: item.id,
               title: vol.title || "Titre inconnu",
               author: vol.authors ? vol.authors[0] : "Auteur inconnu",
-              // On garde le prix en format chaîne pour l'affichage direct
+              // Je garde le prix en format chaîne pour l'affichage direct
               price: Number(prix).toFixed(2),
               image: imageUrl,
               tag: "Nouveau"
@@ -37,7 +40,11 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
           });
           setFeaturedBooks(formattedBooks);
         }
-      } catch (error) { console.error("Erreur API", error); } finally { setLoading(false); }
+      } catch (error) {
+        console.error("Erreur API", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchTopBooks();
   }, []);
@@ -54,7 +61,6 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
         </div>
       </section>
 
-      {/* ... (Section catégories reste similaire, le style changera via CSS) ... */}
       <section className="home-section">
         <h2 className="section-title">Parcourir par genre</h2>
         <div className="categories-grid">
@@ -89,7 +95,7 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
                   <p className="featured-author">{book.author}</p>
                   <div className="featured-footer">
                     <strong className="featured-price">{book.price} €</strong>
-                    {/* Le bouton est maintenant relié à la fonction et a une classe CSS */}
+                    {/* Je relie le bouton à la fonction et lui donne une classe CSS */}
                     <button onClick={() => ajouterAuPanier(book)} className="add-to-cart-btn" title="Ajouter au panier">
                       <ShoppingCart size={18} />
                     </button>
