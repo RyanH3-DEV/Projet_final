@@ -209,7 +209,25 @@ function Panier({ panier, rafraichirPanier }) {
     }
   };
 
-  const onSuccess = () => { setPaiementReussi(true); setModePaiement(null); };
+  const onSuccess = async (methode) => {
+    // ✅ Sauvegarde la commande en base de données
+    try {
+      await fetch('http://127.0.0.1:8000/api/profil/commandes/creer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: localStorage.getItem('userEmail'),
+          paymentMethod: methode,
+        }),
+      });
+    } catch (e) {
+      console.error('Erreur sauvegarde commande', e);
+    }
+    setPaiementReussi(true);
+    setModePaiement(null);
+    // Vide le panier React après paiement
+    await rafraichirPanier();
+  };
   const onError = (msg) => setErreurPaiement(msg);
 
   if (paiementReussi) {

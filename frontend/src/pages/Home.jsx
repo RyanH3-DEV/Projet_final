@@ -1,25 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Star, ArrowRight, TrendingUp, Gift, Loader, BookOpen, ShoppingCart } from 'lucide-react';
+import { Star, ArrowRight, TrendingUp, Loader, BookOpen, ShoppingCart, Heart } from 'lucide-react';
 import axios from 'axios';
 import '../style_localisés/Home.css';
 
-const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
+const Home = ({ naviguerVersCatalogue, ajouterAuPanier, ajouterAWishlist }) => {
   const { t } = useTranslation();
   const [featuredBooks, setFeaturedBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [wishlistIds, setWishlistIds] = useState(new Set());
 
-  // Je stocke la clé API ici pour l'utiliser dans la requête
   const API_KEY = "AIzaSyB1o3kgiLpA6FoIO4-m67SPsNUH9b7vb6k";
 
   useEffect(() => {
     const fetchTopBooks = async () => {
       try {
-        // J'ajoute la clé API à la fin de l'URL pour débloquer la limite de requêtes
         const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=newest&maxResults=4&langRestrict=fr&key=${API_KEY}`);
         const data = response.data;
         if (data.items) {
-          const formattedBooks = data.items.map(item => {
+          const formattedBooks = data.items.filter(item => item.volumeInfo.imageLinks?.thumbnail).map(item => {
             const vol = item.volumeInfo;
             const sale = item.saleInfo;
             const imageUrl = vol.imageLinks?.thumbnail ? vol.imageLinks.thumbnail.replace("http:", "https:") : "https://via.placeholder.com/150x200?text=Pas+de+couverture";
@@ -32,7 +31,6 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
               id: item.id,
               title: vol.title || "Titre inconnu",
               author: vol.authors ? vol.authors[0] : "Auteur inconnu",
-              // Je garde le prix en format chaîne pour l'affichage direct
               price: Number(prix).toFixed(2),
               image: imageUrl,
               tag: "Nouveau"
@@ -48,6 +46,12 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
     };
     fetchTopBooks();
   }, []);
+
+  const handleWishlist = async (book) => {
+    if (!ajouterAWishlist) return;
+    const ok = await ajouterAWishlist(book);
+    if (ok) setWishlistIds(prev => new Set([...prev, book.id]));
+  };
 
   return (
     <main className="home-container">
@@ -88,17 +92,34 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier }) => {
             {featuredBooks.map(book => (
               <div key={book.id} className="featured-card">
                 <div className="featured-image-container">
-                  <img src={book.image} alt={book.title} className="featured-image" />
+                  <img
+                    src={book.image}
+                    alt={book.title}
+                    className="featured-image"
+                    onError={e => {
+                      e.target.closest('.featured-card').style.display = 'none';
+                    }}
+                  />
                 </div>
                 <div className="featured-info">
                   <h3 className="featured-title">{book.title}</h3>
                   <p className="featured-author">{book.author}</p>
                   <div className="featured-footer">
                     <strong className="featured-price">{book.price} €</strong>
-                    {/* Je relie le bouton à la fonction et lui donne une classe CSS */}
-                    <button onClick={() => ajouterAuPanier(book)} className="add-to-cart-btn" title="Ajouter au panier">
-                      <ShoppingCart size={18} />
-                    </button>
+                    <div className="book-btn-group">
+                      {/* ✅ Bouton Wishlist */}
+                      <button
+                        onClick={() => handleWishlist(book)}
+                        className={`add-to-wishlist-btn ${wishlistIds.has(book.id) ? 'wishlisted' : ''}`}
+                        title="Ajouter à la wishlist"
+                      >
+                        <Heart size={16} fill={wishlistIds.has(book.id) ? 'currentColor' : 'none'} />
+                      </button>
+                      {/* Bouton Panier */}
+                      <button onClick={() => ajouterAuPanier(book)} className="add-to-cart-btn" title="Ajouter au panier">
+                        <ShoppingCart size={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

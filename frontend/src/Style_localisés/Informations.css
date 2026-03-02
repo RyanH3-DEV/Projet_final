@@ -1,0 +1,97 @@
+/* --- CONTAINER --- */
+.info-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 60px 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* --- HERO --- */
+.info-hero {
+  text-align: center;
+  padding: 60px 20px 40px;
+  background: linear-gradient(135deg, #1e2328 0%, #2c3137 100%);
+  color: #cdbe91;
+  border-radius: 0 0 16px 16px;
+  margin-bottom: 40px;
+}
+
+.info-hero h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.info-hero p {
+  font-size: 1.1rem;
+  color: #a89060;
+  margin: 0;
+}
+
+/* --- GRILLE DE CARTES --- */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+/* --- CARTE --- */
+.info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  border-top: 4px solid #c89b3c;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.info-card-icon {
+  color: #c89b3c;
+  margin-bottom: 15px;
+}
+
+.info-card h3 {
+  font-size: 1.2rem;
+  color: #1e2328;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+
+.info-card p {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.info-card strong {
+  color: #1e2328;
+}
+
+/* --- CONTACT LISTE --- */
+.info-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-contact-list p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.info-contact-list svg {
+  color: #c89b3c;
+  flex-shrink: 0;
+}

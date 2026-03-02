@@ -7,7 +7,7 @@ function Inscription({ setCurrentPage }) {
     { id: 'celebre', label: 'Le Célèbre', imgUrl: '/avatars/celebre.png' },
     { id: 'rigoureux', label: 'Le Rigoureux', imgUrl: '/avatars/liseur.jpg' },
     { id: 'passionne', label: 'Le Passionné', imgUrl: '/avatars/ancien-lecteur.jpg' },
-    { id: 'voyageur', label: 'Le Voyageur', imgUrl: '/avatars/liseuse.jpg' },
+    { id: 'voyageur', label: 'Le Voyageur', imgUrl: '/avatars/liseuse.png' },
   ];
 
   const [formData, setFormData] = useState({

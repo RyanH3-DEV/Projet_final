@@ -240,3 +240,94 @@
 .stripe-row .stripe-field-group {
   flex: 1;
 }
+
+/* --- BOUTONS WISHLIST + PANIER GROUPÉS --- */
+.book-btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.add-to-wishlist-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.add-to-wishlist-btn:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: #fff5f5;
+}
+
+.add-to-wishlist-btn.wishlisted {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: #fff5f5;
+}
+
+/* ═══════════════════════════════════════════════
+   PAGINATION
+   ═══════════════════════════════════════════════ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 40px 0 20px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  color: #1e2328;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #c89b3c;
+  color: #c89b3c;
+  background: #fffbf0;
+}
+
+.page-btn.active {
+  background: #1e2328;
+  color: #cdbe91;
+  border-color: #c89b3c;
+}
+
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.page-nav {
+  background: #fafafa;
+}
+
+.page-dots {
+  color: #aaa;
+  font-size: 1.1rem;
+  padding: 0 4px;
+  user-select: none;
+}
