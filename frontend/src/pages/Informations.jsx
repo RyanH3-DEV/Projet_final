@@ -17,7 +17,7 @@ function Informations() {
         <div className="info-card">
           <div className="info-card-icon"><BookOpen size={32} /></div>
           <h3>À propos de nous</h3>
-          <p>CYNA BOOKS est une librairie en ligne passionnée par la littérature. Nous proposons une sélection soigneuse de romans, mangas, BD et livres jeunesse pour tous les profils de lecteurs.</p>
+          <p>BOOKS-LIVRE est une librairie en ligne passionnée par la littérature. Nous proposons une sélection soigneuse de romans, mangas, BD et livres jeunesse pour tous les profils de lecteurs.</p>
         </div>
 
         {/* Livraison */}
@@ -53,7 +53,7 @@ function Informations() {
           <div className="info-card-icon"><Mail size={32} /></div>
           <h3>Nous contacter</h3>
           <div className="info-contact-list">
-            <p><Mail size={16} /> boubakeryahia27@gmail.com</p>
+            <p><Mail size={16} /> assistance@gmail.com</p>
             <p><MapPin size={16} /> Courbevoie, Paris</p>
             <p><Phone size={16} /> Du lundi au vendredi, 9h - 18h</p>
           </div>

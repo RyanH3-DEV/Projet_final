@@ -17,12 +17,12 @@ const Footer = ({ setCurrentPage }) => {
 
         {/* Section Informations */}
         <div className="footer-section">
-          <h3>CYNA BOOKS</h3>
+          <h3>BOOKS-LIVRE</h3>
           <p className="footer-info-item">
             <MapPin size={18} /> Courbevoie, Paris
           </p>
           <p className="footer-info-item">
-            <Mail size={18} /> boubakeryahia27@gmail.com
+            <Mail size={18} /> assistance@gmail.com
           </p>
         </div>
 
@@ -53,7 +53,7 @@ const Footer = ({ setCurrentPage }) => {
       </div>
 
       <div className="footer-copyright">
-        &copy; {new Date().getFullYear()} CYNA BOOKS. {t('footer.rights_reserved')}.
+        &copy; {new Date().getFullYear()} BOOKS-LIVRE. {t('footer.rights_reserved')}.
       </div>
     </footer>
   );

@@ -6,53 +6,60 @@ import '../style_localisés/Catalogue.css';
 
 const BOOKS_PER_PAGE = 16;
 
+const GENRES = {
+  fiction:  { label: 'Romans & Fiction', subject: 'fiction' },
+  comics:   { label: 'Mangas & BD',      subject: 'comics' },
+  juvenile: { label: 'Jeunesse',         subject: 'juvenile_fiction' },
+  history:  { label: 'Histoire',         subject: 'history' },
+  science:  { label: 'Science',          subject: 'science' },
+};
+
+const getCoverUrl = (coverId) =>
+  `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
+
 export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: genreInitial = 'fiction' }) {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [genre, setGenre] = useState(
-    ['fiction','comics','juvenile','history','science'].includes(genreInitial) ? genreInitial : 'fiction'
+    Object.keys(GENRES).includes(genreInitial) ? genreInitial : 'fiction'
   );
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [wishlistIds, setWishlistIds] = useState(new Set());
 
-  // ✅ Charge une page ET vérifie si la suivante existe vraiment
   const fetchPage = async (nouvellePage, currentGenre, currentSearch) => {
     setLoading(true);
     try {
-      const startIndex = (nouvellePage - 1) * BOOKS_PER_PAGE;
-      const query = currentSearch
-        ? `${currentSearch}+subject:${currentGenre}`
-        : `subject:${currentGenre}`;
+      const offset = (nouvellePage - 1) * BOOKS_PER_PAGE;
+      const subject = GENRES[currentGenre]?.subject || 'fiction';
+      const url = currentSearch
+        ? `https://openlibrary.org/search.json?q=${encodeURIComponent(currentSearch)}&subject=${subject}&limit=${BOOKS_PER_PAGE}&offset=${offset}&fields=key,title,author_name,cover_i,number_of_pages_median`
+        : `https://openlibrary.org/search.json?subject=${subject}&limit=${BOOKS_PER_PAGE}&offset=${offset}&fields=key,title,author_name,cover_i,number_of_pages_median`;
 
-      const [resCurrent, resNext] = await Promise.all([
-        axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=${BOOKS_PER_PAGE}&startIndex=${startIndex}&langRestrict=fr`),
-        axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1&startIndex=${startIndex + BOOKS_PER_PAGE}&langRestrict=fr`),
-      ]);
+      const res = await axios.get(url);
+      const docs = res.data.docs || [];
 
-      const formatted = resCurrent.data.items
-        ?.filter(item => item.volumeInfo.imageLinks?.thumbnail)
-        .map(item => ({
-          id: item.id,
-          title: item.volumeInfo.title || "Titre inconnu",
-          price: (item.volumeInfo.pageCount * 0.04 || 12.99).toFixed(2),
-          image: item.volumeInfo.imageLinks.thumbnail
-            .replace("http:", "https:")
-            .replace("zoom=1", "zoom=2")
-            .replace("&edge=curl", ""),
-          author: item.volumeInfo.authors?.[0] || "Auteur inconnu"
-        })) || [];
+      const formatted = docs
+        .filter(doc => doc.cover_i)
+        .map(doc => ({
+          id: doc.key,
+          title: doc.title || 'Titre inconnu',
+          author: doc.author_name?.[0] || 'Auteur inconnu',
+          price: doc.number_of_pages_median
+            ? (doc.number_of_pages_median * 0.04).toFixed(2)
+            : (Math.floor(Math.random() * 10) + 8).toFixed(2),
+          image: getCoverUrl(doc.cover_i),
+        }));
 
-      if (formatted.length === 0) return; // Page vide → on ne change rien
+      if (formatted.length === 0) return;
 
       setBooks(formatted);
       setPage(nouvellePage);
-      // ✅ hasNextPage = vrai SEULEMENT si Google confirme des résultats après
-      setHasNextPage((resNext.data.items?.length || 0) > 0);
+      setHasNextPage(res.data.numFound > offset + BOOKS_PER_PAGE);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-      console.error("Erreur chargement livres", err);
+      console.error('Erreur Open Library', err);
     } finally {
       setLoading(false);
     }
@@ -65,15 +72,13 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
 
   useEffect(() => {
     setPage(1);
-    fetchPage(1, genre, searchTerm);
+    setSearchTerm("");
+    fetchPage(1, genre, "");
   }, [genre]);
 
-  const handleAjoutPanier = async (book) => {
-    if (ajouterAuPanier) { ajouterAuPanier(book); }
-    else {
-      try { await addToCart(book); alert(`"${book.title}" ajouté !`); }
-      catch { alert("Connecte-toi pour gérer ton panier."); }
-    }
+  const handleAjoutPanier = (book) => {
+    if (ajouterAuPanier) ajouterAuPanier(book);
+    else alert("Connecte-toi pour gérer ton panier.");
   };
 
   const handleWishlist = async (book) => {
@@ -82,7 +87,6 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
     if (ok) setWishlistIds(prev => new Set([...prev, book.id]));
   };
 
-  // Pages à afficher : 3 avant + courante + 3 après
   const getPageNumbers = () => {
     const pages = [];
     const debut = Math.max(1, page - 3);
@@ -108,16 +112,10 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
           </div>
           <div className="filter-group">
             <Filter size={20} className="filter-icon" />
-            <select
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="filter-select"
-            >
-              <option value="fiction">Romans & Fiction</option>
-              <option value="comics">Mangas & BD</option>
-              <option value="juvenile">Jeunesse</option>
-              <option value="history">Histoire</option>
-              <option value="science">Science</option>
+            <select value={genre} onChange={(e) => setGenre(e.target.value)} className="filter-select">
+              {Object.entries(GENRES).map(([key, val]) => (
+                <option key={key} value={key}>{val.label}</option>
+              ))}
             </select>
             <button type="submit" className="search-button">Rechercher</button>
           </div>
@@ -133,10 +131,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
         <>
           <div className="books-grid">
             {books.map(book => (
-              <div
-                key={book.id}
-                className="book-card"
-              >
+              <div key={book.id} className="book-card">
                 <img
                   src={book.image}
                   alt={book.title}
@@ -165,7 +160,6 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
             ))}
           </div>
 
-          {/* ── PAGINATION DYNAMIQUE ── */}
           {(page > 1 || hasNextPage) && (
             <div className="pagination">
               <button
@@ -175,18 +169,15 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
               >
                 <ChevronLeft size={18} />
               </button>
-
               {getPageNumbers().map(p => (
                 <button
                   key={p}
                   className={`page-btn ${page === p ? 'active' : ''}`}
                   onClick={() => fetchPage(p, genre, searchTerm)}
-                  disabled={p > page && !hasNextPage}
                 >
                   {p}
                 </button>
               ))}
-
               <button
                 className="page-btn page-nav"
                 onClick={() => fetchPage(page + 1, genre, searchTerm)}

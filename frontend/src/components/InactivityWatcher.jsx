@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Durées configurables (en millisecondes)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const INACTIVITY_DELAY = 6 * 60 * 1000; // 6 minutes avant avertissement
+const INACTIVITY_DELAY = 2 * 60 * 1000; // 6 minutes avant avertissement
 const COUNTDOWN_SECONDS = 60;            // 1 minute de compte à rebours
 
 export function useInactivityWatcher(user, onLogout) {

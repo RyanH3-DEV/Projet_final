@@ -16,27 +16,54 @@
 
 /* --- Héros (Bannière) --- */
 .hero-section {
-  background-color: #000000;
-  color: #ffffff;
-  padding: 4rem 2rem; /* Je divise la hauteur par deux */
+  background: radial-gradient(circle at top, #1e2f4d 0%, #152238 55%, #0d1828 100%);
+  color: #f7f3e9;
+  padding: 4rem 2rem;
   text-align: center;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  position: relative;
+  overflow: hidden;
 }
+
+.hero-section::before,
+.hero-section::after {
+  content: "";
+  position: absolute;
+  inset: 1.2rem 2rem;
+  border-radius: 12px;
+  border: 1.5px solid rgba(212, 175, 55, 0.65); /* doré plus fort */
+  pointer-events: none;
+}
+
+.hero-section::before {
+  border-color: rgba(212, 175, 55, 0.85) transparent transparent rgba(212, 175, 55, 0.85);
+  clip-path: polygon(0 0, 18% 0, 0 18%);
+}
+
+.hero-section::after {
+  border-color: transparent rgba(212, 175, 55, 0.85) rgba(212, 175, 55, 0.85) transparent;
+  clip-path: polygon(100% 100%, 82% 100%, 100% 82%);
+}
+
+
 
 .hero-title {
-  font-size: 2.2rem; /* Titre beaucoup moins massif */
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2.4rem;
   font-weight: 400;
-  margin-bottom: 1rem;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
+  color: #f2d9a6; /* doré plus chaud */
 }
 
+
 .hero-subtitle {
-  font-size: 1rem;
-  color: #cccccc;
-  margin-bottom: 2rem;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  color: #e8d7b8;
   font-weight: 300;
 }
+
 
 .hero-cta-button {
   display: inline-flex;
@@ -54,7 +81,7 @@
 }
 
 .hero-cta-button:hover {
-  background-color: #cccccc;
+  background-color: rgba(212, 175, 55, 0.65);
 }
 
 .icon-right { margin-left: 10px; }
