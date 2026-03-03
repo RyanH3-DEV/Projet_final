@@ -14,6 +14,7 @@ import Catalogue from './pages/Catalogue';
 
 import CGV from './components/CGV';
 import CGU from './components/CGU';
+import SecurityBadge from './components/SecurityBadge';
 
 import { getCart, addToCart } from './api/cartApi';
 import { useInactivityWatcher, InactivityModal } from './components/InactivityWatcher';
@@ -68,7 +69,7 @@ function App() {
     try {
       const email = emailOverride || localStorage.getItem('userEmail');
       if (!email) return;
-      const res = await fetch(`http://127.0.0.1:8000/api/profil/wishlist?email=${encodeURIComponent(email)}`);
+      const res = await fetch("http://127.0.0.1:8000/api/profil/wishlist?email=" + encodeURIComponent(email));
       const data = await res.json();
       setWishlist(data.items || []);
     } catch { setWishlist([]); }
@@ -83,7 +84,6 @@ function App() {
     } catch { setPanier([]); }
   }, []);
 
-  // ✅ Restaure la session au refresh
   useEffect(() => {
     const token = localStorage.getItem('token');
     const email = localStorage.getItem('userEmail');
@@ -123,14 +123,14 @@ function App() {
 
   const ajouterAuPanier = useCallback(async (livre) => {
     if (!user) {
-      alert("Tu dois être connecté pour ajouter un livre au panier.");
+      alert("Tu dois etre connecte pour ajouter un livre au panier.");
       setCurrentPage('connexion');
       return;
     }
     try {
       await addToCart(livre);
       await rafraichirPanier(user.email);
-      alert(`"${livre.title}" a été ajouté à ton panier !`);
+      alert(livre.title + " a ete ajoute a ton panier !");
     } catch (error) {
       alert("Erreur lors de l'ajout au panier : " + error.message);
     }
@@ -138,7 +138,7 @@ function App() {
 
   const ajouterAWishlist = useCallback(async (livre) => {
     if (!user) {
-      alert("Tu dois être connecté pour ajouter à la wishlist.");
+      alert("Tu dois etre connecte pour ajouter a la wishlist.");
       setCurrentPage('connexion');
       return false;
     }
@@ -155,12 +155,12 @@ function App() {
       });
       if (res.ok || res.status === 200) {
         rafraichirWishlist(user.email);
-        alert(livre.title + " ajouté à ta wishlist !");
+        alert(livre.title + " ajoute a ta wishlist !");
         return true;
       }
       return false;
     } catch {
-      alert("Erreur lors de l'ajout à la wishlist.");
+      alert("Erreur lors de l'ajout a la wishlist.");
       return false;
     }
   }, [user, rafraichirWishlist]);
@@ -198,6 +198,7 @@ function App() {
         />
       </main>
       <Footer setCurrentPage={setCurrentPage} />
+      <SecurityBadge />
       {afficherModal && (
         <InactivityModal
           secondesRestantes={secondesRestantes}
