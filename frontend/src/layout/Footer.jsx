@@ -1,15 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Facebook, Twitter, Instagram, Github, Mail, MapPin, Lock, Shield, ShieldCheck } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Mail, MapPin, Lock, Shield, ShieldCheck } from 'lucide-react';
 import '../style_localisés/Footer.css';
 
-const Footer = ({ setCurrentPage }) => {
+const Footer = () => {
   const { t } = useTranslation();
-
-  const navigerVers = (e, page) => {
-    e.preventDefault();
-    setCurrentPage(page);
-  };
 
   return (
     <footer className="main-footer">
@@ -26,9 +22,7 @@ const Footer = ({ setCurrentPage }) => {
           <nav className="footer-links-list">
             <a href="/cgu" className="footer-link">{t("footer.cgu")}</a>
             <a href="/mentions-legales" className="footer-link">{t("footer.legal_mentions")}</a>
-            <a href="/contact" onClick={(e) => navigerVers(e, "contact")} className="footer-link">
-              {t("footer.contact")}
-            </a>
+            <Link to="/contact" className="footer-link">{t("footer.contact")}</Link>
           </nav>
         </div>
 
@@ -43,77 +37,59 @@ const Footer = ({ setCurrentPage }) => {
 
       </div>
 
-      {/* ━━━ BANDEAU SÉCURITÉ ━━━ */}
       <div className="footer-security">
         <p className="security-title">Site protégé & sécurisé</p>
         <div className="security-badges">
-
-          {/* SSL */}
           <div className="sec-badge">
-            <div className="sec-badge-icon ssl">
-              <Lock size={18} />
-            </div>
+            <div className="sec-badge-icon ssl"><Lock size={18} /></div>
             <div className="sec-badge-text">
               <span className="sec-name">SSL 256-bit</span>
               <span className="sec-desc">Chiffrement</span>
             </div>
           </div>
-
-          {/* Protection Anti-Hack */}
           <div className="sec-badge">
-            <div className="sec-badge-icon antihack">
-              <Shield size={18} />
-            </div>
+            <div className="sec-badge-icon antihack"><Shield size={18} /></div>
             <div className="sec-badge-text">
               <span className="sec-name">Anti-Intrusion</span>
               <span className="sec-desc">Protection active</span>
             </div>
           </div>
-
-          {/* OWASP */}
           <div className="sec-badge">
-            <div className="sec-badge-icon owasp">
-              <ShieldCheck size={18} />
-            </div>
+            <div className="sec-badge-icon owasp"><ShieldCheck size={18} /></div>
             <div className="sec-badge-text">
               <span className="sec-name">OWASP</span>
               <span className="sec-desc">Top 10 protégé</span>
             </div>
           </div>
-
-          {/* 3D Secure */}
           <div className="sec-badge">
-            <div className="sec-badge-icon stripe">
-              <span className="badge-logo-text">3D</span>
-            </div>
+            <div className="sec-badge-icon stripe"><span className="badge-logo-text">3D</span></div>
             <div className="sec-badge-text">
               <span className="sec-name">3D Secure</span>
               <span className="sec-desc">Paiement sécurisé</span>
             </div>
           </div>
-
-          {/* Stripe */}
           <div className="sec-badge">
-            <div className="sec-badge-icon stripe">
-              <span className="badge-logo-text">S</span>
-            </div>
+            <div className="sec-badge-icon stripe"><span className="badge-logo-text">S</span></div>
             <div className="sec-badge-text">
               <span className="sec-name">Stripe</span>
               <span className="sec-desc">Certifié PCI-DSS</span>
             </div>
           </div>
-
-          {/* Rate Limiting */}
           <div className="sec-badge">
-            <div className="sec-badge-icon rate">
-              <Shield size={18} />
-            </div>
+            <div className="sec-badge-icon rate"><Shield size={18} /></div>
             <div className="sec-badge-text">
               <span className="sec-name">DDoS Guard</span>
               <span className="sec-desc">Rate limiting</span>
             </div>
           </div>
-
+          <div className="sec-badge rgpd-badge">
+            <div className="rgpd-icon">
+              <img src="/Logo/rgpd.jpeg" alt="Logo RGPD" />
+            </div>
+            <div className="rgpd-text">
+              <span className="sec-name">Conforme RGPD, Protection des données</span>
+            </div>
+          </div>
         </div>
       </div>
 

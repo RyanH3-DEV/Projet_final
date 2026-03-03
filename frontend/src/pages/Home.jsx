@@ -1,45 +1,36 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, ArrowRight, TrendingUp, Loader, BookOpen, ShoppingCart, Heart } from 'lucide-react';
+import { Star, ArrowRight, TrendingUp, Loader, BookOpen, ShoppingCart, Heart, Sparkles } from 'lucide-react';
 import axios from 'axios';
 import '../style_localisés/Home.css';
 
-const Home = ({ naviguerVersCatalogue, ajouterAuPanier, ajouterAWishlist }) => {
-  const { t } = useTranslation();
-  const [featuredBooks, setFeaturedBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [wishlistIds, setWishlistIds] = useState(new Set());
+const getCoverUrl = (coverId) =>
+  `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
 
-  const API_KEY = "AIzaSyB1o3kgiLpA6FoIO4-m67SPsNUH9b7vb6k";
+const Home = ({ ajouterAuPanier, ajouterAWishlist }) => {
+  const { t }       = useTranslation();
+  const navigate    = useNavigate();
+  const [featuredBooks, setFeaturedBooks] = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [wishlistIds, setWishlistIds]     = useState(new Set());
 
   useEffect(() => {
     const fetchTopBooks = async () => {
       try {
-        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=newest&maxResults=4&langRestrict=fr&key=${API_KEY}`);
-        const data = response.data;
-        if (data.items) {
-          const formattedBooks = data.items.filter(item => item.volumeInfo.imageLinks?.thumbnail).map(item => {
-            const vol = item.volumeInfo;
-            const sale = item.saleInfo;
-            const imageUrl = vol.imageLinks?.thumbnail ? vol.imageLinks.thumbnail.replace("http:", "https:") : "https://via.placeholder.com/150x200?text=Pas+de+couverture";
-            let prix = 12.99;
-            if (sale && sale.retailPrice) { prix = sale.retailPrice.amount; }
-            else if (vol.pageCount) { prix = (vol.pageCount * 0.04).toFixed(2); }
-            else { prix = ((vol.title?.length || 10) % 15) + 8.99; }
-
-            return {
-              id: item.id,
-              title: vol.title || "Titre inconnu",
-              author: vol.authors ? vol.authors[0] : "Auteur inconnu",
-              price: Number(prix).toFixed(2),
-              image: imageUrl,
-              tag: "Nouveau"
-            };
-          });
-          setFeaturedBooks(formattedBooks);
-        }
-      } catch (error) {
-        console.error("Erreur API", error);
+        const res  = await axios.get('https://openlibrary.org/search.json?subject=fiction&limit=8&fields=key,title,author_name,cover_i,number_of_pages_median&sort=rating');
+        const docs = (res.data.docs || []).filter(d => d.cover_i).slice(0, 4);
+        setFeaturedBooks(docs.map(doc => ({
+          id:     doc.key,
+          title:  doc.title || 'Titre inconnu',
+          author: doc.author_name?.[0] || 'Auteur inconnu',
+          price:  doc.number_of_pages_median
+            ? (doc.number_of_pages_median * 0.04).toFixed(2)
+            : (Math.floor(Math.random() * 10) + 8).toFixed(2),
+          image:  getCoverUrl(doc.cover_i),
+        })));
+      } catch (err) {
+        console.error('Erreur Open Library', err);
       } finally {
         setLoading(false);
       }
@@ -53,40 +44,58 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier, ajouterAWishlist }) => {
     if (ok) setWishlistIds(prev => new Set([...prev, book.id]));
   };
 
+  const categories = [
+    { path: '/catalogue/fiction',  icon: <BookOpen size={28} />,   label: 'Romans',      color: '#c89b3c' },
+    { path: '/catalogue/comics',   icon: <TrendingUp size={28} />, label: 'Mangas & BD', color: '#e74c3c' },
+    { path: '/catalogue/juvenile', icon: <Star size={28} />,       label: 'Jeunesse',    color: '#2ecc71' },
+  ];
+
   return (
     <main className="home-container">
+
+      {/* ── HERO ── */}
       <section className="hero-section">
+        <div className="hero-bg-overlay" />
         <div className="hero-content">
-          <h1 className="hero-title">{t('home.welcome_title') || 'L\'élégance des mots.'}</h1>
-          <p className="hero-subtitle">{t('home.welcome_subtitle') || 'Explorez notre collection littéraire.'}</p>
-          <button onClick={() => naviguerVersCatalogue('fiction')} className="hero-cta-button">
-            Découvrir le catalogue <ArrowRight size={20} className="icon-right" />
+          <span className="hero-badge"><Sparkles size={14} /> Collection 2025</span>
+          <h1 className="hero-title">{t('home.welcome_title') || "L'élégance\ndes mots."}</h1>
+          <p className="hero-subtitle">{t('home.welcome_subtitle') || 'Des milliers de livres soigneusement sélectionnés pour vous.'}</p>
+          <button onClick={() => navigate('/catalogue/fiction')} className="hero-cta-button">
+            Découvrir le catalogue <ArrowRight size={18} />
           </button>
         </div>
-      </section>
-
-      <section className="home-section">
-        <h2 className="section-title">Parcourir par genre</h2>
-        <div className="categories-grid">
-          <div className="category-card" onClick={() => naviguerVersCatalogue('fiction')}>
-            <BookOpen size={32} className="category-icon" />
-            <h3>Romans</h3>
-          </div>
-          <div className="category-card" onClick={() => naviguerVersCatalogue('comics')}>
-            <TrendingUp size={32} className="category-icon" />
-            <h3>Mangas & BD</h3>
-          </div>
-          <div className="category-card" onClick={() => naviguerVersCatalogue('juvenile')}>
-            <Star size={32} className="category-icon" />
-            <h3>Jeunesse</h3>
-          </div>
+        <div className="hero-books-deco">
+          <div className="deco-book deco-1" />
+          <div className="deco-book deco-2" />
+          <div className="deco-book deco-3" />
         </div>
       </section>
 
-      <section className="home-section bg-white">
-        <h2 className="section-title">À la une</h2>
+      {/* ── GENRES ── */}
+      <section className="genres-section">
+        <p className="genres-label">PARCOURIR PAR GENRE</p>
+        <div className="categories-grid">
+          {categories.map(cat => (
+            <div key={cat.path} className="category-card" onClick={() => navigate(cat.path)} style={{ '--cat-color': cat.color }}>
+              <span className="category-icon">{cat.icon}</span>
+              <h3>{cat.label}</h3>
+              <ArrowRight size={16} className="cat-arrow" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── À LA UNE ── */}
+      <section className="featured-section">
+        <div className="featured-header">
+          <h2 className="section-title">À la une</h2>
+          <button onClick={() => navigate('/catalogue/fiction')} className="btn-voir-tout">
+            Tout voir <ArrowRight size={16} />
+          </button>
+        </div>
+
         {loading ? (
-          <div className="loading-container"><Loader size={40} className="spinner" /></div>
+          <div className="loading-container"><Loader size={36} className="spinner" /></div>
         ) : (
           <div className="featured-grid">
             {featuredBooks.map(book => (
@@ -96,43 +105,30 @@ const Home = ({ naviguerVersCatalogue, ajouterAuPanier, ajouterAWishlist }) => {
                     src={book.image}
                     alt={book.title}
                     className="featured-image"
-                    onError={e => {
-                      e.target.closest('.featured-card').style.display = 'none';
-                    }}
+                    onError={e => { e.target.closest('.featured-card').style.display = 'none'; }}
                   />
+                  <div className="featured-overlay">
+                    <button onClick={() => handleWishlist(book)} className={`overlay-btn ${wishlistIds.has(book.id) ? 'wishlisted' : ''}`} title="Wishlist">
+                      <Heart size={16} fill={wishlistIds.has(book.id) ? 'currentColor' : 'none'} />
+                    </button>
+                    <button onClick={() => ajouterAuPanier(book)} className="overlay-btn" title="Ajouter au panier">
+                      <ShoppingCart size={16} />
+                    </button>
+                  </div>
                 </div>
                 <div className="featured-info">
                   <h3 className="featured-title">{book.title}</h3>
                   <p className="featured-author">{book.author}</p>
-                  <div className="featured-footer">
-                    <strong className="featured-price">{book.price} €</strong>
-                    <div className="book-btn-group">
-                      {/* ✅ Bouton Wishlist */}
-                      <button
-                        onClick={() => handleWishlist(book)}
-                        className={`add-to-wishlist-btn ${wishlistIds.has(book.id) ? 'wishlisted' : ''}`}
-                        title="Ajouter à la wishlist"
-                      >
-                        <Heart size={16} fill={wishlistIds.has(book.id) ? 'currentColor' : 'none'} />
-                      </button>
-                      {/* Bouton Panier */}
-                      <button onClick={() => ajouterAuPanier(book)} className="add-to-cart-btn" title="Ajouter au panier">
-                        <ShoppingCart size={18} />
-                      </button>
-                    </div>
-                  </div>
+                  <strong className="featured-price">{book.price} €</strong>
                 </div>
               </div>
             ))}
           </div>
         )}
-        <div className="view-all-container">
-          <button onClick={() => naviguerVersCatalogue('fiction')} className="btn-secondary">
-            Tout voir
-          </button>
-        </div>
       </section>
+
     </main>
   );
 };
+
 export default Home;

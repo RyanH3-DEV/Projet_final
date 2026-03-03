@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import Header from './layout/Header';
 import Inscription from './pages/Inscription';
@@ -11,65 +11,37 @@ import Informations from './pages/Informations';
 import Contact from './pages/Contact';
 import MonProfil from './pages/MonProfil';
 import Catalogue from './pages/Catalogue';
-
+import AdminDashboard from './pages/AdminDashboard';
+import CookieBanner from './components/CookieBanner';
+import SecurityBadge from './components/SecurityBadge';
 import CGV from './components/CGV';
 import CGU from './components/CGU';
-import SecurityBadge from './components/SecurityBadge';
 
 import { getCart, addToCart } from './api/cartApi';
 import { useInactivityWatcher, InactivityModal } from './components/InactivityWatcher';
 
-function PageManager({ currentPage, setCurrentPage, user, setUser, panier, rafraichirPanier, ajouterAuPanier, ajouterAWishlist, wishlist, rafraichirWishlist }) {
-  const location = useLocation();
-  if (location.pathname === "/cgv" || location.pathname === "/cgu") return null;
+function ProtectedRoute({ user, children }) {
+  if (!user) return <Navigate to="/connexion" replace />;
+  return children;
+}
 
-  return (
-    <>
-      {currentPage === 'home' && (
-        <Home ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} naviguerVersCatalogue={setCurrentPage} />
-      )}
-      {currentPage === 'connexion' && (
-        <Connexion setUser={setUser} setCurrentPage={setCurrentPage} />
-      )}
-      {currentPage === 'inscription' && (
-        <Inscription setCurrentPage={setCurrentPage} />
-      )}
-      {(currentPage === 'fiction' || currentPage === 'comics' || currentPage === 'juvenile' || currentPage === 'history' || currentPage === 'science' || currentPage === 'catalogue') && (
-        <Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} genre={currentPage} />
-      )}
-      {currentPage === 'info' && <Informations />}
-      {currentPage === 'contact' && <Contact />}
-      {currentPage === 'profil' && user && (
-        <MonProfil
-          user={user}
-          setUser={setUser}
-          ajouterAuPanier={ajouterAuPanier}
-          wishlist={wishlist}
-          rafraichirWishlist={rafraichirWishlist}
-        />
-      )}
-      {currentPage === 'panier' && user && (
-        <Panier panier={panier} setCurrentPage={setCurrentPage} rafraichirPanier={rafraichirPanier} />
-      )}
-      {currentPage === 'panier' && !user && (
-        <Connexion setUser={setUser} setCurrentPage={setCurrentPage} />
-      )}
-    </>
-  );
+function AdminRoute({ user, children }) {
+  if (!user) return <Navigate to="/connexion" replace />;
+  if (!user.roles?.includes('ROLE_ADMIN')) return <Navigate to="/" replace />;
+  return children;
 }
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [user, setUser] = useState(null);
-  const [panier, setPanier] = useState([]);
+  const [user, setUser]         = useState(null);
+  const [panier, setPanier]     = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const vientDeSeConnecter = useRef(false);
+  const vientDeSeConnecter      = useRef(false);
 
   const rafraichirWishlist = useCallback(async (emailOverride = null) => {
     try {
       const email = emailOverride || localStorage.getItem('userEmail');
       if (!email) return;
-      const res = await fetch("http://127.0.0.1:8000/api/profil/wishlist?email=" + encodeURIComponent(email));
+      const res  = await fetch("http://127.0.0.1:8000/api/profil/wishlist?email=" + encodeURIComponent(email));
       const data = await res.json();
       setWishlist(data.items || []);
     } catch { setWishlist([]); }
@@ -85,8 +57,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const email = localStorage.getItem('userEmail');
+    const token       = localStorage.getItem('token');
+    const email       = localStorage.getItem('userEmail');
     const userDataRaw = localStorage.getItem('userData');
     if (token && email && userDataRaw) {
       try {
@@ -122,89 +94,74 @@ function App() {
   }, [rafraichirPanier, rafraichirWishlist]);
 
   const ajouterAuPanier = useCallback(async (livre) => {
-    if (!user) {
-      alert("Tu dois etre connecte pour ajouter un livre au panier.");
-      setCurrentPage('connexion');
-      return;
-    }
+    if (!user) { alert("Connecte-toi pour ajouter au panier."); window.location.href = '/connexion'; return; }
     try {
       await addToCart(livre);
       await rafraichirPanier(user.email);
-      alert(livre.title + " a ete ajoute a ton panier !");
-    } catch (error) {
-      alert("Erreur lors de l'ajout au panier : " + error.message);
-    }
+      alert(livre.title + " ajouté au panier !");
+    } catch (error) { alert("Erreur : " + error.message); }
   }, [user, rafraichirPanier]);
 
   const ajouterAWishlist = useCallback(async (livre) => {
-    if (!user) {
-      alert("Tu dois etre connecte pour ajouter a la wishlist.");
-      setCurrentPage('connexion');
-      return false;
-    }
+    if (!user) { alert("Connecte-toi pour ajouter à la wishlist."); window.location.href = '/connexion'; return false; }
     try {
       const res = await fetch('http://127.0.0.1:8000/api/profil/wishlist/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: user.email,
-          title: livre.title,
-          price: parseFloat(livre.price),
-          image: livre.image,
-        }),
+        body: JSON.stringify({ email: user.email, title: livre.title, price: parseFloat(livre.price), image: livre.image }),
       });
-      if (res.ok || res.status === 200) {
-        rafraichirWishlist(user.email);
-        alert(livre.title + " ajoute a ta wishlist !");
-        return true;
-      }
+      if (res.ok || res.status === 200) { rafraichirWishlist(user.email); alert(livre.title + " ajouté à la wishlist !"); return true; }
       return false;
-    } catch {
-      alert("Erreur lors de l'ajout a la wishlist.");
-      return false;
-    }
+    } catch { alert("Erreur wishlist."); return false; }
   }, [user, rafraichirWishlist]);
 
   const deconnexion = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
-    setUser(null);
-    setPanier([]);
-    setWishlist([]);
-    setCurrentPage('home');
+    localStorage.removeItem('userEmail');
+    setUser(null); setPanier([]); setWishlist([]);
+    window.location.href = '/';
   }, []);
 
   const { afficherModal, secondesRestantes, resterConnecte } = useInactivityWatcher(user, deconnexion);
 
   return (
     <Router>
-      <Header user={user} setCurrentPage={setCurrentPage} onLogout={deconnexion} />
+      <Header user={user} onLogout={deconnexion} />
       <main style={{ minHeight: '80vh' }}>
         <Routes>
+          <Route path="/" element={<Home ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
+          <Route path="/connexion" element={<Connexion setUser={connecterUtilisateur} />} />
+          <Route path="/inscription" element={<Inscription />} />
+          <Route path="/catalogue" element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
+          <Route path="/catalogue/:genre" element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
+          <Route path="/informations" element={<Informations />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/cgv" element={<CGV />} />
           <Route path="/cgu" element={<CGU />} />
+          <Route path="/panier" element={
+            <ProtectedRoute user={user}>
+              <Panier panier={panier} rafraichirPanier={rafraichirPanier} />
+            </ProtectedRoute>
+          } />
+          <Route path="/profil" element={
+            <ProtectedRoute user={user}>
+              <MonProfil user={user} setUser={setUser} ajouterAuPanier={ajouterAuPanier} wishlist={wishlist} rafraichirWishlist={rafraichirWishlist} />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin" element={
+            <AdminRoute user={user}>
+              <AdminDashboard />
+            </AdminRoute>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-        <PageManager
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          user={user}
-          setUser={connecterUtilisateur}
-          panier={panier}
-          rafraichirPanier={rafraichirPanier}
-          ajouterAuPanier={ajouterAuPanier}
-          ajouterAWishlist={ajouterAWishlist}
-          wishlist={wishlist}
-          rafraichirWishlist={rafraichirWishlist}
-        />
       </main>
-      <Footer setCurrentPage={setCurrentPage} />
+      <Footer />
       <SecurityBadge />
+      <CookieBanner />
       {afficherModal && (
-        <InactivityModal
-          secondesRestantes={secondesRestantes}
-          onRester={resterConnecte}
-          onDeconnecter={deconnexion}
-        />
+        <InactivityModal secondesRestantes={secondesRestantes} onRester={resterConnecte} onDeconnecter={deconnexion} />
       )}
     </Router>
   );

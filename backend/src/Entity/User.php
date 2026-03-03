@@ -36,6 +36,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeCustomerId = null;
 
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
@@ -48,13 +51,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resetTokenExpiresAt = null;
 
-    // Je crée la relation avec les articles du panier
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: CartItem::class, orphanRemoval: true)]
     private Collection $cartItems;
 
     public function __construct()
     {
-        // J'initialise la collection pour éviter des erreurs lors de l'ajout d'articles
         $this->cartItems = new ArrayCollection();
     }
 
@@ -64,7 +65,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self { $this->email = $email; return $this; }
 
     public function getUserIdentifier(): string { return (string) $this->email; }
-    public function getRoles(): array { return ['ROLE_USER']; }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+        return $this;
+    }
 
     public function getPassword(): ?string { return $this->password; }
     public function setPassword(string $password): self { $this->password = $password; return $this; }
@@ -95,13 +108,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }
     public function setResetTokenExpiresAt(?\DateTimeImmutable $resetTokenExpiresAt): static { $this->resetTokenExpiresAt = $resetTokenExpiresAt; return $this; }
 
-    /**
-     * @return Collection<int, CartItem>
-     */
-    public function getCartItems(): Collection
-    {
-        return $this->cartItems;
-    }
+    public function getCartItems(): Collection { return $this->cartItems; }
 
     public function addCartItem(CartItem $cartItem): self
     {

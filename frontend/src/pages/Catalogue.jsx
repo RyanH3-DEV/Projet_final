@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Search, Filter, ShoppingCart, Loader, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "axios";
 import { addToCart } from "../api/cartApi";
@@ -17,39 +18,56 @@ const GENRES = {
 const getCoverUrl = (coverId) =>
   `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
 
-export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: genreInitial = 'fiction' }) {
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
+export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
+  const { genre: genreParam } = useParams();
+  const navigate              = useNavigate();
+
+  const [books, setBooks]           = useState([]);
+  const [loading, setLoading]       = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [genre, setGenre] = useState(
-    Object.keys(GENRES).includes(genreInitial) ? genreInitial : 'fiction'
+  const [genre, setGenre]           = useState(
+    Object.keys(GENRES).includes(genreParam) ? genreParam : 'fiction'
   );
-  const [page, setPage] = useState(1);
+  const [page, setPage]             = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [wishlistIds, setWishlistIds] = useState(new Set());
+
+  // Sync genre avec l'URL quand on navigue
+  useEffect(() => {
+    const g = Object.keys(GENRES).includes(genreParam) ? genreParam : 'fiction';
+    setGenre(g);
+    setPage(1);
+    setSearchTerm("");
+    fetchPage(1, g, "");
+  }, [genreParam]);
+
+  // Quand le select change, met à jour l'URL
+  const handleGenreChange = (newGenre) => {
+    navigate(`/catalogue/${newGenre}`);
+  };
 
   const fetchPage = async (nouvellePage, currentGenre, currentSearch) => {
     setLoading(true);
     try {
-      const offset = (nouvellePage - 1) * BOOKS_PER_PAGE;
+      const offset  = (nouvellePage - 1) * BOOKS_PER_PAGE;
       const subject = GENRES[currentGenre]?.subject || 'fiction';
       const url = currentSearch
         ? `https://openlibrary.org/search.json?q=${encodeURIComponent(currentSearch)}&subject=${subject}&limit=${BOOKS_PER_PAGE}&offset=${offset}&fields=key,title,author_name,cover_i,number_of_pages_median`
         : `https://openlibrary.org/search.json?subject=${subject}&limit=${BOOKS_PER_PAGE}&offset=${offset}&fields=key,title,author_name,cover_i,number_of_pages_median`;
 
-      const res = await axios.get(url);
+      const res  = await axios.get(url);
       const docs = res.data.docs || [];
 
       const formatted = docs
         .filter(doc => doc.cover_i)
         .map(doc => ({
-          id: doc.key,
-          title: doc.title || 'Titre inconnu',
+          id:     doc.key,
+          title:  doc.title || 'Titre inconnu',
           author: doc.author_name?.[0] || 'Auteur inconnu',
-          price: doc.number_of_pages_median
+          price:  doc.number_of_pages_median
             ? (doc.number_of_pages_median * 0.04).toFixed(2)
             : (Math.floor(Math.random() * 10) + 8).toFixed(2),
-          image: getCoverUrl(doc.cover_i),
+          image:  getCoverUrl(doc.cover_i),
         }));
 
       if (formatted.length === 0) return;
@@ -70,12 +88,6 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
     fetchPage(nouvellePage, genre, searchTerm);
   };
 
-  useEffect(() => {
-    setPage(1);
-    setSearchTerm("");
-    fetchPage(1, genre, "");
-  }, [genre]);
-
   const handleAjoutPanier = (book) => {
     if (ajouterAuPanier) ajouterAuPanier(book);
     else alert("Connecte-toi pour gérer ton panier.");
@@ -90,7 +102,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
   const getPageNumbers = () => {
     const pages = [];
     const debut = Math.max(1, page - 3);
-    const fin = page + (hasNextPage ? 3 : 0);
+    const fin   = page + (hasNextPage ? 3 : 0);
     for (let i = debut; i <= fin; i++) pages.push(i);
     return pages;
   };
@@ -112,7 +124,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
           </div>
           <div className="filter-group">
             <Filter size={20} className="filter-icon" />
-            <select value={genre} onChange={(e) => setGenre(e.target.value)} className="filter-select">
+            <select value={genre} onChange={(e) => handleGenreChange(e.target.value)} className="filter-select">
               {Object.entries(GENRES).map(([key, val]) => (
                 <option key={key} value={key}>{val.label}</option>
               ))}
@@ -162,27 +174,15 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist, genre: ge
 
           {(page > 1 || hasNextPage) && (
             <div className="pagination">
-              <button
-                className="page-btn page-nav"
-                onClick={() => fetchPage(page - 1, genre, searchTerm)}
-                disabled={page === 1}
-              >
+              <button className="page-btn page-nav" onClick={() => fetchPage(page - 1, genre, searchTerm)} disabled={page === 1}>
                 <ChevronLeft size={18} />
               </button>
               {getPageNumbers().map(p => (
-                <button
-                  key={p}
-                  className={`page-btn ${page === p ? 'active' : ''}`}
-                  onClick={() => fetchPage(p, genre, searchTerm)}
-                >
+                <button key={p} className={`page-btn ${page === p ? 'active' : ''}`} onClick={() => fetchPage(p, genre, searchTerm)}>
                   {p}
                 </button>
               ))}
-              <button
-                className="page-btn page-nav"
-                onClick={() => fetchPage(page + 1, genre, searchTerm)}
-                disabled={!hasNextPage}
-              >
+              <button className="page-btn page-nav" onClick={() => fetchPage(page + 1, genre, searchTerm)} disabled={!hasNextPage}>
                 <ChevronRight size={18} />
               </button>
             </div>

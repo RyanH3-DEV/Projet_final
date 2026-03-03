@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../style_localisés/Connexion.css';
 
-function Connexion({ setCurrentPage, setUser }) {
-  const [email, setEmail] = useState('');
+function Connexion({ setUser }) {
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [erreur, setErreur] = useState('');
-  const [bloque, setBloque] = useState(false);
+  const [erreur, setErreur]     = useState('');
+  const [bloque, setBloque]     = useState(false);
+  const navigate                = useNavigate();
 
   const gererConnexion = async (e) => {
     e.preventDefault();
@@ -21,10 +23,9 @@ function Connexion({ setCurrentPage, setUser }) {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        // J'enregistre l'email pour que le panier puisse l'utiliser [cite: 2026-02-04]
         localStorage.setItem('userEmail', data.user.email);
         setUser(data.user);
-        setCurrentPage('home');
+        navigate('/');
       } else {
         if (response.status === 429) {
           setBloque(true);
@@ -51,10 +52,13 @@ function Connexion({ setCurrentPage, setUser }) {
             <label>Mot de passe</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required disabled={bloque} />
           </div>
-          <button type="submit" className="btn-login" disabled={bloque}>{bloque ? "Attendez..." : "Se connecter"}</button>
+          <button type="submit" className="btn-login" disabled={bloque}>
+            {bloque ? "Attendez..." : "Se connecter"}
+          </button>
         </form>
       </div>
     </div>
   );
 }
+
 export default Connexion;
