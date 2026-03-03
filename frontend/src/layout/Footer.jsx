@@ -38,7 +38,6 @@ const Footer = ({ setCurrentPage }) => {
             <a href="https://facebook.com" aria-label="Facebook" className="social-link"><Facebook size={24} /></a>
             <a href="https://twitter.com" aria-label="Twitter" className="social-link"><Twitter size={24} /></a>
             <a href="https://instagram.com" aria-label="Instagram" className="social-link"><Instagram size={24} /></a>
-            <a href="https://github.com/RyanH3-DEV" aria-label="GitHub" className="social-link"><Github size={24} /></a>
           </div>
         </div>
 
