@@ -48,13 +48,13 @@ class SecurityController extends AbstractController
         $limiter->reset();
 
         return new JsonResponse([
-            // Je génère et je renvoie le token pour débloquer l'accès au panier
             'token' => bin2hex(random_bytes(32)),
             'user' => [
-                'email' => $user->getEmail(),
-                'nom' => $user->getNom(),
+                'email'  => $user->getEmail(),
+                'nom'    => $user->getNom(),
                 'prenom' => $user->getPrenom(),
-                'avatar' => $user->getAvatar()
+                'avatar' => $user->getAvatar(),
+                'roles'  => $user->getRoles(),  // ✅ ajout
             ]
         ]);
     }

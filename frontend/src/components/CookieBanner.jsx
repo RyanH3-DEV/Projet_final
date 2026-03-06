@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Cookie, ChevronDown, ChevronUp, Shield } from 'lucide-react';
 import '../Style_localisés/CookieBanner.css';
 
@@ -32,6 +33,7 @@ const COOKIE_CATEGORIES = [
 ];
 
 export default function CookieBanner() {
+  const { t } = useTranslation();
   const [visible, setVisible]       = useState(false);
   const [mode, setMode]             = useState('banner'); // banner | customize
   const [expanded, setExpanded]     = useState(null);
@@ -45,7 +47,7 @@ export default function CookieBanner() {
   useEffect(() => {
     const saved = localStorage.getItem(COOKIE_KEY);
     if (!saved) {
-      // Affiche apres 1 seconde
+      // J'affiche après 1 seconde
       setTimeout(() => setVisible(true), 1000);
     }
   }, []);
@@ -83,9 +85,9 @@ export default function CookieBanner() {
         <div className="cookie-header">
           <div className="cookie-header-left">
             <Cookie size={22} className="cookie-icon" />
-            <h3>Gestion des cookies</h3>
+            <h3>{t('cookie.manage', 'Gestion des cookies')}</h3>
           </div>
-          <button className="cookie-close" onClick={refuserTout} title="Refuser et fermer">
+          <button className="cookie-close" onClick={refuserTout} title={t('cookie.close_title', 'Refuser et fermer')}>
             <X size={18} />
           </button>
         </div>
@@ -93,23 +95,21 @@ export default function CookieBanner() {
         {mode === "banner" && (
           <>
             <p className="cookie-text">
-              Nous utilisons des cookies pour assurer le bon fonctionnement du site,
-              securiser vos paiements et ameliorer votre experience. Conformement au
-              RGPD, vous pouvez accepter, refuser ou personnaliser votre choix.
+              {t('cookie.banner_text', 'Nous utilisons des cookies pour assurer le bon fonctionnement du site, securiser vos paiements et ameliorer votre experience. Conformement au RGPD, vous pouvez accepter, refuser ou personnaliser votre choix.')}
             </p>
             <div className="cookie-actions">
               <button className="btn-cookie-accept" onClick={() => sauvegarder(true)}>
-                Tout accepter
+                {t('cookie.accept_all', 'Tout accepter')}
               </button>
               <button className="btn-cookie-customize" onClick={() => setMode("customize")}>
-                Personnaliser
+                {t('cookie.customize', 'Personnaliser')}
               </button>
               <button className="btn-cookie-refuse" onClick={refuserTout}>
-                Tout refuser
+                {t('cookie.refuse_all', 'Tout refuser')}
               </button>
             </div>
             <p className="cookie-rgpd-note">
-              <Shield size={12} /> Conforme RGPD — Vos donnees ne sont jamais vendues a des tiers.
+              <Shield size={12} /> {t('cookie.rgpd_note', 'Conforme RGPD — Vos donnees ne sont jamais vendues a des tiers.')}
             </p>
           </>
         )}
@@ -117,8 +117,7 @@ export default function CookieBanner() {
         {mode === "customize" && (
           <>
             <p className="cookie-text">
-              Choisissez les categories de cookies que vous acceptez.
-              Les cookies essentiels sont toujours actives.
+              {t('cookie.customize_text', 'Choisissez les categories de cookies que vous acceptez. Les cookies essentiels sont toujours actives.')}
             </p>
 
             <div className="cookie-categories">
@@ -129,8 +128,8 @@ export default function CookieBanner() {
                     onClick={() => setExpanded(expanded === cat.id ? null : cat.id)}
                   >
                     <div className="cookie-category-left">
-                      <span className="cookie-category-label">{cat.label}</span>
-                      {cat.required && <span className="cookie-required">Requis</span>}
+                      <span className="cookie-category-label">{t(`cookie.cat_${cat.id}_label`, cat.label)}</span>
+                      {cat.required && <span className="cookie-required">{t('cookie.required', 'Requis')}</span>}
                       {expanded === cat.id
                         ? <ChevronUp size={14} className="cookie-chevron" />
                         : <ChevronDown size={14} className="cookie-chevron" />
@@ -147,7 +146,7 @@ export default function CookieBanner() {
                     </label>
                   </div>
                   {expanded === cat.id && (
-                    <p className="cookie-category-desc">{cat.description}</p>
+                    <p className="cookie-category-desc">{t(`cookie.cat_${cat.id}_desc`, cat.description)}</p>
                   )}
                 </div>
               ))}
@@ -155,13 +154,13 @@ export default function CookieBanner() {
 
             <div className="cookie-actions">
               <button className="btn-cookie-accept" onClick={() => sauvegarder(false)}>
-                Sauvegarder mes choix
+                {t('cookie.save_choices', 'Sauvegarder mes choix')}
               </button>
               <button className="btn-cookie-accept" onClick={() => sauvegarder(true)}>
-                Tout accepter
+                {t('cookie.accept_all', 'Tout accepter')}
               </button>
               <button className="btn-cookie-refuse" onClick={refuserTout}>
-                Tout refuser
+                {t('cookie.refuse_all', 'Tout refuser')}
               </button>
             </div>
           </>
@@ -171,7 +170,7 @@ export default function CookieBanner() {
   );
 }
 
-// Hook pour verifier le consentement depuis n'importe quel composant
+// Je vérifie le consentement depuis n'importe quel composant grâce à ce hook
 export function useCookieConsent(category) {
   const saved = localStorage.getItem(COOKIE_KEY);
   if (!saved) return false;

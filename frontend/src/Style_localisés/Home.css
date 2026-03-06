@@ -7,14 +7,7 @@
 }
 
 /* --- Héros (Bannière) --- */
-.hero-section {
-  background-color: #000000;
-  color: #ffffff;
-  padding: 8rem 2rem;
-  text-align: center;
-}
-
-/* --- Héros (Bannière) --- */
+/* Je garde uniquement la nouvelle version avec le dégradé et les bordures dorées */
 .hero-section {
   background: radial-gradient(circle at top, #1e2f4d 0%, #152238 55%, #0d1828 100%);
   color: #f7f3e9;
@@ -45,8 +38,6 @@
   clip-path: polygon(100% 100%, 82% 100%, 100% 82%);
 }
 
-
-
 .hero-title {
   font-family: "Cormorant Garamond", serif;
   font-size: 2.4rem;
@@ -56,14 +47,12 @@
   color: #f2d9a6; /* doré plus chaud */
 }
 
-
 .hero-subtitle {
   font-family: "Cormorant Garamond", serif;
   font-size: 1.1rem;
   color: #e8d7b8;
   font-weight: 300;
 }
-
 
 .hero-cta-button {
   display: inline-flex;
@@ -190,41 +179,156 @@
   font-weight: 600;
 }
 
-/* --- Bouton Ajouter au panier --- */
-.add-to-cart-btn {
-  background: #000000;
-  color: #ffffff;
+
+
+/* --- Bouton "Tout voir" et son conteneur --- */
+/* Je nettoie les doublons pour appliquer le style élégant */
+.view-all-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem; /* Conserve un bel espace avec les livres au-dessus */
+  margin-bottom: 2rem; /* C'est cette ligne qui repousse le footer vers le bas */
+  width: 100%;
+}
+.btn-voir-tout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #0d1828;
+  background: transparent;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  cursor: pointer;
+
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    border-radius 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.btn-voir-tout:hover {
+  transform: scale(1.19);
+  background: #1f3558;
+  color: #f2d9a6;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+/* --- Boutons Panier & Wishlist (survol des images) --- */
+.featured-overlay {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 12px; /* Je mets un tout petit peu plus d'espace entre les deux icônes */
+}
+
+.overlay-btn {
+  background-color: #ffffff;
+  color: #0d1828;
+  border: none;
+  width: 42px; /* J'agrandis légèrement pour que ce soit plus agréable à cliquer */
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+
+  /* J'applique exactement les mêmes transitions que pour ton bouton Tout voir */
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
-.add-to-cart-btn:hover {
-  background: #333333;
-  transform: scale(1.05);
+.overlay-btn:hover {
+  transform: scale(1.12);
+  background: #1f3558; /* Ton bleu marine */
+  color: #f2d9a6;      /* Ton doré */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
 }
 
-/* --- Bouton Secondaire --- */
-.view-all-container { text-align: center; margin-top: 4rem; }
-.btn-secondary {
-  padding: 12px 30px;
-  background-color: transparent;
-  color: #000000;
-  border: 1px solid #000000;
-  font-size: 0.9rem;
+.genres-label,
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #0d1828; /* Le bleu très sombre de tes boutons */
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-top: 2rem;
+  margin-bottom: 3.5rem;
+  text-align: center;
+}
+
+/* Lignes décoratives dorées de chaque côté */
+.genres-label::before,
+.genres-label::after,
+.section-title::before,
+.section-title::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 100px;
+  margin: 0 20px;
+  background: linear-gradient(to right, transparent, #c89b3c, transparent);
+}
+.category-card {
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 12px; /* Un léger arrondi pour plus d'élégance */
+
+  /* J'ajoute toutes les transitions pour que le changement soit doux */
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* L'effet au survol : fond bleu très foncé et écriture dorée */
+.category-card:hover {
+  background-color: #0d1828 !important; /* Le bleu profond de ton Header */
+  color: #f2d9a6 !important;            /* Le doré de tes boutons */
+  border-color: #f2d9a6;
+  transform: translateY(-8px);          /* La carte remonte légèrement */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Je force le changement de couleur pour l'icône, le titre et la flèche */
+.category-card:hover .category-icon,
+.category-card:hover h3,
+.category-card:hover .cat-arrow {
+  color: #f2d9a6 !important;
+}
+
+.category-icon {
+  margin-bottom: 1.5rem;
+  color: #0d1828; /* Couleur par défaut sombre */
+  transition: color 0.3s ease;
+}
+
+.category-card h3 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.3rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.btn-secondary:hover {
-  background-color: #000000;
-  color: #ffffff;
+  transition: color 0.3s ease;
 }

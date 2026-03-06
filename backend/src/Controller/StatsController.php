@@ -3,8 +3,6 @@ namespace App\Controller;
 
 use App\Entity\PageView;
 use App\Repository\PageViewRepository;
-use App\Repository\OrderRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +17,6 @@ class StatsController extends AbstractController
         private PageViewRepository $pageViewRepo,
     ) {}
 
-    // ── Enregistre une visite de page
     #[Route('/track', name: 'track', methods: ['POST', 'OPTIONS'])]
     public function track(Request $request): JsonResponse
     {
@@ -33,8 +30,8 @@ class StatsController extends AbstractController
         $view->setPage($data['page'] ?? 'unknown');
         $view->setBrowser($this->detectBrowser($ua));
         $view->setOs($this->detectOs($ua));
-        $view->setIp(hash('sha256', $ip)); // IP anonymisee RGPD
-        $view->setCountry($this->detectCountry($ip));
+        $view->setIp(hash('sha256', $ip));
+        $view->setCountry($this->detectCountry($request));
 
         $this->em->persist($view);
         $this->em->flush();
@@ -42,31 +39,30 @@ class StatsController extends AbstractController
         return new JsonResponse(['ok' => true]);
     }
 
-    // ── Dashboard stats complet (admin seulement)
     #[Route('/dashboard', name: 'dashboard', methods: ['GET', 'OPTIONS'])]
-    public function dashboard(Request $request): JsonResponse
-    {
-        if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
+public function dashboard(Request $request): JsonResponse
+{
+    if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
 
-        // Verif token admin simple
-        $adminKey = $request->headers->get('X-Admin-Key');
-        if ($adminKey !== $_ENV['ADMIN_STATS_KEY'] ?? 'books-admin-2025') {
-            return new JsonResponse(['error' => 'Acces refuse'], 403);
-        }
+    $adminKey    = $request->headers->get('X-Admin-Key');
+    $expectedKey = $_ENV['ADMIN_STATS_KEY'] ?? 'books-admin-2025';
 
-        return new JsonResponse([
-            'visits' => [
-                'total'   => $this->pageViewRepo->countTotal(),
-                'today'   => $this->pageViewRepo->countToday(),
-                'byPage'  => $this->pageViewRepo->countByPage(),
-                'byDay'   => $this->pageViewRepo->countByDay(30),
-            ],
-            'browsers' => $this->pageViewRepo->countByBrowser(),
-            'os'       => $this->pageViewRepo->countByOs(),
-        ]);
+    if ($adminKey !== $expectedKey) {
+        return new JsonResponse(['error' => 'Accès refusé'], 403);
     }
 
-    // ── Detection navigateur depuis User-Agent
+    return new JsonResponse([
+        'visits' => [
+            'total'  => $this->pageViewRepo->countTotal(),
+            'today'  => $this->pageViewRepo->countToday(),
+            'byPage' => $this->pageViewRepo->countByPage(),
+            'byDay'  => $this->pageViewRepo->countByDay(30),
+        ],
+        'browsers' => $this->pageViewRepo->countByBrowser(),
+        'os'       => $this->pageViewRepo->countByOs(),
+    ]);
+}
+
     private function detectBrowser(string $ua): string
     {
         if (str_contains($ua, 'Edg'))     return 'Edge';
@@ -77,7 +73,6 @@ class StatsController extends AbstractController
         return 'Autre';
     }
 
-    // ── Detection OS depuis User-Agent
     private function detectOs(string $ua): string
     {
         if (str_contains($ua, 'Windows')) return 'Windows';
@@ -88,11 +83,8 @@ class StatsController extends AbstractController
         return 'Autre';
     }
 
-    // ── Detection pays par IP (sans API externe)
-    private function detectCountry(string $ip): string
+    private function detectCountry(Request $request): string
     {
-        // Sur AlwaysData le header CF-IPCountry peut etre disponible
-        // Sinon on retourne inconnu
-        return 'Inconnu';
+        return $request->headers->get('CF-IPCountry', 'Inconnu');
     }
 }

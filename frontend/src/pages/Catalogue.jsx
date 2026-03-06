@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { Search, Filter, ShoppingCart, Loader, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "axios";
 import { addToCart } from "../api/cartApi";
@@ -7,20 +8,21 @@ import '../style_localisés/Catalogue.css';
 
 const BOOKS_PER_PAGE = 16;
 
-const GENRES = {
-  fiction:  { label: 'Romans & Fiction', subject: 'fiction' },
-  comics:   { label: 'Mangas & BD',      subject: 'comics' },
-  juvenile: { label: 'Jeunesse',         subject: 'juvenile_fiction' },
-  history:  { label: 'Histoire',         subject: 'history' },
-  science:  { label: 'Science',          subject: 'science' },
-};
-
 const getCoverUrl = (coverId) =>
   `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`;
 
 export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
+  const { t } = useTranslation();
   const { genre: genreParam } = useParams();
   const navigate              = useNavigate();
+
+  const GENRES = {
+    fiction:  { label: t('genres.fiction', 'Romans & Fiction'), subject: 'fiction' },
+    comics:   { label: t('genres.comics', 'Mangas & BD'),       subject: 'comics' },
+    juvenile: { label: t('genres.juvenile', 'Jeunesse'),        subject: 'juvenile_fiction' },
+    history:  { label: t('genres.history', 'Histoire'),         subject: 'history' },
+    science:  { label: t('genres.science', 'Science'),          subject: 'science' },
+  };
 
   const [books, setBooks]           = useState([]);
   const [loading, setLoading]       = useState(false);
@@ -32,16 +34,14 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
   const [hasNextPage, setHasNextPage] = useState(false);
   const [wishlistIds, setWishlistIds] = useState(new Set());
 
-  // Sync genre avec l'URL quand on navigue
   useEffect(() => {
     const g = Object.keys(GENRES).includes(genreParam) ? genreParam : 'fiction';
     setGenre(g);
     setPage(1);
     setSearchTerm("");
     fetchPage(1, g, "");
-  }, [genreParam]);
+  }, [genreParam, t]);
 
-  // Quand le select change, met à jour l'URL
   const handleGenreChange = (newGenre) => {
     navigate(`/catalogue/${newGenre}`);
   };
@@ -62,8 +62,8 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
         .filter(doc => doc.cover_i)
         .map(doc => ({
           id:     doc.key,
-          title:  doc.title || 'Titre inconnu',
-          author: doc.author_name?.[0] || 'Auteur inconnu',
+          title:  doc.title || t('book.unknown_title', 'Titre inconnu'),
+          author: doc.author_name?.[0] || t('book.unknown_author', 'Auteur inconnu'),
           price:  doc.number_of_pages_median
             ? (doc.number_of_pages_median * 0.04).toFixed(2)
             : (Math.floor(Math.random() * 10) + 8).toFixed(2),
@@ -90,7 +90,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
 
   const handleAjoutPanier = (book) => {
     if (ajouterAuPanier) ajouterAuPanier(book);
-    else alert("Connecte-toi pour gérer ton panier.");
+    else alert(t('alerts.login_required_cart', "Connecte-toi pour gérer ton panier."));
   };
 
   const handleWishlist = async (book) => {
@@ -110,7 +110,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
   return (
     <div className="catalogue-container">
       <header className="catalogue-header">
-        <h1 className="catalogue-title">Notre Bibliothèque</h1>
+        <h1 className="catalogue-title">{t('catalogue.title', 'Notre Bibliothèque')}</h1>
         <form onSubmit={(e) => searchBooks(e, 1)} className="search-filter-form">
           <div className="search-bar-container">
             <Search size={20} className="search-icon" />
@@ -118,7 +118,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Chercher un titre, un auteur..."
+              placeholder={t('catalogue.search_placeholder', 'Chercher un titre, un auteur...')}
               className="search-input"
             />
           </div>
@@ -129,7 +129,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
                 <option key={key} value={key}>{val.label}</option>
               ))}
             </select>
-            <button type="submit" className="search-button">Rechercher</button>
+            <button type="submit" className="search-button">{t('catalogue.search_btn', 'Rechercher')}</button>
           </div>
         </form>
       </header>
@@ -137,7 +137,7 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
       {loading ? (
         <div className="loading-container">
           <Loader className="spinner" size={48} />
-          <p>Je parcours les étagères...</p>
+          <p>{t('catalogue.loading', 'Je parcours les étagères...')}</p>
         </div>
       ) : (
         <>
@@ -158,11 +158,11 @@ export default function Catalogue({ ajouterAuPanier, ajouterAWishlist }) {
                       <button
                         onClick={() => handleWishlist(book)}
                         className={`add-to-wishlist-btn ${wishlistIds.has(book.id) ? 'wishlisted' : ''}`}
-                        title="Ajouter à la wishlist"
+                        title={t('book.add_to_wishlist', 'Ajouter à la wishlist')}
                       >
                         <Heart size={16} fill={wishlistIds.has(book.id) ? 'currentColor' : 'none'} />
                       </button>
-                      <button onClick={() => handleAjoutPanier(book)} className="cart-button">
+                      <button onClick={() => handleAjoutPanier(book)} className="cart-button" title={t('book.add_to_cart', 'Ajouter au panier')}>
                         <ShoppingCart size={20} />
                       </button>
                     </div>

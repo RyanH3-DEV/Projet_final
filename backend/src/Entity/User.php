@@ -40,7 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[ORM\Column(type: 'boolean')]
-    private bool $isVerified = false;
+    private bool $isVerified = true;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;

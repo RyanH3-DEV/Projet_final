@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../style_localisés/Contact.css';
 
 function Contact() {
+  const { t } = useTranslation();
   const [statut, setStatut] = useState(null);
 
   const envoyerAssistance = async (e) => {
@@ -27,16 +29,16 @@ function Contact() {
   return (
     <div className="contact-page">
       <div className="contact-card">
-        <h2>🆘 Assistance Client</h2>
-        <p>Un problème ? Je suis là pour vous aider.</p>
+        <h2>{t('contact.title', '🆘 Assistance Client')}</h2>
+        <p>{t('contact.subtitle', 'Un problème ? Je suis là pour vous aider.')}</p>
 
-        {statut === "succes" && <p className="msg-ok">Message envoyé ! Je vous répondrai très vite.</p>}
+        {statut === "succes" && <p className="msg-ok">{t('contact.success_msg', 'Message envoyé ! Je vous répondrai très vite.')}</p>}
 
         <form onSubmit={envoyerAssistance} className="contact-form">
-          <input type="text" name="nom" placeholder="Votre nom" required />
-          <input type="email" name="email" placeholder="Votre email" required />
-          <textarea name="message" placeholder="Décrivez votre problème..." required></textarea>
-          <button type="submit">Contacter l'assistance</button>
+          <input type="text" name="nom" placeholder={t('contact.name_placeholder', 'Votre nom')} required />
+          <input type="email" name="email" placeholder={t('contact.email_placeholder', 'Votre email')} required />
+          <textarea name="message" placeholder={t('contact.message_placeholder', 'Décrivez votre problème...')} required></textarea>
+          <button type="submit">{t('contact.submit_btn', "Contacter l'assistance")}</button>
         </form>
       </div>
     </div>

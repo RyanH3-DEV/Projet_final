@@ -41,17 +41,20 @@ class PageViewRepository extends ServiceEntityRepository
             ->getQuery()->getArrayResult();
     }
 
-    public function countByDay(int $days = 30): array
-    {
-        $since = new \DateTimeImmutable("-{$days} days");
-        return $this->createQueryBuilder('p')
-            ->select('DATE(p.visitedAt) as day, COUNT(p.id) as total')
-            ->where('p.visitedAt >= :since')
-            ->setParameter('since', $since)
-            ->groupBy('day')
-            ->orderBy('day', 'ASC')
-            ->getQuery()->getArrayResult();
-    }
+    public function countByDay(int $days): array
+        {
+            $since = new \DateTimeImmutable("-{$days} days");
+
+            $conn = $this->getEntityManager()->getConnection();
+            $sql  = 'SELECT DATE(visited_at) as day, COUNT(id) as total
+                     FROM page_view
+                     WHERE visited_at >= :since
+                     GROUP BY DATE(visited_at)
+                     ORDER BY day ASC';
+
+            $result = $conn->executeQuery($sql, ['since' => $since->format('Y-m-d H:i:s')]);
+            return $result->fetchAllAssociative();
+        }
 
     public function countTotal(): int
     {

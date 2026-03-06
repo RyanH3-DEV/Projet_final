@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -40,6 +41,7 @@ const STRIPE_STYLE = {
 };
 
 function StripeForm({ total, onSuccess, onError }) {
+  const { t } = useTranslation();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -83,7 +85,7 @@ function StripeForm({ total, onSuccess, onError }) {
         onSuccess('stripe');
       }
     } catch (err) {
-      setErreur("Erreur de connexion au serveur de paiement.");
+      setErreur(t('cart.err_stripe_conn', "Erreur de connexion au serveur de paiement."));
       onError(err.message);
     } finally {
       setLoading(false);
@@ -92,15 +94,15 @@ function StripeForm({ total, onSuccess, onError }) {
 
   return (
     <form onSubmit={payer} className="stripe-form">
-      <p className="stripe-label">💳 Informations de carte bancaire</p>
+      <p className="stripe-label">{t('cart.stripe_title', '💳 Informations de carte bancaire')}</p>
 
       {/* Nom sur la carte */}
       <div className="stripe-field-group">
-        <label className="stripe-field-label">Nom sur la carte</label>
+        <label className="stripe-field-label">{t('cart.name_on_card', 'Nom sur la carte')}</label>
         <input
           type="text"
           className="stripe-input-text"
-          placeholder="Jean Dupont"
+          placeholder={t('cart.name_placeholder', 'Jean Dupont')}
           value={nom}
           onChange={(e) => setNom(e.target.value)}
           required
@@ -109,7 +111,7 @@ function StripeForm({ total, onSuccess, onError }) {
 
       {/* Numéro de carte */}
       <div className="stripe-field-group">
-        <label className="stripe-field-label">Numéro de carte</label>
+        <label className="stripe-field-label">{t('cart.card_number', 'Numéro de carte')}</label>
         <div className="card-element-wrapper">
           <CardNumberElement options={STRIPE_STYLE} />
         </div>
@@ -118,13 +120,13 @@ function StripeForm({ total, onSuccess, onError }) {
       {/* Date + CVC côte à côte */}
       <div className="stripe-row">
         <div className="stripe-field-group">
-          <label className="stripe-field-label">Date d'expiration</label>
+          <label className="stripe-field-label">{t('cart.expiry_date', "Date d'expiration")}</label>
           <div className="card-element-wrapper">
             <CardExpiryElement options={STRIPE_STYLE} />
           </div>
         </div>
         <div className="stripe-field-group">
-          <label className="stripe-field-label">CVC</label>
+          <label className="stripe-field-label">{t('cart.cvc', 'CVC')}</label>
           <div className="card-element-wrapper">
             <CardCvcElement options={STRIPE_STYLE} />
           </div>
@@ -134,9 +136,9 @@ function StripeForm({ total, onSuccess, onError }) {
       {erreur && <p className="stripe-error">⚠ {erreur}</p>}
 
       <button type="submit" className="btn-payer-carte" disabled={!stripe || loading}>
-        {loading ? '⏳ Traitement en cours...' : `🔒 Payer ${total.toFixed(2)} € par carte`}
+        {loading ? t('cart.processing', '⏳ Traitement en cours...') : `🔒 ${t('cart.pay', 'Payer')} ${total.toFixed(2)} € ${t('cart.by_card', 'par carte')}`}
       </button>
-      <p className="secure-note">🔐 Paiement sécurisé 3D Secure — vos données ne sont jamais stockées</p>
+      <p className="secure-note">{t('cart.secure_note', '🔐 Paiement sécurisé 3D Secure — vos données ne sont jamais stockées')}</p>
     </form>
   );
 }
@@ -145,17 +147,18 @@ function StripeForm({ total, onSuccess, onError }) {
 // 🏅 BANDEAU DE LOGOS DE SÉCURITÉ
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function SecuriteBadges() {
+  const { t } = useTranslation();
   return (
     <div className="securite-bandeau">
-      <p className="securite-titre">🔒 Paiement 100% sécurisé</p>
+      <p className="securite-titre">{t('cart.secure_100', '🔒 Paiement 100% sécurisé')}</p>
       <div className="securite-logos">
         <div className="badge-item">
           <span className="badge-icon">🔐</span>
-          <span className="badge-text">SSL<br/>Chiffré</span>
+          <span className="badge-text">{t('cart.ssl', 'SSL')}<br/>{t('cart.encrypted', 'Chiffré')}</span>
         </div>
         <div className="badge-item badge-highlight">
           <span className="badge-icon">🛡️</span>
-          <span className="badge-text">3D<br/>Secure</span>
+          <span className="badge-text">{t('cart.3d', '3D')}<br/>{t('cart.secure', 'Secure')}</span>
         </div>
         <div className="badge-item badge-visa">
           <span className="visa-text">VISA</span>
@@ -183,6 +186,7 @@ function SecuriteBadges() {
 // 🛒 COMPOSANT PRINCIPAL PANIER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function Panier({ panier, rafraichirPanier }) {
+  const { t } = useTranslation();
   const [modePaiement, setModePaiement] = useState(null);
   const [paiementReussi, setPaiementReussi] = useState(false);
   const [erreurPaiement, setErreurPaiement] = useState('');
@@ -194,7 +198,7 @@ function Panier({ panier, rafraichirPanier }) {
       await removeFromCart(id);
       await rafraichirPanier();
     } catch {
-      alert("Erreur lors de la suppression");
+      alert(t('cart.err_delete', "Erreur lors de la suppression"));
     }
   };
 
@@ -205,7 +209,7 @@ function Panier({ panier, rafraichirPanier }) {
       await updateCartItem(id, nouvelleQuantite);
       await rafraichirPanier();
     } catch {
-      alert("Erreur de mise à jour");
+      alert(t('cart.err_update', "Erreur de mise à jour"));
     }
   };
 
@@ -235,8 +239,8 @@ function Panier({ panier, rafraichirPanier }) {
       <div className="panier-container">
         <div className="paiement-confirme">
           <div className="confirme-icon">✅</div>
-          <h2>Paiement confirmé !</h2>
-          <p>Merci pour ta commande. Tu recevras un email de confirmation.</p>
+          <h2>{t('cart.success_title', 'Paiement confirmé !')}</h2>
+          <p>{t('cart.success_msg', 'Merci pour ta commande. Tu recevras un email de confirmation.')}</p>
         </div>
       </div>
     );
@@ -244,10 +248,10 @@ function Panier({ panier, rafraichirPanier }) {
 
   return (
     <div className="panier-container">
-      <h2>Mon Panier Sauvegardé</h2>
+      <h2>{t('cart.title', 'Mon Panier Sauvegardé')}</h2>
 
       {panier.length === 0 ? (
-        <p className="panier-vide">Ton panier est vide.</p>
+        <p className="panier-vide">{t('cart.empty', 'Ton panier est vide.')}</p>
       ) : (
         <>
           {/* Articles */}
@@ -257,7 +261,7 @@ function Panier({ panier, rafraichirPanier }) {
                 <img src={item.image} alt={item.title} className="item-img" />
                 <div className="item-details">
                   <p className="item-title"><strong>{item.title}</strong></p>
-                  <p>Prix : {item.price.toFixed(2)} €</p>
+                  <p>{t('cart.price', 'Prix :')} {item.price.toFixed(2)} €</p>
                 </div>
                 <div className="item-actions">
                   <button className="btn-quantite" onClick={() => gererQuantite(item.id, item.quantity, -1)}>-</button>
@@ -268,13 +272,13 @@ function Panier({ panier, rafraichirPanier }) {
               </div>
             ))}
             <hr className="divider" />
-            <h3 className="total-text">Total : {total.toFixed(2)} €</h3>
+            <h3 className="total-text">{t('cart.total', 'Total :')} {total.toFixed(2)} €</h3>
           </div>
 
           {/* Section paiement */}
           <div className="paiement-section">
-            <h3>Paiement Sécurisé</h3>
-            <p className="paiement-desc">Choisis ton mode de règlement pour confirmer ta commande.</p>
+            <h3>{t('cart.payment_secure', 'Paiement Sécurisé')}</h3>
+            <p className="paiement-desc">{t('cart.payment_desc', 'Choisis ton mode de règlement pour confirmer ta commande.')}</p>
 
             {erreurPaiement && (
               <div className="error-box" style={{ marginBottom: '15px' }}>⚠ {erreurPaiement}</div>
@@ -284,10 +288,10 @@ function Panier({ panier, rafraichirPanier }) {
             {!modePaiement && (
               <div className="paiement-boutons">
                 <button className="btn-mastercard" onClick={() => setModePaiement('carte')}>
-                  💳 Payer par carte
+                  {t('cart.btn_card', '💳 Payer par carte')}
                 </button>
                 <button className="btn-paypal" onClick={() => setModePaiement('paypal')}>
-                  Payer avec PayPal
+                  {t('cart.btn_paypal', 'Payer avec PayPal')}
                 </button>
               </div>
             )}
@@ -296,7 +300,7 @@ function Panier({ panier, rafraichirPanier }) {
             {modePaiement === 'carte' && (
               <div className="paiement-form-wrapper">
                 <button className="btn-retour" onClick={() => { setModePaiement(null); setErreurPaiement(''); }}>
-                  ← Retour
+                  {t('cart.btn_back', '← Retour')}
                 </button>
                 <Elements stripe={stripePromise}>
                   <StripeForm total={total} onSuccess={onSuccess} onError={onError} />
@@ -308,10 +312,10 @@ function Panier({ panier, rafraichirPanier }) {
             {modePaiement === 'paypal' && (
               <div className="paiement-form-wrapper">
                 <button className="btn-retour" onClick={() => { setModePaiement(null); setErreurPaiement(''); }}>
-                  ← Retour
+                  {t('cart.btn_back', '← Retour')}
                 </button>
                 {!PAYPAL_CLIENT_ID ? (
-                  <div className="error-box">⚠ PayPal n'est pas encore configuré. Utilisez le paiement par carte.</div>
+                  <div className="error-box">⚠ {t('cart.paypal_not_config', "PayPal n'est pas encore configuré. Utilisez le paiement par carte.")}</div>
                 ) : (
                   <PayPalScriptProvider options={{ 'client-id': PAYPAL_CLIENT_ID, currency: 'EUR', intent: 'capture' }}>
                     <PayPalButtons
@@ -332,9 +336,9 @@ function Panier({ panier, rafraichirPanier }) {
                           body: JSON.stringify({ orderID: data.orderID }),
                         });
                         const result = await res.json();
-                        result.status === 'COMPLETED' ? onSuccess('paypal') : onError("Paiement PayPal non complété.");
+                        result.status === 'COMPLETED' ? onSuccess('paypal') : onError(t('cart.paypal_not_completed', "Paiement PayPal non complété."));
                       }}
-                      onError={(err) => onError("Erreur PayPal : " + err)}
+                      onError={(err) => onError(t('cart.err_paypal', "Erreur PayPal : ") + err)}
                     />
                   </PayPalScriptProvider>
                 )}

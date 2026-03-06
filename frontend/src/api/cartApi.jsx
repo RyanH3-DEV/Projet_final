@@ -1,3 +1,5 @@
+import { t } from 'i18next';
+
 const API_URL = "http://127.0.0.1:8000/api/cart";
 
 const getHeaders = () => ({
@@ -20,7 +22,7 @@ export const addToCart = async (book, quantity = 1) => {
     const email = localStorage.getItem('userEmail')?.trim();
 
     if (!email) {
-        throw new Error("Tu dois être connecté pour cette action.");
+        throw new Error(t('api.cart_login_required', "Tu dois être connecté pour cette action."));
     }
 
     const res = await fetch(`${API_URL}/add`, {
@@ -37,7 +39,7 @@ export const addToCart = async (book, quantity = 1) => {
     });
 
     if (!res.ok) {
-        let errorMessage = `Erreur HTTP ${res.status}`;
+        let errorMessage = `${t('api.http_error', 'Erreur HTTP')} ${res.status}`;
         try {
             const errorData = await res.json();
             if (errorData?.message) errorMessage = errorData.message;

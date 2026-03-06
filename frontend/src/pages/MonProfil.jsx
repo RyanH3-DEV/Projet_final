@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User, ShoppingBag, Heart, Settings, Trash2, ShoppingCart, Eye } from 'lucide-react';
 import '../style_localisés/MonProfil.css';
 
@@ -8,6 +9,7 @@ const API = 'http://127.0.0.1:8000/api/profil';
 // ONGLET 1 — Historique des commandes
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function Historique({ email }) {
+  const { t } = useTranslation();
   const [commandes, setCommandes] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [ouvert, setOuvert]       = useState(null);
@@ -20,12 +22,12 @@ function Historique({ email }) {
       .finally(() => setLoading(false));
   }, [email]);
 
-  if (loading) return <div className="profil-loading">⏳ Chargement...</div>;
+  if (loading) return <div className="profil-loading">{t('profil.loading', '⏳ Chargement...')}</div>;
 
   if (commandes.length === 0) return (
     <div className="profil-empty">
       <ShoppingBag size={48} />
-      <p>Aucune commande pour le moment.</p>
+      <p>{t('profil.no_orders', 'Aucune commande pour le moment.')}</p>
     </div>
   );
 
@@ -35,12 +37,12 @@ function Historique({ email }) {
         <div key={cmd.id} className="commande-card">
           <div className="commande-header" onClick={() => setOuvert(ouvert === cmd.id ? null : cmd.id)}>
             <div className="commande-meta">
-              <span className="commande-id">Commande #{cmd.id}</span>
+              <span className="commande-id">{t('profil.order_prefix', 'Commande #')}{cmd.id}</span>
               <span className="commande-date">{cmd.date}</span>
             </div>
             <div className="commande-right">
               <span className={`commande-status status-${cmd.status}`}>
-                {cmd.status === 'completed' ? '✅ Payée' : cmd.status}
+                {cmd.status === 'completed' ? t('profil.status_paid', '✅ Payée') : cmd.status}
               </span>
               <span className="commande-total">{Number(cmd.total).toFixed(2)} €</span>
               <Eye size={18} className="commande-eye" />
@@ -71,19 +73,19 @@ function Historique({ email }) {
 // ONGLET 2 — Wishlist
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function WishlistTab({ email, ajouterAuPanier, wishlist, rafraichirWishlist }) {
+  const { t } = useTranslation();
   const items = wishlist || [];
 
   const supprimer = async (id) => {
     await fetch(`${API}/wishlist/remove/${id}?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
-    // ✅ Recharge depuis le serveur après suppression
     if (rafraichirWishlist) rafraichirWishlist(email);
   };
 
   if (items.length === 0) return (
     <div className="profil-empty">
       <Heart size={48} />
-      <p>Ta wishlist est vide.</p>
-      <p className="profil-empty-sub">Ajoute des livres depuis le catalogue !</p>
+      <p>{t('profil.wishlist_empty', 'Ta wishlist est vide.')}</p>
+      <p className="profil-empty-sub">{t('profil.wishlist_empty_sub', 'Ajoute des livres depuis le catalogue !')}</p>
     </div>
   );
 
@@ -97,10 +99,10 @@ function WishlistTab({ email, ajouterAuPanier, wishlist, rafraichirWishlist }) {
             <p className="wishlist-price">{Number(item.price).toFixed(2)} €</p>
           </div>
           <div className="wishlist-actions">
-            <button className="btn-wishlist-cart" onClick={() => ajouterAuPanier(item)} title="Ajouter au panier">
+            <button className="btn-wishlist-cart" onClick={() => ajouterAuPanier(item)} title={t('profil.add_to_cart', 'Ajouter au panier')}>
               <ShoppingCart size={16} />
             </button>
-            <button className="btn-wishlist-remove" onClick={() => supprimer(item.id)} title="Retirer">
+            <button className="btn-wishlist-remove" onClick={() => supprimer(item.id)} title={t('profil.remove', 'Retirer')}>
               <Trash2 size={16} />
             </button>
           </div>
@@ -122,6 +124,7 @@ const AVATARS = [
 ];
 
 function InfosPersonnelles({ user, setUser }) {
+  const { t } = useTranslation();
   const [form, setForm]       = useState({ prenom: user.prenom || '', nom: user.nom || '', avatar: user.avatar || '' });
   const [mdp, setMdp]         = useState({ current: '', new: '', confirm: '' });
   const [message, setMessage] = useState('');
@@ -133,7 +136,7 @@ function InfosPersonnelles({ user, setUser }) {
     setMessage(''); setErreur('');
 
     if (mdp.new && mdp.new !== mdp.confirm) {
-      setErreur('Les nouveaux mots de passe ne correspondent pas.');
+      setErreur(t('profil.err_password_match', 'Les nouveaux mots de passe ne correspondent pas.'));
       return;
     }
 
@@ -154,14 +157,14 @@ function InfosPersonnelles({ user, setUser }) {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage('✅ Profil mis à jour avec succès !');
+        setMessage(t('profil.success_update', '✅ Profil mis à jour avec succès !'));
         setUser({ ...user, ...data.user });
         setMdp({ current: '', new: '', confirm: '' });
       } else {
-        setErreur(data.message || 'Erreur lors de la mise à jour.');
+        setErreur(data.message || t('profil.err_update', 'Erreur lors de la mise à jour.'));
       }
     } catch {
-      setErreur('Impossible de joindre le serveur.');
+      setErreur(t('profil.err_server', 'Impossible de joindre le serveur.'));
     } finally {
       setLoading(false);
     }
@@ -174,7 +177,7 @@ function InfosPersonnelles({ user, setUser }) {
       {erreur  && <div className="profil-error">{erreur}</div>}
 
       <div className="infos-section">
-        <h4>Choisir un avatar</h4>
+        <h4>{t('profil.choose_avatar', 'Choisir un avatar')}</h4>
         <div className="avatar-grid-profil">
           {AVATARS.map(av => (
             <div
@@ -183,50 +186,50 @@ function InfosPersonnelles({ user, setUser }) {
               onClick={() => setForm({ ...form, avatar: av.id })}
             >
               <img src={av.imgUrl} alt={av.label} />
-              <span>{av.label}</span>
+              <span>{t(`profil.avatar_${av.id}`, av.label)}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="infos-section">
-        <h4>Informations générales</h4>
+        <h4>{t('profil.general_infos', 'Informations générales')}</h4>
         <div className="infos-row">
           <div className="infos-field">
-            <label>Prénom</label>
+            <label>{t('profil.firstname', 'Prénom')}</label>
             <input type="text" value={form.prenom} onChange={e => setForm({ ...form, prenom: e.target.value })} />
           </div>
           <div className="infos-field">
-            <label>Nom</label>
+            <label>{t('profil.lastname', 'Nom')}</label>
             <input type="text" value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} />
           </div>
         </div>
         <div className="infos-field">
-          <label>Email (non modifiable)</label>
+          <label>{t('profil.email_fixed', 'Email (non modifiable)')}</label>
           <input type="email" value={user.email} disabled className="infos-disabled" />
         </div>
       </div>
 
       <div className="infos-section">
-        <h4>Changer le mot de passe <span className="infos-optional">(optionnel)</span></h4>
+        <h4>{t('profil.change_password', 'Changer le mot de passe')} <span className="infos-optional">{t('profil.optional', '(optionnel)')}</span></h4>
         <div className="infos-field">
-          <label>Mot de passe actuel</label>
-          <input type="password" value={mdp.current} onChange={e => setMdp({ ...mdp, current: e.target.value })} placeholder="Laissez vide pour ne pas changer" />
+          <label>{t('profil.current_password', 'Mot de passe actuel')}</label>
+          <input type="password" value={mdp.current} onChange={e => setMdp({ ...mdp, current: e.target.value })} placeholder={t('profil.leave_empty', 'Laissez vide pour ne pas changer')} />
         </div>
         <div className="infos-row">
           <div className="infos-field">
-            <label>Nouveau mot de passe</label>
+            <label>{t('profil.new_password', 'Nouveau mot de passe')}</label>
             <input type="password" value={mdp.new} onChange={e => setMdp({ ...mdp, new: e.target.value })} />
           </div>
           <div className="infos-field">
-            <label>Confirmation</label>
+            <label>{t('profil.confirm_password', 'Confirmation')}</label>
             <input type="password" value={mdp.confirm} onChange={e => setMdp({ ...mdp, confirm: e.target.value })} />
           </div>
         </div>
       </div>
 
       <button type="submit" className="btn-sauvegarder" disabled={loading}>
-        {loading ? '⏳ Sauvegarde...' : '💾 Sauvegarder les modifications'}
+        {loading ? t('profil.saving', '⏳ Sauvegarde...') : t('profil.save_btn', '💾 Sauvegarder les modifications')}
       </button>
     </form>
   );
@@ -236,12 +239,13 @@ function InfosPersonnelles({ user, setUser }) {
 // COMPOSANT PRINCIPAL
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function MonProfil({ user, setUser, ajouterAuPanier, wishlist = [], rafraichirWishlist }) {
+  const { t } = useTranslation();
   const [onglet, setOnglet] = useState('historique');
 
   const tabs = [
-    { id: 'historique', label: 'Historique', icon: <ShoppingBag size={18} /> },
-    { id: 'wishlist',   label: 'Wishlist',   icon: <Heart size={18} /> },
-    { id: 'infos',      label: 'Mon compte', icon: <Settings size={18} /> },
+    { id: 'historique', label: t('profil.tab_history', 'Historique'), icon: <ShoppingBag size={18} /> },
+    { id: 'wishlist',   label: t('profil.tab_wishlist', 'Wishlist'),   icon: <Heart size={18} /> },
+    { id: 'infos',      label: t('profil.tab_account', 'Mon compte'), icon: <Settings size={18} /> },
   ];
 
   return (

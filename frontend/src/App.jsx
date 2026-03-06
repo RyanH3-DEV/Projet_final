@@ -16,7 +16,7 @@ import CookieBanner from './components/CookieBanner';
 import SecurityBadge from './components/SecurityBadge';
 import CGV from './components/CGV';
 import CGU from './components/CGU';
-
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import { getCart, addToCart } from './api/cartApi';
 import { useInactivityWatcher, InactivityModal } from './components/InactivityWatcher';
 
@@ -25,12 +25,12 @@ function ProtectedRoute({ user, children }) {
   return children;
 }
 
-function AdminRoute({ user, children }) {
+function AdminRoute({ user, children, requiredRole = 'ROLE_ADMIN' }) {
   if (!user) return <Navigate to="/connexion" replace />;
-  if (!user.roles?.includes('ROLE_ADMIN')) return <Navigate to="/" replace />;
+  if (user.roles?.includes('ROLE_SUPER_ADMIN')) return children;
+  if (!user.roles?.includes(requiredRole)) return <Navigate to="/" replace />;
   return children;
 }
-
 function App() {
   const [user, setUser]         = useState(null);
   const [panier, setPanier]     = useState([]);
@@ -154,6 +154,11 @@ function App() {
               <AdminDashboard />
             </AdminRoute>
           } />
+          <Route path="/superadmin" element={
+              <AdminRoute user={user} requiredRole="ROLE_SUPER_ADMIN">
+                <SuperAdminDashboard />
+              </AdminRoute>
+            } />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

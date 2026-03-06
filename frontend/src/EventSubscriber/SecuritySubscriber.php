@@ -8,11 +8,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecuritySubscriber implements EventSubscriberInterface
 {
     private FilesystemAdapter $cache;
     private LoggerInterface $logger;
+    private TranslatorInterface $translator;
 
     // ── Seuils de protection ──
     private const MAX_REQUESTS_PER_MINUTE  = 60;   // Rate limiting global
@@ -44,9 +46,10 @@ class SecuritySubscriber implements EventSubscriberInterface
         'acunetix', 'nessus', 'openvas', 'w3af',
     ];
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, TranslatorInterface $translator)
     {
         $this->logger = $logger;
+        $this->translator = $translator;
         $this->cache  = new FilesystemAdapter('security', 0, sys_get_temp_dir() . '/security_cache');
     }
 
@@ -66,7 +69,7 @@ class SecuritySubscriber implements EventSubscriberInterface
 
         // ── 1. Vérifie si l'IP est déjà bannie ──
         if ($this->isBlocked($ip)) {
-            $event->setResponse($this->blockResponse('IP bloquée temporairement.', 429));
+            $event->setResponse($this->blockResponse($this->translator->trans('security.ip_blocked', [], 'messages'), 429));
             return;
         }
 
@@ -75,7 +78,7 @@ class SecuritySubscriber implements EventSubscriberInterface
             if (str_contains($ua, $agent)) {
                 $this->blockIp($ip, self::SUSPICIOUS_BLOCK);
                 $this->logger->critical("Malicious agent blocked: {$agent} from {$ip}");
-                $event->setResponse($this->blockResponse('Accès refusé.', 403));
+                $event->setResponse($this->blockResponse($this->translator->trans('security.access_denied', [], 'messages'), 403));
                 return;
             }
         }
@@ -88,7 +91,7 @@ class SecuritySubscriber implements EventSubscriberInterface
         if ($requests >= self::MAX_REQUESTS_PER_MINUTE) {
             $this->blockIp($ip, self::RATE_BLOCK_DURATION);
             $this->logger->warning("Rate limit exceeded for IP: {$ip}");
-            $event->setResponse($this->blockResponse('Trop de requêtes. Réessayez dans 1 minute.', 429));
+            $event->setResponse($this->blockResponse($this->translator->trans('security.rate_limit', [], 'messages'), 429));
             return;
         }
 
@@ -105,7 +108,7 @@ class SecuritySubscriber implements EventSubscriberInterface
                 $this->blockIp($ip, self::LOGIN_BLOCK_DURATION);
                 $this->logger->warning("Brute force blocked for IP: {$ip} after {$attempts} attempts");
                 $event->setResponse($this->blockResponse(
-                    'Trop de tentatives de connexion. Compte temporairement bloqué (15 min).', 429
+                    $this->translator->trans('security.brute_force', [], 'messages'), 429
                 ));
                 return;
             }
@@ -124,7 +127,7 @@ class SecuritySubscriber implements EventSubscriberInterface
             if (preg_match($pattern, $toScan)) {
                 $this->blockIp($ip, self::SUSPICIOUS_BLOCK);
                 $this->logger->critical("Attack pattern detected from {$ip}: {$pattern}");
-                $event->setResponse($this->blockResponse('Requête suspecte bloquée.', 403));
+                $event->setResponse($this->blockResponse($this->translator->trans('security.suspicious_request', [], 'messages'), 403));
                 return;
             }
         }
@@ -151,7 +154,7 @@ class SecuritySubscriber implements EventSubscriberInterface
         return new JsonResponse([
             'error'   => $message,
             'blocked' => true,
-            'retryIn' => 'Réessayez dans quelques minutes.',
+            'retryIn' => $this->translator->trans('security.retry_later', [], 'messages'),
         ], $code);
     }
 }

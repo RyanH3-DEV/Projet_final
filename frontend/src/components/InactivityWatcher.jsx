@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Durées configurables (en millisecondes)
+// Je définis les durées configurables (en millisecondes)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const INACTIVITY_DELAY = 2 * 60 * 1000; // 6 minutes avant avertissement
 const COUNTDOWN_SECONDS = 60;            // 1 minute de compte à rebours
@@ -13,7 +14,7 @@ export function useInactivityWatcher(user, onLogout) {
   const timerCompte = useRef(null);
 
   const resetTimers = useCallback(() => {
-    // Si le modal est affiché et que l'utilisateur bouge → on annule
+    // Si le modal est affiché et que l'utilisateur bouge → j'annule
     if (afficherModal) {
       setAfficherModal(false);
       setSecondesRestantes(COUNTDOWN_SECONDS);
@@ -21,12 +22,12 @@ export function useInactivityWatcher(user, onLogout) {
     }
     clearTimeout(timerInactivite.current);
 
-    // Repart pour 6 minutes
+    // Je relance le délai pour 6 minutes
     timerInactivite.current = setTimeout(() => {
       setAfficherModal(true);
       setSecondesRestantes(COUNTDOWN_SECONDS);
 
-      // Compte à rebours de 60 secondes
+      // Je gère le compte à rebours de 60 secondes
       let restant = COUNTDOWN_SECONDS;
       timerCompte.current = setInterval(() => {
         restant -= 1;
@@ -42,7 +43,7 @@ export function useInactivityWatcher(user, onLogout) {
 
   useEffect(() => {
     if (!user) {
-      // Pas connecté → on nettoie tout
+      // Pas connecté → je nettoie tout
       clearTimeout(timerInactivite.current);
       clearInterval(timerCompte.current);
       setAfficherModal(false);
@@ -71,9 +72,10 @@ export function useInactivityWatcher(user, onLogout) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Composant Modal d'avertissement
+// Mon composant Modal d'avertissement
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export function InactivityModal({ secondesRestantes, onRester, onDeconnecter }) {
+  const { t } = useTranslation();
   const pct = (secondesRestantes / COUNTDOWN_SECONDS) * 100;
   const couleur = secondesRestantes > 30 ? '#c89b3c' : secondesRestantes > 10 ? '#e67e22' : '#e74c3c';
 
@@ -81,13 +83,13 @@ export function InactivityModal({ secondesRestantes, onRester, onDeconnecter }) 
     <div style={styles.overlay}>
       <div style={styles.modal}>
         <div style={styles.icone}>⚠️</div>
-        <h3 style={styles.titre}>Êtes-vous toujours là ?</h3>
+        <h3 style={styles.titre}>{t('inactivity.title', 'Êtes-vous toujours là ?')}</h3>
         <p style={styles.texte}>
-          Nous n'avons détecté aucune activité depuis 6 minutes.<br />
-          Pour votre sécurité, vous serez déconnecté dans :
+          {t('inactivity.message_1', "Nous n'avons détecté aucune activité depuis 6 minutes.")}<br />
+          {t('inactivity.message_2', 'Pour votre sécurité, vous serez déconnecté dans :')}
         </p>
 
-        {/* Compte à rebours circulaire */}
+        {/* Mon compte à rebours circulaire */}
         <div style={styles.compteContainer}>
           <svg width="100" height="100" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" strokeWidth="8" />
@@ -99,15 +101,17 @@ export function InactivityModal({ secondesRestantes, onRester, onDeconnecter }) 
               style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s' }}
             />
           </svg>
-          <span style={{ ...styles.secondes, color: couleur }}>{secondesRestantes}s</span>
+          <span style={{ ...styles.secondes, color: couleur }}>
+            {secondesRestantes}{t('inactivity.seconds_short', 's')}
+          </span>
         </div>
 
         <div style={styles.boutons}>
           <button style={styles.btnRester} onClick={onRester}>
-            ✅ Je suis là, rester connecté
+            {t('inactivity.stay_connected', '✅ Je suis là, rester connecté')}
           </button>
           <button style={styles.btnDeconnecter} onClick={onDeconnecter}>
-            Se déconnecter
+            {t('inactivity.logout', 'Se déconnecter')}
           </button>
         </div>
       </div>

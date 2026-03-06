@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../style_localisés/Inscription.css';
 
 function Inscription() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const categoriesLecteurs = [
-    { id: 'mysterieux', label: 'Le Mystérieux',  imgUrl: '/avatars/Mysterieux.png' },
-    { id: 'celebre',    label: 'Le Célèbre',     imgUrl: '/avatars/celebre.png' },
-    { id: 'rigoureux',  label: 'Le Rigoureux',   imgUrl: '/avatars/liseur.jpg' },
-    { id: 'passionne',  label: 'Le Passionné',   imgUrl: '/avatars/ancien-lecteur.jpg' },
-    { id: 'voyageur',   label: 'Le Voyageur',    imgUrl: '/avatars/liseuse.png' },
+    { id: 'mysterieux', label: t('register.cat_mysterious', 'Le Mystérieux'),  imgUrl: '/avatars/Mysterieux.png' },
+    { id: 'celebre',    label: t('register.cat_famous', 'Le Célèbre'),         imgUrl: '/avatars/celebre.png' },
+    { id: 'rigoureux',  label: t('register.cat_rigorous', 'Le Rigoureux'),     imgUrl: '/avatars/liseur.jpg' },
+    { id: 'passionne',  label: t('register.cat_passionate', 'Le Passionné'),   imgUrl: '/avatars/ancien-lecteur.jpg' },
+    { id: 'voyageur',   label: t('register.cat_traveler', 'Le Voyageur'),      imgUrl: '/avatars/liseuse.png' },
   ];
 
   const [formData, setFormData] = useState({
     prenom: '', nom: '', email: '', dateNaissance: '',
     password: '', confirmPassword: '',
-    avatar: categoriesLecteurs[0].id,
+    avatar: categoriesLecteurs[0].imgUrl,
     cgv: false
   });
   const [erreur, setErreur] = useState('');
@@ -31,11 +33,11 @@ function Inscription() {
     setErreur('');
 
     if (!formData.cgv) {
-      setErreur("Tu dois accepter les CGV et les CGU pour pouvoir t'inscrire.");
+      setErreur(t('register.error_cgv', "Tu dois accepter les CGV et les CGU pour pouvoir t'inscrire."));
       return;
     }
     if (!formData.dateNaissance) {
-      setErreur("Veuillez entrer votre date de naissance.");
+      setErreur(t('register.error_dob_required', "Veuillez entrer votre date de naissance."));
       return;
     }
 
@@ -48,11 +50,11 @@ function Inscription() {
     if (!moisPasse) age--;
 
     if (age < 18) {
-      setErreur("Tu dois avoir au moins 18 ans pour t'inscrire.");
+      setErreur(t('register.error_age_18', "Tu dois avoir au moins 18 ans pour t'inscrire."));
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setErreur("Les mots de passe ne correspondent pas.");
+      setErreur(t('register.error_password_match', "Les mots de passe ne correspondent pas."));
       return;
     }
 
@@ -64,28 +66,28 @@ function Inscription() {
       });
       const data = await response.json();
       if (response.ok) {
-        alert("Ton aventure commence ! Connecte-toi maintenant.");
+        alert(t('register.success_alert', "Ton aventure commence ! Connecte-toi maintenant."));
         navigate('/connexion');
       } else {
-        setErreur(data.message || "Une erreur est survenue lors de l'inscription.");
+        setErreur(data.message || t('register.error_generic', "Une erreur est survenue lors de l'inscription."));
       }
     } catch (err) {
-      setErreur("Impossible de joindre le serveur. Vérifie ta connexion.");
+      setErreur(t('alerts.server_unreachable', "Impossible de joindre le serveur. Vérifie ta connexion."));
     }
   };
 
   return (
     <div className="inscription-container">
       <div className="inscription-card">
-        <h2>Choisis ton profil de lecteur</h2>
+        <h2>{t('register.title', 'Choisis ton profil de lecteur')}</h2>
         {erreur && <div className="error-box">{erreur}</div>}
         <form onSubmit={soumettre} noValidate>
           <div className="avatar-grid">
             {categoriesLecteurs.map((cat) => (
               <div
                 key={cat.id}
-                className={`avatar-item ${formData.avatar === cat.id ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, avatar: cat.id })}
+                className={`avatar-item ${formData.avatar === cat.imgUrl ? 'active' : ''}`}
+                onClick={() => setFormData({ ...formData, avatar: cat.imgUrl })}
               >
                 <img src={cat.imgUrl} alt={cat.label} />
                 <span>{cat.label}</span>
@@ -93,22 +95,23 @@ function Inscription() {
             ))}
           </div>
           <div className="form-content">
-            <input type="text"     name="prenom"          placeholder="Prénom"                      onChange={handleChange} required />
-            <input type="text"     name="nom"             placeholder="Nom"                         onChange={handleChange} required />
-            <input type="email"    name="email"           placeholder="Email"                       onChange={handleChange} required />
-            <input type="date"     name="dateNaissance"                                              onChange={handleChange} required />
-            <input type="password" name="password"        placeholder="Mot de passe"                onChange={handleChange} required />
-            <input type="password" name="confirmPassword" placeholder="Confirmation du mot de passe" onChange={handleChange} required />
+            <input type="text"     name="prenom"          placeholder={t('register.firstname_placeholder', 'Prénom')}                      onChange={handleChange} required />
+            <input type="text"     name="nom"             placeholder={t('register.lastname_placeholder', 'Nom')}                         onChange={handleChange} required />
+            <input type="email"    name="email"           placeholder={t('register.email_placeholder', 'Email')}                       onChange={handleChange} required />
+            <input type="date"     name="dateNaissance"                                                                               onChange={handleChange} required />
+            <input type="password" name="password"        placeholder={t('register.password_placeholder', 'Mot de passe')}                onChange={handleChange} required />
+            <input type="password" name="confirmPassword" placeholder={t('register.confirm_password_placeholder', 'Confirmation du mot de passe')} onChange={handleChange} required />
             <div className="checkbox-group">
               <input type="checkbox" name="cgv" checked={formData.cgv} onChange={handleChange} />
               <span className="cgv-text">
-                J'accepte les
-                <a className="cgv-link" href="/cgv" target="_blank" rel="noopener noreferrer"> CGV </a>
-                et les
-                <a className="cgv-link" href="/cgu" target="_blank" rel="noopener noreferrer"> CGU</a>.
+                {t('register.accept_terms_1', "J'accepte les ")}
+                <a className="cgv-link" href="/cgv" target="_blank" rel="noopener noreferrer">{t('register.cgv_link', 'CGV')}</a>
+                {t('register.accept_terms_2', ' et les ')}
+                <a className="cgv-link" href="/cgu" target="_blank" rel="noopener noreferrer">{t('register.cgu_link', 'CGU')}</a>
+                {t('register.accept_terms_3', '.')}
               </span>
             </div>
-            <button type="submit" className="btn-submit">Valider mon profil</button>
+            <button type="submit" className="btn-submit">{t('register.submit_btn', 'Valider mon profil')}</button>
           </div>
         </form>
       </div>

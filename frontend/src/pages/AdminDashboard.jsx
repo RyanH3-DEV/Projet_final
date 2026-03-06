@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Eye, TrendingUp, Monitor, Globe, RefreshCw } from 'lucide-react';
 import '../Style_localisés/AdminDashboard.css';
@@ -8,6 +9,7 @@ const ADMIN_KEY = 'books-admin-2025';
 const COLORS    = ['#c89b3c','#3b82f6','#22c55e','#f97316','#a855f7','#ef4444'];
 
 export default function AdminDashboard() {
+  const { t }                 = useTranslation();
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
@@ -18,7 +20,7 @@ export default function AdminDashboard() {
       const res = await fetch(`${API}/dashboard`, {
         headers: { 'X-Admin-Key': ADMIN_KEY },
       });
-      if (!res.ok) throw new Error('Acces refuse');
+      if (!res.ok) throw new Error(t('admin.access_denied', 'Accès refusé'));
       setData(await res.json());
     } catch (e) { setError(e.message); }
     finally { setLoading(false); }
@@ -26,22 +28,22 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchStats(); }, []);
 
-  if (loading) return <div className="admin-loading"><RefreshCw size={32} className="spin" /><p>Chargement...</p></div>;
-  if (error)   return <div className="admin-error">Erreur : {error}</div>;
+  if (loading) return <div className="admin-loading"><RefreshCw size={32} className="spin" /><p>{t('admin.loading', 'Chargement...')}</p></div>;
+  if (error)   return <div className="admin-error">{t('admin.error_prefix', 'Erreur :')} {error}</div>;
 
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
-        <h1>Dashboard Analytiques</h1>
-        <button className="btn-refresh" onClick={fetchStats}><RefreshCw size={16} /> Actualiser</button>
+        <h1>{t('admin.dashboard_title', 'Dashboard Analytiques')}</h1>
+        <button className="btn-refresh" onClick={fetchStats}><RefreshCw size={16} /> {t('admin.refresh_btn', 'Actualiser')}</button>
       </div>
 
       <div className="admin-kpis">
         {[
-          { icon: <Eye size={22} />, value: data.visits.total.toLocaleString(), label: 'Visites totales',      color: '#c89b3c' },
-          { icon: <TrendingUp size={22} />, value: data.visits.today,           label: "Aujourd'hui",         color: '#22c55e' },
-          { icon: <Globe size={22} />,      value: data.visits.byPage?.length,  label: 'Pages trackees',      color: '#3b82f6' },
-          { icon: <Monitor size={22} />,    value: data.browsers?.length,       label: 'Navigateurs detectes',color: '#a855f7' },
+          { icon: <Eye size={22} />, value: data.visits.total.toLocaleString(), label: t('admin.total_visits', 'Visites totales'),      color: '#c89b3c' },
+          { icon: <TrendingUp size={22} />, value: data.visits.today,           label: t('admin.today', "Aujourd'hui"),               color: '#22c55e' },
+          { icon: <Globe size={22} />,      value: data.visits.byPage?.length,  label: t('admin.tracked_pages', 'Pages trackées'),    color: '#3b82f6' },
+          { icon: <Monitor size={22} />,    value: data.browsers?.length,       label: t('admin.browsers_detected', 'Navigateurs détectés'), color: '#a855f7' },
         ].map((k, i) => (
           <div key={i} className="kpi-card">
             <span className="kpi-icon" style={{ color: k.color }}>{k.icon}</span>
@@ -52,7 +54,7 @@ export default function AdminDashboard() {
 
       <div className="admin-charts">
         <div className="chart-card chart-wide">
-          <h3>Visites des 30 derniers jours</h3>
+          <h3>{t('admin.visits_30_days', 'Visites des 30 derniers jours')}</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.visits.byDay}>
               <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#888' }} />
@@ -64,7 +66,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="chart-card">
-          <h3>Pages les plus visitees</h3>
+          <h3>{t('admin.top_pages', 'Pages les plus visitées')}</h3>
           <div className="top-pages">
             {data.visits.byPage?.map((p, i) => (
               <div key={i} className="top-page-item">
@@ -80,7 +82,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="chart-card">
-          <h3>Navigateurs</h3>
+          <h3>{t('admin.browsers', 'Navigateurs')}</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={data.browsers} dataKey="total" nameKey="browser" cx="50%" cy="50%" outerRadius={75}
@@ -93,7 +95,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="chart-card">
-          <h3>Systemes exploitation</h3>
+          <h3>{t('admin.os', "Systèmes d'exploitation")}</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={data.os} dataKey="total" nameKey="os" cx="50%" cy="50%" outerRadius={75}
