@@ -1,0 +1,7 @@
+security:
+    ip_blocked: 'IP bloquée temporairement.'
+    access_denied: 'Accès refusé.'
+    rate_limit: 'Trop de requêtes. Réessayez dans 1 minute.'
+    brute_force: 'Trop de tentatives de connexion. Compte temporairement bloqué (15 min).'
+    suspicious_request: 'Requête suspecte bloquée.'
+    retry_later: 'Réessayez dans quelques minutes.'
