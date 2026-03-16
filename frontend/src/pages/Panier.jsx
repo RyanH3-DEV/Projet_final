@@ -13,6 +13,9 @@ import {
 import { removeFromCart, updateCartItem } from '../api/cartApi';
 import '../style_localisés/Panier.css';
 
+// Je définis l'URL de base dynamique pour m'adapter à l'environnement de production
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 const IS_SANDBOX = import.meta.env.VITE_PAYMENT_ENV !== 'production';
 
 const PAYPAL_CLIENT_ID = IS_SANDBOX
@@ -56,7 +59,8 @@ function StripeForm({ total, onSuccess, onError }) {
     setErreur('');
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/paiement/stripe/intent', {
+      // J'utilise le BASE_URL pour l'intention de paiement Stripe
+      const res = await fetch(`${BASE_URL}/api/paiement/stripe/intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,7 +100,6 @@ function StripeForm({ total, onSuccess, onError }) {
     <form onSubmit={payer} className="stripe-form">
       <p className="stripe-label">{t('cart.stripe_title', '💳 Informations de carte bancaire')}</p>
 
-      {/* Nom sur la carte */}
       <div className="stripe-field-group">
         <label className="stripe-field-label">{t('cart.name_on_card', 'Nom sur la carte')}</label>
         <input
@@ -109,7 +112,6 @@ function StripeForm({ total, onSuccess, onError }) {
         />
       </div>
 
-      {/* Numéro de carte */}
       <div className="stripe-field-group">
         <label className="stripe-field-label">{t('cart.card_number', 'Numéro de carte')}</label>
         <div className="card-element-wrapper">
@@ -117,7 +119,6 @@ function StripeForm({ total, onSuccess, onError }) {
         </div>
       </div>
 
-      {/* Date + CVC côte à côte */}
       <div className="stripe-row">
         <div className="stripe-field-group">
           <label className="stripe-field-label">{t('cart.expiry_date', "Date d'expiration")}</label>
@@ -143,9 +144,6 @@ function StripeForm({ total, onSuccess, onError }) {
   );
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🏅 BANDEAU DE LOGOS DE SÉCURITÉ
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function SecuriteBadges() {
   const { t } = useTranslation();
   return (
@@ -182,9 +180,6 @@ function SecuriteBadges() {
   );
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🛒 COMPOSANT PRINCIPAL PANIER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function Panier({ panier, rafraichirPanier }) {
   const { t } = useTranslation();
   const [modePaiement, setModePaiement] = useState(null);
@@ -214,9 +209,9 @@ function Panier({ panier, rafraichirPanier }) {
   };
 
   const onSuccess = async (methode) => {
-    // ✅ Sauvegarde la commande en base de données
     try {
-      await fetch('http://127.0.0.1:8000/api/profil/commandes/creer', {
+      // J'utilise le BASE_URL pour créer la commande après succès du paiement
+      await fetch(`${BASE_URL}/api/profil/commandes/creer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -229,7 +224,6 @@ function Panier({ panier, rafraichirPanier }) {
     }
     setPaiementReussi(true);
     setModePaiement(null);
-    // Vide le panier React après paiement
     await rafraichirPanier();
   };
   const onError = (msg) => setErreurPaiement(msg);
@@ -254,7 +248,6 @@ function Panier({ panier, rafraichirPanier }) {
         <p className="panier-vide">{t('cart.empty', 'Ton panier est vide.')}</p>
       ) : (
         <>
-          {/* Articles */}
           <div className="panier-items">
             {panier.map((item) => (
               <div key={item.id} className="item-row">
@@ -275,7 +268,6 @@ function Panier({ panier, rafraichirPanier }) {
             <h3 className="total-text">{t('cart.total', 'Total :')} {total.toFixed(2)} €</h3>
           </div>
 
-          {/* Section paiement */}
           <div className="paiement-section">
             <h3>{t('cart.payment_secure', 'Paiement Sécurisé')}</h3>
             <p className="paiement-desc">{t('cart.payment_desc', 'Choisis ton mode de règlement pour confirmer ta commande.')}</p>
@@ -284,7 +276,6 @@ function Panier({ panier, rafraichirPanier }) {
               <div className="error-box" style={{ marginBottom: '15px' }}>⚠ {erreurPaiement}</div>
             )}
 
-            {/* Choix du mode */}
             {!modePaiement && (
               <div className="paiement-boutons">
                 <button className="btn-mastercard" onClick={() => setModePaiement('carte')}>
@@ -296,7 +287,6 @@ function Panier({ panier, rafraichirPanier }) {
               </div>
             )}
 
-            {/* Formulaire Stripe */}
             {modePaiement === 'carte' && (
               <div className="paiement-form-wrapper">
                 <button className="btn-retour" onClick={() => { setModePaiement(null); setErreurPaiement(''); }}>
@@ -308,7 +298,6 @@ function Panier({ panier, rafraichirPanier }) {
               </div>
             )}
 
-            {/* PayPal */}
             {modePaiement === 'paypal' && (
               <div className="paiement-form-wrapper">
                 <button className="btn-retour" onClick={() => { setModePaiement(null); setErreurPaiement(''); }}>
@@ -321,7 +310,8 @@ function Panier({ panier, rafraichirPanier }) {
                     <PayPalButtons
                       style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
                       createOrder={async () => {
-                        const res = await fetch('http://127.0.0.1:8000/api/paiement/paypal/create', {
+                        // J'utilise le BASE_URL pour créer l'ordre PayPal
+                        const res = await fetch(`${BASE_URL}/api/paiement/paypal/create`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ amount: total.toFixed(2), email: localStorage.getItem('userEmail') }),
@@ -330,7 +320,8 @@ function Panier({ panier, rafraichirPanier }) {
                         return orderID;
                       }}
                       onApprove={async (data) => {
-                        const res = await fetch('http://127.0.0.1:8000/api/paiement/paypal/capture', {
+                        // J'utilise le BASE_URL pour capturer le paiement PayPal
+                        const res = await fetch(`${BASE_URL}/api/paiement/paypal/capture`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ orderID: data.orderID }),

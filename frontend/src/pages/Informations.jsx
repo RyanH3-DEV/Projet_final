@@ -11,7 +11,7 @@ function Informations() {
 
       <div className="info-hero">
         <h1>{t('info.page_title', 'Informations')}</h1>
-        <p>{t('info.page_subtitle', 'Tout ce que vous devez savoir sur CYNA BOOKS')}</p>
+        <p>{t('info.page_subtitle', 'Tout ce que vous devez savoir sur Shopping Livre')}</p>
       </div>
 
       <div className="info-grid">

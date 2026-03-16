@@ -114,12 +114,6 @@
 }
 .ws-spacer { width: 18px; display: inline-block; }
 
-/*
-  CLÉ DU FONCTIONNEMENT :
-  - opacity: 0 par défaut
-  - animation forwards → reste à opacity:1 une fois jouée
-  - animation-delay défini inline dans le JSX
-*/
 .ws-char {
   font-family: 'IM Fell English', Georgia, serif;
   font-size: clamp(1.8rem, 3vw, 2.6rem);
@@ -130,7 +124,6 @@
   animation-duration: 0.7s;
   animation-timing-function: ease;
   animation-fill-mode: both;
-  /* animation-delay est défini en inline style dans le JSX */
 }
 .ws-char--gold  { color:#c89b3c; text-shadow: 0 0 20px rgba(200,155,60,0.7), 1px 2px 0 #000; }
 .ws-char--gold2 { color:#f0d68a; text-shadow: 0 0 20px rgba(240,214,138,0.7), 1px 2px 0 #000; }
@@ -178,4 +171,69 @@
 @keyframes glowPulse {
   0%,100%{ opacity:0.4; transform:translateX(-50%) scaleX(1);    }
   50%    { opacity:1;   transform:translateX(-50%) scaleX(1.15); }
+}
+
+
+/* ══ MOBILE (≤ 480px) ══ */
+@media (max-width: 480px) {
+  .ws-screen {
+    gap: 12px;   /* lignes latérales plus proches du livre */
+  }
+
+  /* Lignes latérales plus courtes */
+  .ws-sideline--on { height: 35vh; }
+
+  /* Livre prend plus de place sur petit écran */
+  .ws-book {
+    width: 72vw;
+    min-width: 200px;
+  }
+
+  /* Zoom réduit pour ne pas déborder */
+  .ws-book--zoom {
+    transform: scale(1.2);
+  }
+
+  /* Titre : letter-spacing réduit pour éviter le débordement */
+  .ws-char {
+    font-size: clamp(1.4rem, 5.5vw, 2rem);
+    letter-spacing: 2px;
+  }
+
+  .ws-spacer { width: 10px; }
+
+  /* Sous-titre : letter-spacing réduit */
+  .ws-subtitle {
+    font-size: clamp(0.55rem, 2.5vw, 0.68rem);
+    letter-spacing: 3px;
+  }
+
+  /* Citation masquée sur très petit écran — trop chargé */
+  .ws-quote { display: none; }
+
+  /* Ornement légèrement réduit */
+  .ws-ornament { margin: 8px 0 6px; gap: 8px; }
+
+  /* Lueur réduite */
+  .ws-glow { width: 200px; }
+}
+
+
+/* ══ TRÈS PETIT (≤ 360px) ══ */
+@media (max-width: 360px) {
+  /* Lignes latérales masquées — trop peu d'espace */
+  .ws-sideline { display: none; }
+
+  .ws-book {
+    width: 86vw;
+  }
+
+  .ws-char {
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    letter-spacing: 1.5px;
+  }
+
+  .ws-book--zoom {
+    transform: scale(1.1);
+  }
 }

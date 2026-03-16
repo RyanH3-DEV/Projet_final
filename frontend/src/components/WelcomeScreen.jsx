@@ -4,8 +4,8 @@ import '../style_localisés/WelcomeScreen.css';
 
 const BIENVENU = ['B','i','e','n','v','e','n','u'];
 const SUR      = ['s','u','r'];
-const BOOKS    = ['B','o','o','k','s'];
-const LIVRE    = ['L','i','v','r','e'];
+const BOOKS    = ['S','h','o','p','p','i','n','g'];
+const LIVRE    = ['B','o','o','k','s'];
 
 const LETTER_DELAY = 0.15;
 const WELCOME_START = 0.3;

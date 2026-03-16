@@ -19,7 +19,7 @@
   background: #fff;
   border-radius: 10px;
   padding: 20px 25px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   margin-bottom: 25px;
 }
 
@@ -168,6 +168,7 @@
   display: flex; align-items: center;
   justify-content: center; gap: 15px; flex-wrap: wrap;
 }
+
 .badge-item {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 8px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px;
@@ -203,131 +204,183 @@
 
 /* --- CHAMPS STRIPE SÉPARÉS --- */
 .stripe-field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
+  display: flex; flex-direction: column; gap: 6px; flex: 1;
 }
-
-.stripe-field-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #555;
-}
+.stripe-field-label { font-size: 0.85rem; font-weight: 600; color: #555; }
 
 .stripe-input-text {
   padding: 12px 14px;
-  border: 1.5px solid #c89b3c;
-  border-radius: 8px;
-  font-size: 16px;
-  background: #fafafa;
-  color: #1e2328;
-  outline: none;
-  transition: all 0.2s;
+  border: 1.5px solid #c89b3c; border-radius: 8px;
+  font-size: 16px; background: #fafafa; color: #1e2328;
+  outline: none; transition: all 0.2s;
   font-family: 'Segoe UI', sans-serif;
 }
 .stripe-input-text:focus {
-  border-color: #a07830;
-  background: #fff;
+  border-color: #a07830; background: #fff;
   box-shadow: 0 0 8px rgba(200,155,60,0.35);
 }
 
-/* Date + CVC côte à côte */
-.stripe-row {
-  display: flex;
-  gap: 15px;
-}
-.stripe-row .stripe-field-group {
-  flex: 1;
-}
+.stripe-row { display: flex; gap: 15px; }
+.stripe-row .stripe-field-group { flex: 1; }
 
-/* --- BOUTONS WISHLIST + PANIER GROUPÉS --- */
-.book-btn-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+/* --- WISHLIST + PANIER --- */
+.book-btn-group { display: flex; gap: 8px; align-items: center; }
 
 .add-to-wishlist-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid #e0e0e0;
-  background: #fff;
-  color: #aaa;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid #e0e0e0; background: #fff; color: #aaa;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease; flex-shrink: 0;
 }
+.add-to-wishlist-btn:hover { border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }
+.add-to-wishlist-btn.wishlisted { border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }
 
-.add-to-wishlist-btn:hover {
-  border-color: #e74c3c;
-  color: #e74c3c;
-  background: #fff5f5;
-}
-
-.add-to-wishlist-btn.wishlisted {
-  border-color: #e74c3c;
-  color: #e74c3c;
-  background: #fff5f5;
-}
-
-/* ═══════════════════════════════════════════════
-   PAGINATION
-   ═══════════════════════════════════════════════ */
+/* --- PAGINATION --- */
 .pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 40px 0 20px;
-  flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin: 40px 0 20px; flex-wrap: wrap;
 }
 
 .page-btn {
-  min-width: 40px;
-  height: 40px;
-  padding: 0 12px;
-  border: 1.5px solid #e0e0e0;
-  background: #fff;
-  color: #1e2328;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-width: 40px; height: 40px; padding: 0 12px;
+  border: 1.5px solid #e0e0e0; background: #fff; color: #1e2328;
+  border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
 }
+.page-btn:hover:not(:disabled) { border-color: #c89b3c; color: #c89b3c; background: #fffbf0; }
+.page-btn.active { background: #1e2328; color: #cdbe91; border-color: #c89b3c; }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-nav { background: #fafafa; }
+.page-dots { color: #aaa; font-size: 1.1rem; padding: 0 4px; user-select: none; }
 
-.page-btn:hover:not(:disabled) {
-  border-color: #c89b3c;
-  color: #c89b3c;
-  background: #fffbf0;
+
+/* ═══════════════════════════════════════════════
+   TABLETTE (≤ 768px)
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .panier-container {
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  .panier-container h2 { font-size: 1.5rem; }
+
+  .panier-items { padding: 16px 18px; }
+
+  .item-img {
+    width: 55px;
+    height: 78px;
+    margin-right: 14px;
+  }
+
+  .item-title { font-size: 0.95rem; }
+  .item-details p { font-size: 0.88rem; }
+
+  .paiement-boutons { gap: 10px; }
+
+  .btn-mastercard,
+  .btn-paypal { width: 100%; justify-content: center; }
 }
 
-.page-btn.active {
-  background: #1e2328;
-  color: #cdbe91;
-  border-color: #c89b3c;
-}
 
-.page-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
+/* ═══════════════════════════════════════════════
+   MOBILE (≤ 480px)
+   ═══════════════════════════════════════════════ */
 
-.page-nav {
-  background: #fafafa;
-}
+@media (max-width: 480px) {
+  .panier-container {
+    margin: 12px auto;
+    padding: 0 12px;
+  }
 
-.page-dots {
-  color: #aaa;
-  font-size: 1.1rem;
-  padding: 0 4px;
-  user-select: none;
+  .panier-container h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .panier-items { padding: 12px 14px; }
+
+  /* Article : image + détails + actions réorganisés */
+  .item-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 4px;
+  }
+
+  .item-img {
+    width: 48px;
+    height: 68px;
+    margin-right: 10px;
+  }
+
+  .item-details { margin-right: 0; }
+  .item-title  { font-size: 0.88rem; }
+  .item-details p { font-size: 0.8rem; }
+
+  /* Actions sous l'article, alignées à droite */
+  .item-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .btn-quantite { width: 30px; height: 30px; font-size: 1rem; }
+  .qte-text     { font-size: 0.9rem; }
+  .btn-supprimer { margin-left: 4px; }
+
+  .total-text { font-size: 1.1rem; }
+
+  /* Paiement */
+  .paiement-section { padding: 18px 16px; }
+  .paiement-section h3 { font-size: 1.05rem; }
+  .paiement-desc { font-size: 0.88rem; }
+
+  .paiement-boutons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-mastercard,
+  .btn-paypal {
+    width: 100%;
+    justify-content: center;
+    height: 48px;
+  }
+
+  /* Stripe : date + CVC empilés */
+  .stripe-row { flex-direction: column; gap: 12px; }
+
+  .btn-payer-carte { padding: 13px; font-size: 0.92rem; }
+
+  /* Confirmation */
+  .paiement-confirme {
+    padding: 40px 16px;
+  }
+  .paiement-confirme h2 { font-size: 1.4rem; }
+  .confirme-icon { font-size: 3rem; }
+
+  /* Bandeau sécurité */
+  .securite-bandeau { padding: 16px 12px; }
+  .securite-logos { gap: 8px; }
+  .badge-item {
+    min-width: 58px;
+    min-height: 44px;
+    padding: 6px 10px;
+  }
+  .badge-icon  { font-size: 1.1rem; }
+  .badge-text  { font-size: 0.58rem; }
+  .visa-text   { font-size: 1rem; }
+  .stripe-logo-text,
+  .paypal-logo-text { font-size: 0.88rem; }
+
+  /* Pagination compacte */
+  .pagination { gap: 5px; margin: 28px 0 16px; }
+  .page-btn {
+    min-width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+    padding: 0 8px;
+  }
 }

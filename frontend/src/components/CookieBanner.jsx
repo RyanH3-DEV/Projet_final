@@ -62,6 +62,7 @@ export default function CookieBanner() {
       date: new Date().toISOString(),
       version: '1.0',
     }));
+    window.dispatchEvent(new CustomEvent('cookieConsentUpdated'));
     setVisible(false);
   };
 

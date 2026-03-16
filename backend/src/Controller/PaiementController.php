@@ -165,8 +165,8 @@ class PaiementController extends AbstractController
             CURLOPT_USERPWD        => "$clientId:$clientSecret",
             CURLOPT_POSTFIELDS     => 'grant_type=client_credentials',
             CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => true,
         ]);
 
         $result = json_decode(curl_exec($ch), true);
@@ -197,8 +197,8 @@ class PaiementController extends AbstractController
                 "Authorization: Bearer $token",
                 'Content-Type: application/json',
             ],
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => true,
         ]);
 
         $result = json_decode(curl_exec($ch), true);

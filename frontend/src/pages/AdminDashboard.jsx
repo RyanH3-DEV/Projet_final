@@ -4,9 +4,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { Eye, TrendingUp, Monitor, Globe, RefreshCw } from 'lucide-react';
 import '../Style_localisés/AdminDashboard.css';
 
-const API       = 'http://127.0.0.1:8000/api/stats';
-const ADMIN_KEY = 'books-admin-2025';
+// Je force l'URL vers le serveur AlwaysData
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API       = `${BASE_URL}/api/stats`;
+const ADMIN_KEY = 'books-admin-2026';
 const COLORS    = ['#c89b3c','#3b82f6','#22c55e','#f97316','#a855f7','#ef4444'];
+
+// ... la suite de ton code reste identique
 
 export default function AdminDashboard() {
   const { t }                 = useTranslation();
@@ -18,14 +22,19 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const res = await fetch(`${API}/dashboard`, {
-        headers: { 'X-Admin-Key': ADMIN_KEY },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Admin-Key': ADMIN_KEY,
+          // J'ajoute les identifiants pour passer le pare-feu Symfony
+          'X-User-Email': localStorage.getItem('userEmail'),
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
       });
       if (!res.ok) throw new Error(t('admin.access_denied', 'Accès refusé'));
       setData(await res.json());
     } catch (e) { setError(e.message); }
     finally { setLoading(false); }
   };
-
   useEffect(() => { fetchStats(); }, []);
 
   if (loading) return <div className="admin-loading"><RefreshCw size={32} className="spin" /><p>{t('admin.loading', 'Chargement...')}</p></div>;

@@ -1,5 +1,5 @@
-
 ###> symfony/framework-bundle ###
+/.env
 /.env.local
 /.env.local.php
 /.env.*.local
@@ -8,5 +8,16 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-# Node modules
-node_modules
+
+# ── Sécurité Frontend (Vite/React) ──
+.env
+*.local
+.env.production
+.env.development
+dist/
+build/
+
+# ── Divers ──
+node_modules/
+.DS_Store
+.vscode/

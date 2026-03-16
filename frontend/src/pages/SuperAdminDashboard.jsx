@@ -4,9 +4,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { Users, Trash2, ShieldCheck, TrendingUp, RefreshCw, Crown, AlertTriangle, Euro } from 'lucide-react';
 import '../Style_localisés/SuperAdminDashboard.css';
 
-const API    = 'http://127.0.0.1:8000/api/superadmin';
-const TOKEN  = () => localStorage.getItem('token');
-const COLORS = ['#c89b3c', '#3b82f6', '#22c55e', '#f97316', '#a855f7', '#ef4444'];
+// URL de base dynamique — pointe sur le local par défaut
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API      = `${BASE_URL}/api/superadmin`;
+const TOKEN    = () => localStorage.getItem('token');
+const COLORS   = ['#c89b3c', '#3b82f6', '#22c55e', '#f97316', '#a855f7', '#ef4444'];
 
 const ROLE_LABELS = {
   ROLE_USER:        { label: 'Utilisateur', color: '#3b82f6' },

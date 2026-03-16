@@ -60,16 +60,85 @@
   margin-bottom: 8px;
 }
 
+
+/* ── Tablette (≤ 768px) ── */
 @media (max-width: 768px) {
-  .cgu-container {
-    padding: 25px;
+  .cgu-page {
+    padding: 24px 16px;
   }
-  
+
+  .cgu-container {
+    padding: 30px 25px;
+    border-radius: 6px;
+  }
+
   .cgu-container h1 {
     font-size: 22px;
+    margin-bottom: 28px;
   }
-  
+
+  .cgu-section {
+    margin-bottom: 28px;
+  }
+
   .cgu-section h2 {
     font-size: 18px;
+  }
+
+  .cgu-section h3 {
+    font-size: 15px;
+  }
+}
+
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+  .cgu-page {
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .cgu-container {
+    padding: 20px 16px;
+    border-radius: 0;        /* Plein écran sans bords arrondis */
+    box-shadow: none;        /* Inutile sur mobile plein écran */
+    min-height: 100vh;
+  }
+
+  .cgu-container h1 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+
+  .cgu-section {
+    margin-bottom: 22px;
+  }
+
+  .cgu-section h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .cgu-section h3 {
+    font-size: 14px;
+    margin-top: 14px;
+    margin-bottom: 8px;
+  }
+
+  .cgu-section p {
+    font-size: 14px;
+    text-align: left;        /* justify mal rendu sur petits écrans */
+    margin-bottom: 10px;
+  }
+
+  .cgu-section ul {
+    padding-left: 16px;
+    margin-bottom: 12px;
+  }
+
+  .cgu-section li {
+    font-size: 14px;
+    margin-bottom: 6px;
   }
 }

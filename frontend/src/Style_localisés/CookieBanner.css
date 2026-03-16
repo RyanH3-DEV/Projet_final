@@ -232,7 +232,59 @@
 .cookie-toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
 .cookie-toggle input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
 
+
+/* ── Mobile (≤ 500px) ── */
 @media (max-width: 500px) {
-  .cookie-banner { padding: 18px; }
-  .cookie-actions { flex-direction: column; }
+  .cookie-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .cookie-banner {
+    padding: 18px 16px;
+    border-radius: 16px 16px 0 0;  /* collé en bas, arrondi seulement en haut */
+    border-bottom: none;
+    max-width: 100%;
+  }
+
+  .cookie-banner--large {
+    max-width: 100%;
+  }
+
+  .cookie-header h3 {
+    font-size: 0.92rem;
+  }
+
+  .cookie-text {
+    font-size: 0.8rem;
+  }
+
+  .cookie-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-cookie-accept,
+  .btn-cookie-customize,
+  .btn-cookie-refuse {
+    width: 100%;
+    padding: 13px;        /* zone de tap confortable */
+    font-size: 0.85rem;
+  }
+
+  .cookie-categories {
+    max-height: 220px;    /* évite que la liste déborde sur petits écrans */
+  }
+
+  .cookie-category-header {
+    padding: 10px 12px;
+  }
+
+  .cookie-category-label {
+    font-size: 0.8rem;
+  }
+
+  .cookie-rgpd-note {
+    font-size: 0.68rem;
+  }
 }

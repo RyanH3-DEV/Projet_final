@@ -65,6 +65,7 @@
   color: #888;
   transition: all 0.2s;
   margin-bottom: -2px;
+  white-space: nowrap;
 }
 
 .profil-tab:hover { color: #1e2328; }
@@ -267,3 +268,157 @@
   box-shadow: 0 0 14px rgba(200,155,60,0.45);
 }
 .btn-sauvegarder:disabled { opacity: 0.6; cursor: not-allowed; }
+
+
+/* ═══════════════════════════════════════════════
+   TABLETTE (≤ 768px)
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .profil-container {
+    margin: 20px auto;
+    padding: 0 16px 40px;
+  }
+
+  .profil-hero {
+    padding: 22px;
+    gap: 18px;
+  }
+
+  .profil-avatar img {
+    width: 72px;
+    height: 72px;
+  }
+
+  .profil-hero-info h2 { font-size: 1.3rem; }
+  .profil-hero-info p  { font-size: 0.88rem; }
+
+  .profil-tabs {
+    gap: 4px;
+    overflow-x: auto;             /* onglets scrollables si trop nombreux */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .profil-tabs::-webkit-scrollbar { display: none; }
+
+  .profil-tab {
+    padding: 10px 14px;
+    font-size: 0.88rem;
+  }
+
+  .profil-content {
+    padding: 22px;
+  }
+
+  .wishlist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════
+   MOBILE (≤ 480px)
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .profil-container {
+    margin: 0;
+    padding: 0 12px 30px;
+  }
+
+  /* Hero empilé verticalement */
+  .profil-hero {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 16px;
+    gap: 14px;
+    border-radius: 0 0 14px 14px;
+  }
+
+  .profil-avatar img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profil-hero-info h2 { font-size: 1.2rem; }
+
+  /* Onglets : icônes seules sur très petit écran */
+  .profil-tab {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    gap: 5px;
+  }
+
+  .profil-content {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  /* Commandes : header réorganisé */
+  .commande-header {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .commande-right {
+    gap: 10px;
+  }
+
+  .commande-id   { font-size: 0.88rem; }
+  .commande-date { font-size: 0.78rem; }
+  .commande-total { font-size: 0.95rem; }
+
+  .commande-items { padding: 12px 14px; }
+
+  .commande-item-row { gap: 10px; }
+
+  .commande-img {
+    width: 40px;
+    height: 56px;
+  }
+
+  .commande-item-title { font-size: 0.85rem; }
+  .commande-item-price { font-size: 0.78rem; }
+
+  /* Wishlist : 2 colonnes fixes */
+  .wishlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .wishlist-img { height: 120px; }
+  .wishlist-title { font-size: 0.82rem; }
+  .wishlist-price { font-size: 0.88rem; }
+
+  .btn-wishlist-cart,
+  .btn-wishlist-remove {
+    padding: 7px 4px;
+    font-size: 0.78rem;
+  }
+
+  /* Infos : champs empilés */
+  .infos-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .infos-field input {
+    font-size: 16px;        /* évite le zoom iOS */
+    padding: 11px 12px;
+  }
+
+  .avatar-grid-profil { gap: 10px; }
+
+  .avatar-item-profil img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .btn-sauvegarder {
+    padding: 13px;
+    font-size: 0.92rem;
+  }
+}

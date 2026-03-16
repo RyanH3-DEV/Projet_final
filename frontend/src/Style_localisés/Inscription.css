@@ -17,7 +17,7 @@
   width: 100%;
   max-width: 650px;
   border-top: 4px solid #c89b3c;
-  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 45px rgba(0,0,0,0.55);
 }
 
 .inscription-card h2 {
@@ -28,7 +28,7 @@
   margin-bottom: 30px;
 }
 
-/* --- MESSAGE D'ERREUR AMÉLIORÉ --- */
+/* --- MESSAGE D'ERREUR --- */
 .error-box {
   display: flex;
   align-items: flex-start;
@@ -43,11 +43,10 @@
   font-weight: 600;
   font-size: 0.95rem;
   line-height: 1.5;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.15);
+  box-shadow: 0 4px 14px rgba(220,38,38,0.15);
   animation: slideInError 0.3s ease;
 }
 
-/* Icône ⚠ automatique avant le message */
 .error-box::before {
   content: "⚠";
   font-size: 1.2rem;
@@ -57,17 +56,11 @@
 }
 
 @keyframes slideInError {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* --- AVATARS EN LIGNE --- */
+/* --- AVATARS --- */
 .avatar-grid {
   display: flex;
   justify-content: space-between;
@@ -105,9 +98,7 @@
   transform: scale(1.1);
 }
 
-.avatar-item:hover img {
-  transform: scale(1.08);
-}
+.avatar-item:hover img { transform: scale(1.08); }
 
 /* --- FORMULAIRE --- */
 .form-content {
@@ -131,16 +122,15 @@
   outline: none;
   border-color: #c89b3c;
   background: #ffffff;
-  box-shadow: 0 0 8px rgba(200, 155, 60, 0.35);
+  box-shadow: 0 0 8px rgba(200,155,60,0.35);
 }
 
-/* Input en erreur (optionnel, à ajouter via className dynamique) */
 .form-content input.input-error {
   border-color: #dc2626;
   background: #fff5f5;
 }
 
-/* --- CHECKBOX + TEXTE + LIENS --- */
+/* --- CHECKBOX --- */
 .checkbox-group {
   display: flex;
   align-items: center;
@@ -167,9 +157,7 @@
   cursor: pointer;
 }
 
-.cgv-text a:hover {
-  text-decoration: underline;
-}
+.cgv-text a:hover { text-decoration: underline; }
 
 /* --- BOUTON SUBMIT --- */
 .btn-submit {
@@ -188,5 +176,98 @@
 
 .btn-submit:hover {
   background-color: #2c3137;
-  box-shadow: 0 0 14px rgba(200, 155, 60, 0.45);
+  box-shadow: 0 0 14px rgba(200,155,60,0.45);
+}
+
+
+/* ── Tablette (≤ 768px) ── */
+@media (max-width: 768px) {
+  .inscription-container {
+    padding: 30px 16px;
+    align-items: flex-start;
+  }
+
+  .inscription-card {
+    padding: 30px 28px;
+  }
+
+  .inscription-card h2 {
+    font-size: 1.6rem;
+    margin-bottom: 24px;
+  }
+
+  .avatar-item img {
+    width: 65px;
+    height: 65px;
+  }
+
+  .avatar-item span {
+    font-size: 0.8rem;
+  }
+}
+
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+  .inscription-container {
+    padding: 20px 12px;
+    align-items: flex-start;
+  }
+
+  .inscription-card {
+    padding: 24px 16px;
+    border-radius: 10px;
+  }
+
+  .inscription-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Avatars : taille réduite, labels masqués si trop serrés */
+  .avatar-grid {
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .avatar-item img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .avatar-item span {
+    font-size: 0.72rem;
+    margin-top: 5px;
+  }
+
+  /* Inputs : font-size 16px pour éviter le zoom iOS */
+  .form-content input {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .form-content {
+    gap: 14px;
+  }
+
+  .checkbox-group {
+    align-items: flex-start;  /* label CGV peut être sur 2 lignes */
+    margin: 6px 0 16px 0;
+  }
+
+  .cgv-text {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .btn-submit {
+    padding: 14px;
+    font-size: 0.9rem;
+  }
+
+  .error-box {
+    font-size: 0.88rem;
+    padding: 12px 14px;
+  }
 }

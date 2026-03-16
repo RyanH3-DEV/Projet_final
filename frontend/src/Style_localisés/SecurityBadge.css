@@ -139,13 +139,11 @@
   font-size: 0.78rem;
 }
 
-.item-status.ok  { color: #22c55e; }
-.item-status.ko  { color: #ef4444; }
+.item-status.ok { color: #22c55e; }
+.item-status.ko { color: #ef4444; }
 
 /* Barre de score */
-.panel-score {
-  margin-bottom: 10px;
-}
+.panel-score { margin-bottom: 10px; }
 
 .score-bar {
   height: 6px;
@@ -191,7 +189,33 @@
   color: #fff;
 }
 
-.btn-rescan:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn-rescan:disabled { opacity: 0.5; cursor: not-allowed; }
+
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+  .security-badge {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  /* Bouton réduit à l'icône seule sur mobile */
+  .badge-toggle {
+    padding: 9px;
+    gap: 0;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+  }
+
+  /* Cache le texte score + label, garde uniquement l'icône */
+  .badge-main-info { display: none; }
+
+  /* Panneau : pleine largeur, ancré à droite */
+  .badge-panel {
+    width: calc(100vw - 32px); /* pleine largeur moins les marges */
+    right: 0;
+    bottom: calc(100% + 10px);
+  }
 }

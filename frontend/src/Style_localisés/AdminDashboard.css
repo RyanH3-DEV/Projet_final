@@ -104,7 +104,7 @@
 }
 
 .top-page-rank { color: #555; font-size: 0.78rem; font-weight: 700; }
-.top-page-name { color: #ddd; font-size: 0.82rem; truncate: ellipsis; overflow: hidden; white-space: nowrap; }
+.top-page-name { color: #ddd; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
 .top-page-count { color: #c89b3c; font-size: 0.82rem; font-weight: 700; text-align: right; }
 
 .top-page-bar {
@@ -146,8 +146,68 @@
   to { transform: rotate(360deg); }
 }
 
+/* ── Tablette ── */
 @media (max-width: 900px) {
+  .admin-dashboard { padding: 20px; }
   .admin-kpis { grid-template-columns: repeat(2, 1fr); }
   .admin-charts { grid-template-columns: 1fr; }
   .chart-wide { grid-column: 1; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .admin-dashboard { padding: 14px; }
+
+  /* Header : empilé verticalement */
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .admin-header h1 { font-size: 1.25rem; }
+
+  .btn-refresh {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* KPIs : 1 colonne */
+  .admin-kpis {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .kpi-card {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .kpi-value { font-size: 1.5rem; }
+
+  /* Charts : 1 colonne */
+  .admin-charts {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .chart-wide { grid-column: 1; }
+
+  .chart-card {
+    padding: 14px;
+  }
+
+  .chart-card h3 { font-size: 0.88rem; }
+
+  /* Top pages : colonne nom plus large */
+  .top-page-item {
+    grid-template-columns: 22px 1fr 36px;
+    gap: 8px;
+  }
+
+  .top-page-rank { font-size: 0.72rem; }
+  .top-page-name { font-size: 0.78rem; }
+  .top-page-count { font-size: 0.78rem; }
 }

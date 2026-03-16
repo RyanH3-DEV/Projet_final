@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../style_localisés/Connexion.css';
 
+// Je récupère l'URL de base depuis l'environnement, sinon je retombe sur mon serveur local
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 function Connexion({ setUser }) {
   const { t } = useTranslation();
   const [email, setEmail]       = useState('');
@@ -15,7 +18,7 @@ function Connexion({ setUser }) {
     e.preventDefault();
     setErreur('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/login_check', {
+      const response = await fetch(`${BASE_URL}/api/login_check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

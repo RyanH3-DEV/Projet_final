@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../style_localisés/Inscription.css';
 
+// Je récupère l'URL de base depuis l'environnement, sinon je retombe sur mon serveur local
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 function Inscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -50,7 +53,7 @@ function Inscription() {
     if (!moisPasse) age--;
 
     if (age < 18) {
-      setErreur(t('register.error_age_18', "Tu dois avoir au moins 18 ans pour t'inscrire."));
+      setErreur(t('register.error_age_18', "Tu dois avoir au plus 18 ans pour t'inscrire."));
       return;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -59,7 +62,8 @@ function Inscription() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/inscription-securisee', {
+      // J'utilise l'URL dynamique pour l'inscription
+      const response = await fetch(`${BASE_URL}/api/inscription-securisee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -96,10 +100,10 @@ function Inscription() {
           </div>
           <div className="form-content">
             <input type="text"     name="prenom"          placeholder={t('register.firstname_placeholder', 'Prénom')}                      onChange={handleChange} required />
-            <input type="text"     name="nom"             placeholder={t('register.lastname_placeholder', 'Nom')}                         onChange={handleChange} required />
-            <input type="email"    name="email"           placeholder={t('register.email_placeholder', 'Email')}                       onChange={handleChange} required />
-            <input type="date"     name="dateNaissance"                                                                               onChange={handleChange} required />
-            <input type="password" name="password"        placeholder={t('register.password_placeholder', 'Mot de passe')}                onChange={handleChange} required />
+            <input type="text"     name="nom"             placeholder={t('register.lastname_placeholder', 'Nom')}                          onChange={handleChange} required />
+            <input type="email"    name="email"           placeholder={t('register.email_placeholder', 'Email')}                           onChange={handleChange} required />
+            <input type="date"     name="dateNaissance"                                                                                    onChange={handleChange} required />
+            <input type="password" name="password"        placeholder={t('register.password_placeholder', 'Mot de passe')}                 onChange={handleChange} required />
             <input type="password" name="confirmPassword" placeholder={t('register.confirm_password_placeholder', 'Confirmation du mot de passe')} onChange={handleChange} required />
             <div className="checkbox-group">
               <input type="checkbox" name="cgv" checked={formData.cgv} onChange={handleChange} />

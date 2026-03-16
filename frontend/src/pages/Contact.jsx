@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../style_localisés/Contact.css';
 
+// Je définis l'URL de base dynamique pour m'adapter à l'environnement de production
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 function Contact() {
   const { t } = useTranslation();
   const [statut, setStatut] = useState(null);
@@ -11,7 +14,8 @@ function Contact() {
     const data = Object.fromEntries(new FormData(e.target));
 
     try {
-      const reponse = await fetch("http://127.0.0.1:8000/api/contact-assistance", {
+      // J'utilise l'URL dynamique lors de l'appel API
+      const reponse = await fetch(`${BASE_URL}/api/contact-assistance`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

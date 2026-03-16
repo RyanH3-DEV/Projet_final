@@ -1,6 +1,8 @@
 import { t } from 'i18next';
 
-const API_URL = "http://127.0.0.1:8000/api/cart";
+// Je récupère l'URL de base depuis l'environnement, sinon je retombe sur mon serveur local
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_URL  = `${BASE_URL}/api/cart`;
 
 const getHeaders = () => ({
     'Content-Type': 'application/json'

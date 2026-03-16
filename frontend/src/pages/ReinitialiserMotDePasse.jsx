@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import '../style_localisés/ReinitialiserMotDePasse.css';
 
+// Je définis l'URL de base dynamique pour assurer la compatibilité avec AlwaysData
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 function ReinitialiserMotDePasse({ setCurrentPage }) {
   const [form, setForm] = useState({ email: '', password: '', confirm: '' });
   const [erreur, setErreur] = useState('');
@@ -15,7 +18,8 @@ function ReinitialiserMotDePasse({ setCurrentPage }) {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/reset-password-direct', {
+      // J'utilise le BASE_URL pour l'appel de réinitialisation
+      const response = await fetch(`${BASE_URL}/api/reset-password-direct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

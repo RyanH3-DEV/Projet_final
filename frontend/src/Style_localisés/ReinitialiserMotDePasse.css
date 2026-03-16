@@ -1,4 +1,4 @@
-/* Conteneur principal qui centre la carte au milieu de l'écran */
+/* Conteneur principal */
 .reset-password-container {
   display: flex;
   justify-content: center;
@@ -8,12 +8,12 @@
   background-color: #f9f9f9;
 }
 
-/* La carte blanche qui contient le formulaire */
+/* Carte */
 .reset-password-card {
   background: #ffffff;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -26,7 +26,7 @@
   font-weight: 600;
 }
 
-/* Style des groupes de champs (Label + Input) */
+/* Groupes de champs */
 .form-group {
   text-align: left;
   margin-bottom: 20px;
@@ -44,18 +44,18 @@
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 16px;       /* déjà à 16px — pas de zoom iOS */
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
-/* Effet quand on clique dans un champ */
 .form-group input:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
 }
 
-/* Le gros bouton bleu */
+/* Bouton */
 .btn-reset {
   width: 100%;
   padding: 14px;
@@ -70,16 +70,10 @@
   margin-top: 10px;
 }
 
-.btn-reset:hover {
-  background-color: #0056b3;
-  transform: translateY(-1px);
-}
+.btn-reset:hover  { background-color: #0056b3; transform: translateY(-1px); }
+.btn-reset:active { transform: translateY(0); }
 
-.btn-reset:active {
-  transform: translateY(0);
-}
-
-/* Messages d'erreur et de succès */
+/* Messages */
 .status-message {
   padding: 10px;
   border-radius: 6px;
@@ -99,7 +93,7 @@
   border: 1px solid #c3e6cb;
 }
 
-/* Lien pour revenir en arrière */
+/* Lien retour */
 .btn-back {
   background: none;
   border: none;
@@ -110,6 +104,33 @@
   font-size: 14px;
 }
 
-.btn-back:hover {
-  color: #333;
+.btn-back:hover { color: #333; }
+
+
+/* ── Mobile (≤ 480px) ── */
+@media (max-width: 480px) {
+  .reset-password-container {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .reset-password-card {
+    padding: 24px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .reset-password-card h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .btn-reset {
+    padding: 13px;
+    font-size: 15px;
+  }
+
+  .status-message { font-size: 13px; }
+  .btn-back       { font-size: 13px; }
 }

@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { User, ShoppingBag, Heart, Settings, Trash2, ShoppingCart, Eye } from 'lucide-react';
 import '../style_localisés/MonProfil.css';
 
-const API = 'http://127.0.0.1:8000/api/profil';
+// Je définis l'URL de base dynamique pour le déploiement
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API = `${BASE_URL}/api/profil`;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ONGLET 1 — Historique des commandes
