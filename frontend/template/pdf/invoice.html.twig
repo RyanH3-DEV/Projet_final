@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { margin: 0px; }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container { padding: 50px; }
+
+        /* En-tête */
+        .header {
+            background: #0f172a;
+            color: white;
+            padding: 40px 50px;
+        }
+        .brand { font-size: 28px; font-weight: bold; letter-spacing: -1px; }
+        .brand span { color: #3b82f6; }
+        .invoice-title { float: right; text-align: right; margin-top: -35px; }
+
+        /* Infos client & Facture */
+        .info-section { margin: 40px 0; width: 100%; }
+        .info-box { width: 50%; vertical-align: top; }
+        .label { color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: bold; }
+        .value { font-size: 14px; margin-top: 5px; }
+
+        /* Tableau des services */
+        .table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        .table th {
+            background: #f8fafc;
+            color: #64748b;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+        .item-name { font-weight: bold; color: #0f172a; }
+
+        /* Totaux */
+        .footer-section { margin-top: 50px; }
+        .total-box {
+            float: right;
+            width: 250px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .total-row { display: table; width: 100%; margin-bottom: 10px; }
+        .total-label { display: table-cell; font-size: 14px; color: #64748b; }
+        .total-value { display: table-cell; text-align: right; font-weight: bold; font-size: 16px; }
+        .grand-total { border-top: 2px solid #e2e8f0; padding-top: 10px; color: #3b82f6; font-size: 20px; }
+
+        .legal {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            right: 50px;
+            font-size: 10px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">CYNA<span>INFRASTRUCTURE</span></div>
+        <div class="invoice-title">
+            <div style="font-size: 20px; font-weight: bold;">FACTURE</div>
+            <div style="font-size: 14px; opacity: 0.8;">Ref: #CYN-{{ order.id }}</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <table class="info-section">
+            <tr>
+                <td class="info-box">
+                    <div class="label">Émetteur</div>
+                    <div class="value">
+                        <strong>Cyna Cyber Security SAS</strong><br>
+                        123 Cyber Avenue, 75000 Paris<br>
+                        contact@cyna-infra.com
+                    </div>
+                </td>
+                <td class="info-box" style="text-align: right;">
+                    <div class="label">Destinataire</div>
+                    <div class="value">
+                        <strong>{{ order.user.prenom }} {{ order.user.nom }}</strong><br>
+                        {{ order.billingAddress|nl2br }}<br>
+                        {{ order.user.email }}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Désignation du service</th>
+                    <th style="text-align: center;">Licences</th>
+                    <th>Période</th>
+                    <th style="text-align: right;">Prix Unitaire</th>
+                    <th style="text-align: right;">Total HT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                <tr>
+                    <td class="item-name">{{ item.serviceName }}</td>
+                    <td style="text-align: center;">{{ item.quantity }}</td>
+                    <td style="text-transform: capitalize;">{{ item.subscriptionDuration }}</td>
+                    <td style="text-align: right;">{{ item.price|number_format(2, ',', ' ') }} €</td>
+                    <td style="text-align: right; font-weight: bold;">{{ (item.price * item.quantity)|number_format(2, ',', ' ') }} €</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer-section">
+            <div class="total-box">
+                <div class="total-row">
+                    <span class="total-label">Total HT</span>
+                    <span class="total-value">{{ order.total|number_format(2, ',', ' ') }} €</span>
+                </div>
+                <div class="total-row">
+                    <span class="total-label">TVA (20%)</span>
+                    <span class="total-value">{{ (order.total * 0.2)|number_format(2, ',', ' ') }} €</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span class="total-label" style="color: #0f172a;">TOTAL TTC</span>
+                    <span class="total-value">{{ (order.total * 1.2)|number_format(2, ',', ' ') }} €</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="legal">
+            CYNA INFRASTRUCTURE - SAS au capital de 50 000€ - RCS Paris B 123 456 789<br>
+            TVA Intracommunautaire : FR 12 345 678 901<br>
+            Paiement effectué via {{ order.paymentMethod|upper }} le {{ order.createdAt|date('d/m/Y à H:i') }}
+        </div>
+    </div>
+</body>
+</html>

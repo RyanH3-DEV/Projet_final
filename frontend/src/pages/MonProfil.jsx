@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, ShoppingBag, Heart, Settings, Trash2, ShoppingCart, Eye } from 'lucide-react';
+import {
+  User, Shield, Heart, Settings, Trash2,
+  ShoppingCart, Eye, MapPin, Plus, Loader2,
+  CheckCircle, XCircle, FileText
+} from 'lucide-react';
+import { removeFromCart } from '../api/cartApi';
 import '../style_localisés/MonProfil.css';
 
-// Je définis l'URL de base dynamique pour le déploiement
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const API = `${BASE_URL}/api/profil`;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ONGLET 1 — Historique des commandes
+// ONGLET 1 — Historique des Souscriptions
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function Historique({ email }) {
   const { t } = useTranslation();
@@ -24,45 +28,76 @@ function Historique({ email }) {
       .finally(() => setLoading(false));
   }, [email]);
 
-  if (loading) return <div className="profil-loading">{t('profil.loading', '⏳ Chargement...')}</div>;
+  // ── Logique de téléchargement de la facture
+  const telechargerFacture = (orderId) => {
+    // Je construis l'URL avec l'ID de la commande et l'email pour la vérification de sécurité
+    const url = `${BASE_URL}/api/profil/commandes/${orderId}/facture?email=${encodeURIComponent(email)}`;
+
+    // J'ouvre le lien dans un nouvel onglet pour déclencher le téléchargement BinaryFileResponse
+    window.open(url, '_blank');
+  };
+
+  if (loading) return <div className="profil-loading"><Loader2 className="spinner" /></div>;
 
   if (commandes.length === 0) return (
     <div className="profil-empty">
-      <ShoppingBag size={48} />
-      <p>{t('profil.no_orders', 'Aucune commande pour le moment.')}</p>
+      <Shield size={48} opacity={0.2} />
+      <p>{t('profil.no_subscriptions', 'Aucune souscription active.')}</p>
     </div>
   );
 
   return (
     <div className="historique-list">
       {commandes.map(cmd => (
-        <div key={cmd.id} className="commande-card">
+        <div key={cmd.id} className={`commande-card ${ouvert === cmd.id ? 'active' : ''}`}>
           <div className="commande-header" onClick={() => setOuvert(ouvert === cmd.id ? null : cmd.id)}>
             <div className="commande-meta">
-              <span className="commande-id">{t('profil.order_prefix', 'Commande #')}{cmd.id}</span>
+              <span className="commande-id">Ref: #CYN-{cmd.id}</span>
               <span className="commande-date">{cmd.date}</span>
             </div>
             <div className="commande-right">
               <span className={`commande-status status-${cmd.status}`}>
-                {cmd.status === 'completed' ? t('profil.status_paid', '✅ Payée') : cmd.status}
+                {cmd.status === 'completed' ? '● Actif' : '● ' + cmd.status}
               </span>
               <span className="commande-total">{Number(cmd.total).toFixed(2)} €</span>
-              <Eye size={18} className="commande-eye" />
+              <Eye size={18} />
             </div>
           </div>
 
           {ouvert === cmd.id && (
-            <div className="commande-items">
+            <div className="commande-details-expand">
+              <div className="billing-info-mini">
+                <strong>Facturé à :</strong> {cmd.billingAddress}
+              </div>
               {cmd.items.map((item, i) => (
                 <div key={i} className="commande-item-row">
-                  <img src={item.image} alt={item.title} className="commande-img" />
-                  <div className="commande-item-info">
-                    <p className="commande-item-title">{item.title}</p>
-                    <p className="commande-item-price">{Number(item.price).toFixed(2)} € × {item.quantity}</p>
+                  <div className="item-name-group">
+                    <Shield size={16} className="item-icon" />
+                    <div>
+                      <p className="commande-item-title">{item.serviceName}</p>
+                      <p className="commande-item-sub">Engagement : {item.subscriptionDuration}</p>
+                    </div>
                   </div>
-                  <strong>{(Number(item.price) * item.quantity).toFixed(2)} €</strong>
+                  <div className="item-qty-price">
+                    <span>{item.quantity} licences</span>
+                    <strong>{(Number(item.price) * item.quantity).toFixed(2)} €</strong>
+                  </div>
                 </div>
               ))}
+
+              <div className="commande-actions-footer">
+                {/* J'affiche le bouton seulement si un chemin de facture existe en base */}
+                {cmd.invoicePath ? (
+                  <button
+                    className="btn-invoice"
+                    onClick={() => telechargerFacture(cmd.id)}
+                  >
+                    <FileText size={16} /> {t('profil.download_invoice', 'Télécharger la facture PDF')}
+                  </button>
+                ) : (
+                  <span className="invoice-pending">Génération du PDF en cours...</span>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -72,7 +107,84 @@ function Historique({ email }) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ONGLET 2 — Wishlist
+// ONGLET 2 — Carnet d'Adresses (NOUVEAU)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function CarnetAdresses({ email }) {
+  const { t } = useTranslation();
+  const [adresses, setAdresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newAddr, setNewAddr] = useState({
+    prenom: '', nom: '', adresse1: '', ville: '', codePostal: '', pays: 'France', telephone: ''
+  });
+
+  const fetchAdresses = () => {
+    setLoading(true);
+    fetch(`${API}/adresses?email=${encodeURIComponent(email)}`)
+      .then(r => r.json())
+      .then(d => setAdresses(d.adresses || []))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => fetchAdresses(), [email]);
+
+  const ajouter = async (e) => {
+    e.preventDefault();
+    await fetch(`${API}/adresses/ajouter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...newAddr, email })
+    });
+    setShowAdd(false);
+    fetchAdresses();
+  };
+
+  const supprimer = async (id) => {
+    await fetch(`${API}/adresses/supprimer/${id}?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
+    fetchAdresses();
+  };
+
+  if (loading) return <div className="profil-loading"><Loader2 className="spinner" /></div>;
+
+  return (
+    <div className="adresses-container">
+      <button className="btn-add-address" onClick={() => setShowAdd(!showAdd)}>
+        <Plus size={18} /> {t('profil.add_address', 'Ajouter une adresse de facturation')}
+      </button>
+
+      {showAdd && (
+        <form onSubmit={ajouter} className="address-form-popup">
+          <div className="form-grid">
+            <input type="text" placeholder="Prénom" onChange={e => setNewAddr({...newAddr, prenom: e.target.value})} required />
+            <input type="text" placeholder="Nom" onChange={e => setNewAddr({...newAddr, nom: e.target.value})} required />
+            <input type="text" placeholder="Adresse" className="full-width" onChange={e => setNewAddr({...newAddr, adresse1: e.target.value})} required />
+            <input type="text" placeholder="Code Postal" onChange={e => setNewAddr({...newAddr, codePostal: e.target.value})} required />
+            <input type="text" placeholder="Ville" onChange={e => setNewAddr({...newAddr, ville: e.target.value})} required />
+            <input type="text" placeholder="Téléphone" className="full-width" onChange={e => setNewAddr({...newAddr, telephone: e.target.value})} />
+          </div>
+          <button type="submit" className="btn-save-address">Enregistrer</button>
+        </form>
+      )}
+
+      <div className="address-grid">
+        {adresses.map(addr => (
+          <div key={addr.id} className="address-card">
+            <div className="address-content">
+              <strong>{addr.prenom} {addr.nom}</strong>
+              <p>{addr.adresse1}</p>
+              <p>{addr.codePostal} {addr.ville}</p>
+              <p className="addr-country">{addr.pays}</p>
+            </div>
+            <button className="btn-delete-addr" onClick={() => supprimer(addr.id)}><Trash2 size={16} /></button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ONGLET 3 — Services Favoris (Wishlist)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function WishlistTab({ email, ajouterAuPanier, wishlist, rafraichirWishlist }) {
   const { t } = useTranslation();
@@ -85,9 +197,8 @@ function WishlistTab({ email, ajouterAuPanier, wishlist, rafraichirWishlist }) {
 
   if (items.length === 0) return (
     <div className="profil-empty">
-      <Heart size={48} />
-      <p>{t('profil.wishlist_empty', 'Ta wishlist est vide.')}</p>
-      <p className="profil-empty-sub">{t('profil.wishlist_empty_sub', 'Ajoute des livres depuis le catalogue !')}</p>
+      <Heart size={48} opacity={0.2} />
+      <p>{t('profil.wishlist_empty', 'Votre liste de veille est vide.')}</p>
     </div>
   );
 
@@ -95,16 +206,16 @@ function WishlistTab({ email, ajouterAuPanier, wishlist, rafraichirWishlist }) {
     <div className="wishlist-grid">
       {items.map(item => (
         <div key={item.id} className="wishlist-card">
-          <img src={item.image} alt={item.title} className="wishlist-img" />
+          <img src={item.image} alt={item.name} className="wishlist-img" />
           <div className="wishlist-info">
-            <p className="wishlist-title">{item.title}</p>
-            <p className="wishlist-price">{Number(item.price).toFixed(2)} €</p>
+            <p className="wishlist-title">{item.name}</p>
+            <p className="wishlist-price">{Number(item.price).toFixed(2)} €/mois</p>
           </div>
           <div className="wishlist-actions">
-            <button className="btn-wishlist-cart" onClick={() => ajouterAuPanier(item)} title={t('profil.add_to_cart', 'Ajouter au panier')}>
+            <button className="btn-wishlist-cart" onClick={() => ajouterAuPanier(item)}>
               <ShoppingCart size={16} />
             </button>
-            <button className="btn-wishlist-remove" onClick={() => supprimer(item.id)} title={t('profil.remove', 'Retirer')}>
+            <button className="btn-wishlist-remove" onClick={() => supprimer(item.id)}>
               <Trash2 size={16} />
             </button>
           </div>
@@ -115,30 +226,21 @@ function WishlistTab({ email, ajouterAuPanier, wishlist, rafraichirWishlist }) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ONGLET 3 — Informations personnelles
+// ONGLET 4 — Paramètres du Compte
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const AVATARS = [
-  { id: 'mysterieux',  label: 'Le Mystérieux', imgUrl: '/avatars/Mysterieux.png' },
-  { id: 'celebre',     label: 'Le Célèbre',    imgUrl: '/avatars/celebre.png' },
-  { id: 'rigoureux',   label: 'Le Rigoureux',  imgUrl: '/avatars/liseur.jpg' },
-  { id: 'passionne',   label: 'Le Passionné',  imgUrl: '/avatars/ancien-lecteur.jpg' },
-  { id: 'voyageur',    label: 'Le Voyageur',   imgUrl: '/avatars/liseuse.jpg' },
-];
-
 function InfosPersonnelles({ user, setUser }) {
   const { t } = useTranslation();
-  const [form, setForm]       = useState({ prenom: user.prenom || '', nom: user.nom || '', avatar: user.avatar || '' });
-  const [mdp, setMdp]         = useState({ current: '', new: '', confirm: '' });
-  const [message, setMessage] = useState('');
-  const [erreur, setErreur]   = useState('');
+  const [form, setForm] = useState({ prenom: user.prenom || '', nom: user.nom || '', avatar: user.avatar || 'default' });
+  const [mdp, setMdp] = useState({ current: '', new: '', confirm: '' });
+  const [notif, setNotif] = useState({ msg: '', type: '' });
   const [loading, setLoading] = useState(false);
 
   const sauvegarder = async (e) => {
     e.preventDefault();
-    setMessage(''); setErreur('');
+    setNotif({ msg: '', type: '' });
 
     if (mdp.new && mdp.new !== mdp.confirm) {
-      setErreur(t('profil.err_password_match', 'Les nouveaux mots de passe ne correspondent pas.'));
+      setNotif({ msg: 'Les mots de passe ne correspondent pas.', type: 'error' });
       return;
     }
 
@@ -148,25 +250,25 @@ function InfosPersonnelles({ user, setUser }) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email:           user.email,
-          prenom:          form.prenom,
-          nom:             form.nom,
-          avatar:          form.avatar,
+          email: user.email,
+          prenom: form.prenom,
+          nom: form.nom,
+          avatar: form.avatar,
           currentPassword: mdp.current || undefined,
-          newPassword:     mdp.new || undefined,
+          newPassword: mdp.new || undefined,
         }),
       });
 
       const data = await res.json();
       if (res.ok) {
-        setMessage(t('profil.success_update', '✅ Profil mis à jour avec succès !'));
+        setNotif({ msg: 'Profil mis à jour avec succès.', type: 'success' });
         setUser({ ...user, ...data.user });
         setMdp({ current: '', new: '', confirm: '' });
       } else {
-        setErreur(data.message || t('profil.err_update', 'Erreur lors de la mise à jour.'));
+        setNotif({ msg: data.message, type: 'error' });
       }
     } catch {
-      setErreur(t('profil.err_server', 'Impossible de joindre le serveur.'));
+      setNotif({ msg: 'Erreur serveur.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -174,64 +276,47 @@ function InfosPersonnelles({ user, setUser }) {
 
   return (
     <form onSubmit={sauvegarder} className="infos-form">
-
-      {message && <div className="profil-success">{message}</div>}
-      {erreur  && <div className="profil-error">{erreur}</div>}
-
-      <div className="infos-section">
-        <h4>{t('profil.choose_avatar', 'Choisir un avatar')}</h4>
-        <div className="avatar-grid-profil">
-          {AVATARS.map(av => (
-            <div
-              key={av.id}
-              className={`avatar-item-profil ${form.avatar === av.id ? 'active' : ''}`}
-              onClick={() => setForm({ ...form, avatar: av.id })}
-            >
-              <img src={av.imgUrl} alt={av.label} />
-              <span>{t(`profil.avatar_${av.id}`, av.label)}</span>
-            </div>
-          ))}
+      {notif.msg && (
+        <div className={`profil-notification ${notif.type}`}>
+          {notif.type === 'success' ? <CheckCircle size={18} /> : <XCircle size={18} />}
+          {notif.msg}
         </div>
-      </div>
+      )}
 
       <div className="infos-section">
-        <h4>{t('profil.general_infos', 'Informations générales')}</h4>
+        <h4>Identité du collaborateur</h4>
         <div className="infos-row">
           <div className="infos-field">
-            <label>{t('profil.firstname', 'Prénom')}</label>
+            <label>Prénom</label>
             <input type="text" value={form.prenom} onChange={e => setForm({ ...form, prenom: e.target.value })} />
           </div>
           <div className="infos-field">
-            <label>{t('profil.lastname', 'Nom')}</label>
+            <label>Nom</label>
             <input type="text" value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} />
           </div>
-        </div>
-        <div className="infos-field">
-          <label>{t('profil.email_fixed', 'Email (non modifiable)')}</label>
-          <input type="email" value={user.email} disabled className="infos-disabled" />
         </div>
       </div>
 
       <div className="infos-section">
-        <h4>{t('profil.change_password', 'Changer le mot de passe')} <span className="infos-optional">{t('profil.optional', '(optionnel)')}</span></h4>
+        <h4>Sécurité</h4>
         <div className="infos-field">
-          <label>{t('profil.current_password', 'Mot de passe actuel')}</label>
-          <input type="password" value={mdp.current} onChange={e => setMdp({ ...mdp, current: e.target.value })} placeholder={t('profil.leave_empty', 'Laissez vide pour ne pas changer')} />
+          <label>Mot de passe actuel</label>
+          <input type="password" value={mdp.current} onChange={e => setMdp({ ...mdp, current: e.target.value })} placeholder="Requis pour tout changement" />
         </div>
         <div className="infos-row">
           <div className="infos-field">
-            <label>{t('profil.new_password', 'Nouveau mot de passe')}</label>
+            <label>Nouveau mot de passe</label>
             <input type="password" value={mdp.new} onChange={e => setMdp({ ...mdp, new: e.target.value })} />
           </div>
           <div className="infos-field">
-            <label>{t('profil.confirm_password', 'Confirmation')}</label>
+            <label>Confirmation</label>
             <input type="password" value={mdp.confirm} onChange={e => setMdp({ ...mdp, confirm: e.target.value })} />
           </div>
         </div>
       </div>
 
       <button type="submit" className="btn-sauvegarder" disabled={loading}>
-        {loading ? t('profil.saving', '⏳ Sauvegarde...') : t('profil.save_btn', '💾 Sauvegarder les modifications')}
+        {loading ? <Loader2 className="spinner" size={18} /> : 'Appliquer les modifications'}
       </button>
     </form>
   );
@@ -245,30 +330,27 @@ function MonProfil({ user, setUser, ajouterAuPanier, wishlist = [], rafraichirWi
   const [onglet, setOnglet] = useState('historique');
 
   const tabs = [
-    { id: 'historique', label: t('profil.tab_history', 'Historique'), icon: <ShoppingBag size={18} /> },
-    { id: 'wishlist',   label: t('profil.tab_wishlist', 'Wishlist'),   icon: <Heart size={18} /> },
-    { id: 'infos',      label: t('profil.tab_account', 'Mon compte'), icon: <Settings size={18} /> },
+    { id: 'historique', label: 'Souscriptions', icon: <Shield size={18} /> },
+    { id: 'adresses',   label: 'Facturation',    icon: <MapPin size={18} /> },
+    { id: 'wishlist',   label: 'Veille technique', icon: <Heart size={18} /> },
+    { id: 'infos',      label: 'Paramètres',     icon: <Settings size={18} /> },
   ];
 
   return (
     <div className="profil-container">
-
-      {/* En-tête profil */}
       <div className="profil-hero">
-        <div className="profil-avatar">
-          <img
-            src={`/avatars/${user.avatar === 'mysterieux' ? 'Mysterieux.png' : user.avatar === 'celebre' ? 'celebre.png' : user.avatar === 'rigoureux' ? 'liseur.jpg' : user.avatar === 'passionne' ? 'ancien-lecteur.jpg' : 'liseuse.jpg'}`}
-            alt="Avatar"
-            onError={e => { e.target.src = '/avatars/Mysterieux.png'; }}
-          />
+        <div className="profil-avatar-container">
+          <div className="avatar-placeholder">
+            {user.prenom?.charAt(0)}{user.nom?.charAt(0)}
+          </div>
         </div>
         <div className="profil-hero-info">
           <h2>{user.prenom} {user.nom}</h2>
-          <p>{user.email}</p>
+          <span className="user-role-badge">Client Certifié Cyna</span>
+          <p className="user-email-text">{user.email}</p>
         </div>
       </div>
 
-      {/* Onglets */}
       <div className="profil-tabs">
         {tabs.map(tab => (
           <button
@@ -281,13 +363,12 @@ function MonProfil({ user, setUser, ajouterAuPanier, wishlist = [], rafraichirWi
         ))}
       </div>
 
-      {/* Contenu */}
       <div className="profil-content">
         {onglet === 'historique' && <Historique email={user.email} />}
+        {onglet === 'adresses'   && <CarnetAdresses email={user.email} />}
         {onglet === 'wishlist'   && <WishlistTab email={user.email} ajouterAuPanier={ajouterAuPanier} wishlist={wishlist} rafraichirWishlist={rafraichirWishlist} />}
         {onglet === 'infos'      && <InfosPersonnelles user={user} setUser={setUser} />}
       </div>
-
     </div>
   );
 }

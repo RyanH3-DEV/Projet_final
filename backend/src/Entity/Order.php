@@ -27,10 +27,16 @@ class Order
     private string $total;
 
     #[ORM\Column(length: 50)]
-    private string $status = 'completed';
+    private string $status = 'active';
 
     #[ORM\Column(length: 50)]
     private string $paymentMethod = 'card';
+
+    #[ORM\Column(type: 'text')]
+    private ?string $billingAddress = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $invoicePath = null;
 
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderItem::class, cascade: ['persist', 'remove'])]
     private Collection $items;
@@ -51,6 +57,13 @@ class Order
     public function setStatus(string $status): self { $this->status = $status; return $this; }
     public function getPaymentMethod(): string { return $this->paymentMethod; }
     public function setPaymentMethod(string $method): self { $this->paymentMethod = $method; return $this; }
+
+    public function getBillingAddress(): ?string { return $this->billingAddress; }
+    public function setBillingAddress(string $billingAddress): self { $this->billingAddress = $billingAddress; return $this; }
+
+    public function getInvoicePath(): ?string { return $this->invoicePath; }
+    public function setInvoicePath(?string $invoicePath): self { $this->invoicePath = $invoicePath; return $this; }
+
     public function getItems(): Collection { return $this->items; }
     public function addItem(OrderItem $item): self {
         if (!$this->items->contains($item)) {

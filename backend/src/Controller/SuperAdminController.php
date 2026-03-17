@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Repository\UserRepository;
@@ -17,27 +18,27 @@ class SuperAdminController extends AbstractController
         private EntityManagerInterface $em,
     ) {}
 
-    // ── Vérification manuelle du rôle via header X-User-Email
     private function checkSuperAdmin(Request $request): ?JsonResponse
     {
         $email = $request->headers->get('X-User-Email');
+
         if (!$email) {
             return new JsonResponse(['error' => 'Header X-User-Email manquant'], 401);
         }
 
         $user = $this->userRepo->findOneBy(['email' => $email]);
+
         if (!$user) {
-            return new JsonResponse(['error' => 'Utilisateur introuvable : ' . $email], 404);
+            return new JsonResponse(['error' => 'Utilisateur introuvable'], 404);
         }
 
         if (!in_array('ROLE_SUPER_ADMIN', $user->getRoles())) {
-            return new JsonResponse(['error' => 'Accès refusé. Rôles : ' . implode(', ', $user->getRoles())], 403);
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
-        return null; // ✅ Autorisé
+        return null;
     }
 
-    // ── Liste tous les utilisateurs
     #[Route('/users', name: 'users', methods: ['GET', 'OPTIONS'])]
     public function listUsers(Request $request): JsonResponse
     {
@@ -45,6 +46,7 @@ class SuperAdminController extends AbstractController
         if ($err = $this->checkSuperAdmin($request)) return $err;
 
         $users = $this->userRepo->findAll();
+
         return new JsonResponse(array_map(fn($u) => [
             'id'         => $u->getId(),
             'email'      => $u->getEmail(),
@@ -55,7 +57,6 @@ class SuperAdminController extends AbstractController
         ], $users));
     }
 
-    // ── Promouvoir / Rétrograder un utilisateur
     #[Route('/users/{id}/role', name: 'user_role', methods: ['PUT', 'OPTIONS'])]
     public function changeRole(int $id, Request $request): JsonResponse
     {
@@ -84,7 +85,6 @@ class SuperAdminController extends AbstractController
         return new JsonResponse(['success' => true, 'roles' => $user->getRoles()]);
     }
 
-    // ── Supprimer un utilisateur
     #[Route('/users/{id}', name: 'user_delete', methods: ['DELETE', 'OPTIONS'])]
     public function deleteUser(int $id, Request $request): JsonResponse
     {
@@ -105,7 +105,6 @@ class SuperAdminController extends AbstractController
         return new JsonResponse(['success' => true]);
     }
 
-    // ── Statistiques avancées
     #[Route('/stats', name: 'stats', methods: ['GET', 'OPTIONS'])]
     public function advancedStats(Request $request, OrderRepository $orderRepo): JsonResponse
     {
@@ -120,8 +119,10 @@ class SuperAdminController extends AbstractController
         foreach ($orders as $order) {
             $total    = (float) $order->getTotal();
             $totalCA += $total;
+
             $month   = $order->getCreatedAt()?->format('Y-m') ?? 'inconnu';
             $byMonth[$month] = ($byMonth[$month] ?? 0) + $total;
+
             $method  = $order->getPaymentMethod() ?? 'stripe';
             $byMethod[$method] = ($byMethod[$method] ?? 0) + 1;
         }
@@ -137,7 +138,6 @@ class SuperAdminController extends AbstractController
         ]);
     }
 
-    // ── Logs de sécurité
     #[Route('/security-logs', name: 'security_logs', methods: ['GET', 'OPTIONS'])]
     public function securityLogs(Request $request): JsonResponse
     {

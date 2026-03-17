@@ -1,86 +1,129 @@
 import React, { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Shield, Lock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import '../style_localisés/ReinitialiserMotDePasse.css';
 
-// Je définis l'URL de base dynamique pour assurer la compatibilité avec AlwaysData
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
-function ReinitialiserMotDePasse({ setCurrentPage }) {
-  const [form, setForm] = useState({ email: '', password: '', confirm: '' });
-  const [erreur, setErreur] = useState('');
+function ReinitialiserMotDePasse() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const submit = async (e) => {
+  // Je récupère le token de sécurité directement dans l'URL
+  const token = searchParams.get('token');
+
+  const [form, setForm] = useState({ password: '', confirm: '' });
+  const [erreur, setErreur] = useState('');
+  const [chargement, setChargement] = useState(false);
+  const [succes, setSucces] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErreur('');
 
     if (form.password !== form.confirm) {
-      setErreur("Les mots de passe ne sont pas identiques.");
+      setErreur(t('auth.err_password_match', "Les mots de passe ne sont pas identiques."));
       return;
     }
 
+    if (!token) {
+      setErreur(t('auth.err_token_missing', "Le jeton de sécurité est manquant ou expiré."));
+      return;
+    }
+
+    setChargement(true);
+
     try {
-      // J'utilise le BASE_URL pour l'appel de réinitialisation
-      const response = await fetch(`${BASE_URL}/api/reset-password-direct`, {
+      const response = await fetch(`${BASE_URL}/api/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          token: token,
+          password: form.password
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("C'est fait !");
-        setCurrentPage('connexion');
+        setSucces(true);
+        setTimeout(() => navigate('/connexion'), 3000);
       } else {
-        setErreur(data.message || "Une erreur est survenue.");
+        setErreur(data.message || t('auth.err_generic', "Impossible de mettre à jour le mot de passe."));
       }
     } catch (err) {
-      setErreur("Impossible de joindre le serveur.");
+      setErreur(t('alerts.server_unreachable', "Le serveur Cyna est injoignable."));
+    } finally {
+      setChargement(false);
     }
   };
+
+  if (succes) {
+    return (
+      <div className="reset-password-container">
+        <div className="reset-password-card succes-state">
+          <CheckCircle size={48} color="#2ecc71" />
+          <h2>{t('auth.reset_success', 'Mot de passe mis à jour')}</h2>
+          <p>{t('auth.redirect_login', 'Redirection vers la page de connexion...')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="reset-password-container">
       <div className="reset-password-card">
-        <h2>Nouveau mot de passe</h2>
+        <div className="brand-header">
+          <Shield className="brand-icon" size={40} />
+          <h2>{t('auth.new_password_title', 'Sécurisez votre accès')}</h2>
+          <p>{t('auth.reset_instruction', 'Veuillez saisir votre nouveau mot de passe professionnel.')}</p>
+        </div>
 
-        {erreur && <div className="status-message error">{erreur}</div>}
+        {erreur && (
+          <div className="error-box">
+            <AlertCircle size={18} />
+            <span>{erreur}</span>
+          </div>
+        )}
 
-        <form onSubmit={submit}>
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Ton adresse Email</label>
-            <input
-              type="email"
-              placeholder="votre@email.com"
-              onChange={e => setForm({...form, email: e.target.value})}
-              required
-            />
+            <label>{t('auth.new_password', 'Nouveau mot de passe')}</label>
+            <div className="input-with-icon">
+              <Lock className="input-icon" size={18} />
+              <input
+                type="password"
+                placeholder="••••••••"
+                onChange={e => setForm({...form, password: e.target.value})}
+                required
+                disabled={chargement}
+              />
+            </div>
           </div>
 
           <div className="form-group">
-            <label>Nouveau mot de passe</label>
-            <input
-              type="password"
-              placeholder="********"
-              onChange={e => setForm({...form, password: e.target.value})}
-              required
-            />
+            <label>{t('auth.confirm_new_password', 'Confirmer le nouveau mot de passe')}</label>
+            <div className="input-with-icon">
+              <Lock className="input-icon" size={18} />
+              <input
+                type="password"
+                placeholder="••••••••"
+                onChange={e => setForm({...form, confirm: e.target.value})}
+                required
+                disabled={chargement}
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Confirmer le mot de passe</label>
-            <input
-              type="password"
-              placeholder="********"
-              onChange={e => setForm({...form, confirm: e.target.value})}
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn-reset">Changer</button>
+          <button type="submit" className="btn-reset" disabled={chargement || !token}>
+            {chargement ? <Loader2 className="spinner" size={18} /> : t('auth.change_btn', 'Mettre à jour mon accès')}
+          </button>
         </form>
 
-        <button onClick={() => setCurrentPage('connexion')} className="btn-back">
-          Retour à la connexion
+        <button onClick={() => navigate('/connexion')} className="btn-back">
+          {t('auth.back_to_login', 'Retour à la connexion')}
         </button>
       </div>
     </div>

@@ -23,15 +23,12 @@ import { usePageTracking } from './hooks/usePageTracking';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
-// ── Tracker automatique ──────────────────────────────────
-// Doit être DANS <Router> pour avoir accès à useLocation
 function Tracker() {
   const location = useLocation();
   usePageTracking(location.pathname);
   return null;
 }
 
-// ── Routes protégées ─────────────────────────────────────
 function ProtectedRoute({ user, children }) {
   if (!user) return <Navigate to="/connexion" replace />;
   return children;
@@ -44,21 +41,23 @@ function AdminRoute({ user, children, requiredRole = 'ROLE_ADMIN' }) {
   return children;
 }
 
-// ── Lecture synchrone du localStorage ───────────────────
 function lireUserDepuisStorage() {
   try {
-    const token       = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     const userDataRaw = localStorage.getItem('userData');
     if (token && userDataRaw) return JSON.parse(userDataRaw);
-  } catch {}
+  } catch {
+    // En cas d'erreur de parsing, je nettoie pour éviter les crashs au démarrage
+    localStorage.clear();
+  }
   return null;
 }
 
 function App() {
-  const [user,     setUser]    = useState(lireUserDepuisStorage);
-  const [panier,   setPanier]  = useState([]);
-  const [wishlist, setWishlist]= useState([]);
-  const skipNextUserEffect     = useRef(false);
+  const [user, setUser] = useState(lireUserDepuisStorage);
+  const [panier, setPanier] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const skipNextUserEffect = useRef(false);
 
   const rafraichirPanier = useCallback(async (email) => {
     const cible = email || localStorage.getItem('userEmail');
@@ -73,23 +72,21 @@ function App() {
     const cible = email || localStorage.getItem('userEmail');
     if (!cible) return;
     try {
-      const res  = await fetch(`${BASE_URL}/api/profil/wishlist?email=${encodeURIComponent(cible)}`);
+      const res = await fetch(`${BASE_URL}/api/profil/wishlist?email=${encodeURIComponent(cible)}`);
       const data = await res.json();
       setWishlist(data.items || []);
     } catch { setWishlist([]); }
   }, []);
 
-  // Chargement initial au montage
+  // Persistance au rafraîchissement : je recharge les données si l'utilisateur est présent
   useEffect(() => {
-    if (user) {
-      const email = localStorage.getItem('userEmail') || user.email;
-      rafraichirPanier(email);
-      rafraichirWishlist(email);
+    const storedUser = lireUserDepuisStorage();
+    if (storedUser) {
+      rafraichirPanier(storedUser.email);
+      rafraichirWishlist(storedUser.email);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [rafraichirPanier, rafraichirWishlist]);
 
-  // Quand user change (connexion / déconnexion)
   useEffect(() => {
     if (skipNextUserEffect.current) {
       skipNextUserEffect.current = false;
@@ -105,14 +102,12 @@ function App() {
   }, [user, rafraichirPanier, rafraichirWishlist]);
 
   const connecterUtilisateur = useCallback((userData) => {
-    localStorage.setItem('token',     userData.token || '');
+    localStorage.setItem('token', userData.token || '');
     localStorage.setItem('userEmail', userData.email);
-    localStorage.setItem('userData',  JSON.stringify(userData));
+    localStorage.setItem('userData', JSON.stringify(userData));
     skipNextUserEffect.current = true;
     setUser(userData);
-    rafraichirPanier(userData.email);
-    rafraichirWishlist(userData.email);
-  }, [rafraichirPanier, rafraichirWishlist]);
+  }, []);
 
   const deconnexion = useCallback(() => {
     localStorage.removeItem('token');
@@ -124,43 +119,40 @@ function App() {
     window.location.href = '/';
   }, []);
 
-  const ajouterAuPanier = useCallback(async (livre) => {
+  const ajouterAuPanier = useCallback(async (service) => {
     if (!user) {
-      alert("Connecte-toi pour ajouter au panier.");
-      window.location.href = '/connexion';
+      navigate('/connexion');
       return;
     }
     try {
-      await addToCart(livre);
+      // Je m'assure d'envoyer les données SaaS (ID et durée par défaut)
+      await addToCart({
+        ...service,
+        subscriptionDuration: service.subscriptionDuration || 'mensuel'
+      });
       await rafraichirPanier(user.email);
-      alert(`${livre.title} ajouté au panier !`);
-    } catch (e) { alert("Erreur : " + e.message); }
+    } catch (e) {
+      console.error("Erreur ajout panier:", e);
+    }
   }, [user, rafraichirPanier]);
 
-  const ajouterAWishlist = useCallback(async (livre) => {
-    if (!user) {
-      alert("Connecte-toi pour ajouter à la wishlist.");
-      window.location.href = '/connexion';
-      return false;
-    }
+  const ajouterAWishlist = useCallback(async (service) => {
+    if (!user) return false;
     try {
       const res = await fetch(`${BASE_URL}/api/profil/wishlist/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: user.email,
-          title: livre.title,
-          price: parseFloat(livre.price),
-          image: livre.image,
+          serviceId: service.id, // J'utilise l'ID plutôt que le titre pour la base
         }),
       });
       if (res.ok) {
         rafraichirWishlist(user.email);
-        alert(`${livre.title} ajouté à la wishlist !`);
         return true;
       }
       return false;
-    } catch { alert("Erreur wishlist."); return false; }
+    } catch { return false; }
   }, [user, rafraichirWishlist]);
 
   const { afficherModal, secondesRestantes, resterConnecte } =
@@ -168,27 +160,29 @@ function App() {
 
   return (
     <Router>
-      {/* Tracker automatique — se déclenche à chaque changement de page */}
       <Tracker />
-
       <Header user={user} onLogout={deconnexion} />
+
       <main style={{ minHeight: '80vh' }}>
         <Routes>
-          <Route path="/"                 element={<Home      ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
-          <Route path="/connexion"        element={<Connexion setUser={connecterUtilisateur} />} />
-          <Route path="/inscription"      element={<Inscription />} />
-          <Route path="/catalogue"        element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
-          <Route path="/catalogue/:genre" element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
-          <Route path="/informations"     element={<Informations />} />
-          <Route path="/contact"          element={<Contact />} />
-          <Route path="/cgv"              element={<CGV />} />
-          <Route path="/cgu"              element={<CGU />} />
+          <Route path="/" element={<Home ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
+          <Route path="/connexion" element={<Connexion setUser={connecterUtilisateur} />} />
+          <Route path="/inscription" element={<Inscription />} />
+
+          <Route path="/catalogue" element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
+          <Route path="/catalogue/:categorie" element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
+
+          <Route path="/informations" element={<Informations />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/cgv" element={<CGV />} />
+          <Route path="/cgu" element={<CGU />} />
 
           <Route path="/panier" element={
             <ProtectedRoute user={user}>
               <Panier panier={panier} rafraichirPanier={rafraichirPanier} />
             </ProtectedRoute>
           } />
+
           <Route path="/profil" element={
             <ProtectedRoute user={user}>
               <MonProfil
@@ -198,11 +192,7 @@ function App() {
               />
             </ProtectedRoute>
           } />
-          <Route path="/admin" element={
-            <AdminRoute user={user}>
-              <AdminDashboard />
-            </AdminRoute>
-          } />
+
           <Route path="/superadmin" element={
             <AdminRoute user={user} requiredRole="ROLE_SUPER_ADMIN">
               <SuperAdminDashboard />
@@ -212,9 +202,11 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
       <Footer />
       <SecurityBadge />
       <CookieBanner />
+
       {afficherModal && (
         <InactivityModal
           secondesRestantes={secondesRestantes}

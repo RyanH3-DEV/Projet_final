@@ -1,64 +1,74 @@
 import { t } from 'i18next';
 
-// Je récupère l'URL de base depuis l'environnement, sinon je retombe sur mon serveur local
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const API_URL  = `${BASE_URL}/api/cart`;
 
-const getHeaders = () => ({
-    'Content-Type': 'application/json'
-});
+const getHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        // J'ajoute l'autorisation si le token est présent pour la persistance sécurisée
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+};
 
-// ✅ getCart accepte un email optionnel pour éviter le problème de timing
 export const getCart = async (emailParam = null) => {
     const email = (emailParam || localStorage.getItem('userEmail'))?.trim();
     if (!email) return { items: [] };
 
-    const res = await fetch(`${API_URL}/?email=${encodeURIComponent(email)}`, {
-        headers: getHeaders()
-    });
-
-    return res.ok ? res.json() : { items: [] };
+    try {
+        const res = await fetch(`${API_URL}/?email=${encodeURIComponent(email)}`, {
+            headers: getHeaders()
+        });
+        return res.ok ? res.json() : { items: [] };
+    } catch {
+        return { items: [] };
+    }
 };
 
-export const addToCart = async (book, quantity = 1) => {
+export const addToCart = async (service, quantity = 1) => {
     const email = localStorage.getItem('userEmail')?.trim();
 
     if (!email) {
-        throw new Error(t('api.cart_login_required', "Tu dois être connecté pour cette action."));
+        throw new Error(t('api.cart_login_required', "Connexion requise pour gérer le panier."));
     }
 
     const res = await fetch(`${API_URL}/add`, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify({
-            productId: book.id,
-            title: book.title,
-            price: parseFloat(book.price),
-            image: book.image,
+            serviceId: service.id,
+            name: service.name,
+            price: parseFloat(service.price),
+            image: service.image,
             quantity: quantity,
+            subscriptionDuration: service.subscriptionDuration || 'mensuel',
             email: email
         })
     });
 
     if (!res.ok) {
-        let errorMessage = `${t('api.http_error', 'Erreur HTTP')} ${res.status}`;
+        let errorMessage = `${t('api.http_error', 'Erreur serveur')} ${res.status}`;
         try {
             const errorData = await res.json();
             if (errorData?.message) errorMessage = errorData.message;
-        } catch (err) {}
+        } catch {}
         throw new Error(errorMessage);
     }
 
     return res.json();
 };
 
-export const updateCartItem = async (id, quantity) => {
+export const updateCartItem = async (id, updateData) => {
     const email = localStorage.getItem('userEmail')?.trim();
+
+    // Je permets de mettre à jour soit la quantité, soit la durée d'abonnement
     const res = await fetch(`${API_URL}/update/${id}`, {
         method: 'PUT',
         headers: getHeaders(),
-        body: JSON.stringify({ quantity, email })
+        body: JSON.stringify({ ...updateData, email })
     });
+
     return res.json();
 };
 

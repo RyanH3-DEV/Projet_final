@@ -40,7 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[ORM\Column(type: 'boolean')]
-    private bool $isVerified = true;
+    private bool $isVerified = false;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;
@@ -54,9 +54,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: CartItem::class, orphanRemoval: true)]
     private Collection $cartItems;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $addresses;
+
     public function __construct()
     {
         $this->cartItems = new ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -124,6 +128,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->cartItems->removeElement($cartItem)) {
             if ($cartItem->getUser() === $this) {
                 $cartItem->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getAddresses(): Collection { return $this->addresses; }
+
+    public function addAddress(Address $address): self
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses->add($address);
+            $address->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeAddress(Address $address): self
+    {
+        if ($this->addresses->removeElement($address)) {
+            if ($address->getUser() === $this) {
+                $address->setUser(null);
             }
         }
         return $this;

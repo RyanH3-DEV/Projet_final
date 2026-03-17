@@ -1,320 +1,226 @@
-/* --- FOOTER NOBLE BLEU & DORURES --- */
+/* =====================================================
+   FOOTER — CYNA CYBERSÉCURITÉ
+   ===================================================== */
 
-.main-footer {
-  background: radial-gradient(circle at top, #1a2d4a 0%, #111d33 60%, #0b1524 100%);
-  color: #f4e9c9;
-  padding: 2rem 2rem 1rem;
-  margin-top: auto;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
+.cf-footer {
+  background: #030609;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'Space Grotesk', sans-serif;
+  color: rgba(232, 234, 240, 0.55);
 }
 
-/* Cadre doré */
-.main-footer::before {
-  content: "";
-  position: absolute;
-  inset: 0.8rem 1.5rem;
-  border-radius: 12px;
-  border: 1.5px solid rgba(212, 175, 55, 0.55);
-  pointer-events: none;
-}
-
-/* Conteneur */
-.footer-container {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.5rem;
+/* ── Colonnes principales ── */
+.cf-main {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 64px 48px 48px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 48px;
 }
 
-/* Sections */
-.footer-section {
-  flex: 1;
-  min-width: 220px;
-}
-
-/* Titres nobles */
-.footer-section h3 {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-  color: #f2d9a6;
-  padding-bottom: 0.4rem;
-  margin-bottom: 0.8rem;
-  border-bottom: 2px solid rgba(212, 175, 55, 0.6);
-}
-
-/* Items d'information */
-.footer-info-item {
+/* ── Marque ── */
+.cf-logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.6rem;
-  color: #e8d7b8;
+  gap: 10px;
+  text-decoration: none;
+  margin-bottom: 20px;
 }
 
-/* Liens */
-.footer-links-list {
+.cf-logo-icon {
+  width: 34px;
+  height: 34px;
+  background: #00e5ff;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050810;
+}
+
+.cf-logo-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 500;
+  color: #e8eaf0;
+  letter-spacing: -0.03em;
+}
+
+.cf-logo-accent {
+  color: #00e5ff;
+}
+
+.cf-tagline {
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(232, 234, 240, 0.35);
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.cf-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(232, 234, 240, 0.4);
+  margin-bottom: 8px;
+}
+
+.cf-contact-item svg {
+  color: #00e5ff;
+  flex-shrink: 0;
+}
+
+.cf-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cf-social {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(232, 234, 240, 0.4);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.cf-social:hover {
+  border-color: rgba(0, 229, 255, 0.4);
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.05);
+}
+
+/* ── Colonnes nav ── */
+.cf-col-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(232, 234, 240, 0.25);
+  margin-bottom: 18px;
+}
+
+.cf-links {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-}
-
-.footer-link {
-  color: #e8d7b8;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-link:hover { color: #ffe4b3; }
-
-/* Icônes sociales */
-.social-icons {
-  display: flex;
-  gap: 1.2rem;
-}
-
-.social-link {
-  color: #f2d9a6;
-  transition: transform 0.2s ease, color 0.3s ease;
-}
-
-.social-link:hover {
-  transform: translateY(-3px);
-  color: #ffe4b3;
-}
-
-/* ━━━ BANDEAU SECURITE ━━━ */
-.footer-security {
-  border-top: 1px solid rgba(212, 175, 55, 0.3);
-  padding: 14px 40px;
-  text-align: center;
-  max-width: 1200px;
-  margin: 1rem auto 0;
-}
-
-.security-title {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 0.75rem;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: rgba(212, 175, 55, 0.6);
-  margin: 0 0 12px 0;
-  font-weight: 600;
-}
-
-.security-badges {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
   gap: 10px;
 }
 
-.sec-badge {
+.cf-link {
   display: flex;
   align-items: center;
-  gap: 9px;
-  background: rgba(212, 175, 55, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  gap: 7px;
+  font-size: 13px;
+  color: rgba(232, 234, 240, 0.45);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.cf-link:hover {
+  color: #e8eaf0;
+}
+
+.cf-link svg {
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+/* ── Bandeau sécurité ── */
+.cf-security {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cf-security-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cf-sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(232, 234, 240, 0.2);
+  white-space: nowrap;
+}
+
+.cf-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cf-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
   border-radius: 8px;
-  padding: 8px 13px;
-  transition: all 0.25s;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.2s, background 0.2s;
 }
 
-.sec-badge:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: rgba(212, 175, 55, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
+.cf-badge:hover {
+  border-color: rgba(0, 229, 255, 0.2);
+  background: rgba(0, 229, 255, 0.03);
 }
 
-.sec-badge-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
+.cf-badge-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.sec-badge-icon.ssl      { background: rgba(34, 197, 94, 0.15);  color: #4ade80; }
-.sec-badge-icon.antihack { background: rgba(212, 175, 55, 0.15); color: #d4af37; }
-.sec-badge-icon.owasp    { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-.sec-badge-icon.stripe   { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-.sec-badge-icon.rate     { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+.cf-badge-icon--ssl  { background: rgba(0, 230, 118, 0.1); color: #00e676; }
+.cf-badge-icon--iso  { background: rgba(0, 229, 255, 0.1); color: #00e5ff; }
+.cf-badge-icon--soc2 { background: rgba(124, 77, 255, 0.1); color: #7c4dff; }
+.cf-badge-icon--rgpd { background: rgba(255, 193, 7, 0.1);  color: #ffc107; }
+.cf-badge-icon--ddos { background: rgba(255, 82, 82, 0.1);  color: #ff5252; }
 
-.badge-logo-text {
-  font-size: 0.85rem;
-  font-weight: 900;
+.cf-badge-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(232, 234, 240, 0.6);
+  line-height: 1;
 }
 
-.sec-badge-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  text-align: left;
+.cf-badge-desc {
+  font-size: 10px;
+  color: rgba(232, 234, 240, 0.25);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.sec-name {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #f2d9a6;
-}
-
-.sec-desc {
-  font-size: 0.65rem;
-  color: rgba(212, 175, 55, 0.5);
-}
-
-/* Bas du footer */
-.footer-copyright {
-  text-align: center;
-  margin-top: 1rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid rgba(212, 175, 55, 0.4);
-  font-size: 0.85rem;
-  color: #d8c7a3;
-}
-
-/* Badge RGPD */
-.rgpd-badge {
+/* ── Copyright ── */
+.cf-copyright {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 18px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(34, 197, 94, 0.15);
-  border-radius: 8px;
-  padding: 8px 12px;
-  min-height: 50px;
-}
-
-.rgpd-icon img {
-  width: auto !important;
-  height: 100% !important;
-  max-height: 60px;
-  display: block;
-  object-fit: contain;
-}
-
-.rgpd-text .sec-name {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #227d32;
-}
-
-.rgpd-text .sec-desc {
-  font-size: 0.75rem;
-  color: #555;
-}
-
-
-/* ── Tablette (≤ 768px) ── */
-@media (max-width: 768px) {
-  .main-footer {
-    padding: 1.5rem 1rem 0.8rem;
-  }
-
-  /* Cadre doré ajusté aux marges réduites */
-  .main-footer::before {
-    inset: 0.6rem 0.8rem;
-  }
-
-  .footer-container {
-    gap: 1rem;
-  }
-
-  .footer-section {
-    min-width: 180px;
-  }
-
-  .footer-security {
-    padding: 12px 15px;
-  }
-
-  .security-badges {
-    gap: 8px;
-  }
-
-  .sec-badge {
-    padding: 7px 10px;
-  }
-}
-
-
-/* ── Mobile (≤ 480px) ── */
-@media (max-width: 480px) {
-  .main-footer {
-    padding: 1.25rem 0.75rem 0.75rem;
-  }
-
-  /* Cadre doré resserré */
-  .main-footer::before {
-    inset: 0.5rem 0.5rem;
-    border-radius: 8px;
-  }
-
-  /* Sections empilées en colonne */
-  .footer-container {
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  .footer-section {
-    min-width: unset;
-    width: 100%;
-  }
-
-  .footer-section h3 {
-    font-size: 1rem;
-    letter-spacing: 0.5px;
-  }
-
-  /* Badges sécurité : 2 par ligne */
-  .security-badges {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .sec-badge {
-    padding: 7px 8px;
-    gap: 7px;
-  }
-
-  .sec-badge-icon {
-    width: 26px;
-    height: 26px;
-  }
-
-  .sec-name   { font-size: 0.72rem; }
-  .sec-desc   { font-size: 0.6rem; }
-
-  .security-title {
-    font-size: 0.68rem;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-  }
-
-  .footer-security {
-    padding: 12px 8px;
-  }
-
-  /* Badge RGPD pleine largeur */
-  .rgpd-badge {
-    width: 100%;
-    grid-column: 1 / -1;
-  }
-
-  .footer-copyright {
-    font-size: 0.75rem;
-    margin-top: 0.75rem;
-    padding-top: 0.6rem;
-  }
-
-  .social-icons {
-    gap: 1rem;
-  }
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(232, 234, 240, 0.2);
+  font-family: 'JetBrains Mono', monospace;
 }

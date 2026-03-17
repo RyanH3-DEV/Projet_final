@@ -1,30 +1,26 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Shield, User, Mail, Lock } from 'lucide-react';
 import '../style_localisés/Inscription.css';
 
-// Je récupère l'URL de base depuis l'environnement, sinon je retombe sur mon serveur local
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 function Inscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const categoriesLecteurs = [
-    { id: 'mysterieux', label: t('register.cat_mysterious', 'Le Mystérieux'),  imgUrl: '/avatars/Mysterieux.png' },
-    { id: 'celebre',    label: t('register.cat_famous', 'Le Célèbre'),         imgUrl: '/avatars/celebre.png' },
-    { id: 'rigoureux',  label: t('register.cat_rigorous', 'Le Rigoureux'),     imgUrl: '/avatars/liseur.jpg' },
-    { id: 'passionne',  label: t('register.cat_passionate', 'Le Passionné'),   imgUrl: '/avatars/ancien-lecteur.jpg' },
-    { id: 'voyageur',   label: t('register.cat_traveler', 'Le Voyageur'),      imgUrl: '/avatars/liseuse.png' },
-  ];
-
   const [formData, setFormData] = useState({
-    prenom: '', nom: '', email: '', dateNaissance: '',
-    password: '', confirmPassword: '',
-    avatar: categoriesLecteurs[0].imgUrl,
+    prenom: '',
+    nom: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    avatar: '/avatars/default-user.png',
     cgv: false
   });
   const [erreur, setErreur] = useState('');
+  const [chargement, setChargement] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,88 +32,138 @@ function Inscription() {
     setErreur('');
 
     if (!formData.cgv) {
-      setErreur(t('register.error_cgv', "Tu dois accepter les CGV et les CGU pour pouvoir t'inscrire."));
-      return;
-    }
-    if (!formData.dateNaissance) {
-      setErreur(t('register.error_dob_required', "Veuillez entrer votre date de naissance."));
+      setErreur(t('register.error_cgv', "Vous devez accepter les conditions générales pour créer un compte."));
       return;
     }
 
-    const dateNaissance = new Date(formData.dateNaissance);
-    const aujourdhui   = new Date();
-    let age = aujourdhui.getFullYear() - dateNaissance.getFullYear();
-    const moisPasse =
-      aujourdhui.getMonth() > dateNaissance.getMonth() ||
-      (aujourdhui.getMonth() === dateNaissance.getMonth() && aujourdhui.getDate() >= dateNaissance.getDate());
-    if (!moisPasse) age--;
-
-    if (age < 18) {
-      setErreur(t('register.error_age_18', "Tu dois avoir au plus 18 ans pour t'inscrire."));
-      return;
-    }
     if (formData.password !== formData.confirmPassword) {
       setErreur(t('register.error_password_match', "Les mots de passe ne correspondent pas."));
       return;
     }
 
+    setChargement(true);
+
     try {
-      // J'utilise l'URL dynamique pour l'inscription
       const response = await fetch(`${BASE_URL}/api/inscription-securisee`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          prenom: formData.prenom,
+          nom: formData.nom,
+          email: formData.email,
+          password: formData.password,
+          cgv: formData.cgv,
+          avatar: formData.avatar
+        }),
       });
+
       const data = await response.json();
+
       if (response.ok) {
-        alert(t('register.success_alert', "Ton aventure commence ! Connecte-toi maintenant."));
+        alert(t('register.success_alert', "Compte créé avec succès ! Un e-mail de confirmation vous a été envoyé."));
         navigate('/connexion');
       } else {
-        setErreur(data.message || t('register.error_generic', "Une erreur est survenue lors de l'inscription."));
+        setErreur(data.message || t('register.error_generic', "Une erreur est survenue lors de la création du compte."));
       }
     } catch (err) {
-      setErreur(t('alerts.server_unreachable', "Impossible de joindre le serveur. Vérifie ta connexion."));
+      setErreur(t('alerts.server_unreachable', "Le serveur est injoignable. Veuillez vérifier votre connexion."));
+    } finally {
+      setChargement(false);
     }
   };
 
   return (
     <div className="inscription-container">
       <div className="inscription-card">
-        <h2>{t('register.title', 'Choisis ton profil de lecteur')}</h2>
+        <div className="brand-header">
+          <Shield className="brand-icon" size={40} />
+          <h2>{t('register.title', 'Rejoindre l\'infrastructure Cyna')}</h2>
+          <p className="subtitle">{t('register.subtitle', 'Créez votre compte pour accéder à nos solutions de cybersécurité.')}</p>
+        </div>
+
         {erreur && <div className="error-box">{erreur}</div>}
+
         <form onSubmit={soumettre} noValidate>
-          <div className="avatar-grid">
-            {categoriesLecteurs.map((cat) => (
-              <div
-                key={cat.id}
-                className={`avatar-item ${formData.avatar === cat.imgUrl ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, avatar: cat.imgUrl })}
-              >
-                <img src={cat.imgUrl} alt={cat.label} />
-                <span>{cat.label}</span>
-              </div>
-            ))}
-          </div>
           <div className="form-content">
-            <input type="text"     name="prenom"          placeholder={t('register.firstname_placeholder', 'Prénom')}                      onChange={handleChange} required />
-            <input type="text"     name="nom"             placeholder={t('register.lastname_placeholder', 'Nom')}                          onChange={handleChange} required />
-            <input type="email"    name="email"           placeholder={t('register.email_placeholder', 'Email')}                           onChange={handleChange} required />
-            <input type="date"     name="dateNaissance"                                                                                    onChange={handleChange} required />
-            <input type="password" name="password"        placeholder={t('register.password_placeholder', 'Mot de passe')}                 onChange={handleChange} required />
-            <input type="password" name="confirmPassword" placeholder={t('register.confirm_password_placeholder', 'Confirmation du mot de passe')} onChange={handleChange} required />
-            <div className="checkbox-group">
-              <input type="checkbox" name="cgv" checked={formData.cgv} onChange={handleChange} />
-              <span className="cgv-text">
-                {t('register.accept_terms_1', "J'accepte les ")}
-                <a className="cgv-link" href="/cgv" target="_blank" rel="noopener noreferrer">{t('register.cgv_link', 'CGV')}</a>
-                {t('register.accept_terms_2', ' et les ')}
-                <a className="cgv-link" href="/cgu" target="_blank" rel="noopener noreferrer">{t('register.cgu_link', 'CGU')}</a>
-                {t('register.accept_terms_3', '.')}
-              </span>
+            <div className="input-group">
+              <User className="input-icon" size={18} />
+              <input
+                type="text"
+                name="prenom"
+                placeholder={t('register.firstname_placeholder', 'Prénom')}
+                value={formData.prenom}
+                onChange={handleChange}
+                required
+              />
             </div>
-            <button type="submit" className="btn-submit">{t('register.submit_btn', 'Valider mon profil')}</button>
+
+            <div className="input-group">
+              <User className="input-icon" size={18} />
+              <input
+                type="text"
+                name="nom"
+                placeholder={t('register.lastname_placeholder', 'Nom')}
+                value={formData.nom}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <Mail className="input-icon" size={18} />
+              <input
+                type="email"
+                name="email"
+                placeholder={t('register.email_placeholder', 'E-mail professionnel')}
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <Lock className="input-icon" size={18} />
+              <input
+                type="password"
+                name="password"
+                placeholder={t('register.password_placeholder', 'Mot de passe')}
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <p className="password-hint">
+              {t('register.password_hint', 'Minimum 8 caractères, incluant une majuscule, un chiffre et un symbole.')}
+            </p>
+
+            <div className="input-group">
+              <Lock className="input-icon" size={18} />
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder={t('register.confirm_password_placeholder', 'Confirmer le mot de passe')}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="checkbox-group">
+              <input type="checkbox" name="cgv" id="cgv" checked={formData.cgv} onChange={handleChange} />
+              <label htmlFor="cgv" className="cgv-text">
+                {t('register.accept_terms', "J'accepte les conditions d'utilisation et la politique de confidentialité.")}
+              </label>
+            </div>
+
+            <button type="submit" className="btn-submit" disabled={chargement}>
+              {chargement ? t('register.loading', 'Traitement...') : t('register.submit_btn', 'Créer mon compte professionnel')}
+            </button>
           </div>
         </form>
+
+        <p className="footer-link">
+          {t('register.already_account', 'Déjà inscrit ?')} <a href="/connexion">{t('register.login_link', 'Se connecter')}</a>
+        </p>
       </div>
     </div>
   );

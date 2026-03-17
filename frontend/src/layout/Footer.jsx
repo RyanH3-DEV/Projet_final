@@ -1,111 +1,127 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Facebook, Twitter, Instagram, Mail, MapPin, Lock, Shield, ShieldCheck } from 'lucide-react';
+import { Linkedin, Twitter, Github, Mail, MapPin, Lock, Shield, ShieldCheck, Zap } from 'lucide-react';
+import useWindowSize from '../hooks/useWindowSize';
 import '../style_localisés/Footer.css';
 
-const Footer = () => {
-  const { t } = useTranslation();
+const SOLUTIONS = [
+  { to: '/catalogue/edr',  label: 'EDR — Endpoint Detection' },
+  { to: '/catalogue/xdr',  label: 'XDR — Extended Detection' },
+  { to: '/catalogue/soc',  label: 'SOC — Security Operations' },
+  { to: '/catalogue/tous', label: 'Toutes les solutions' },
+];
+
+const LEGAL_LINKS = [
+  { to: '/cgu',                       label: 'CGU' },
+  { to: '/mentions-legales',          label: 'Mentions légales' },
+  { to: '/contact',                   label: 'Contact' },
+  { to: '/politique-confidentialite', label: 'Politique de confidentialité' },
+];
+
+const RESOURCES = [
+  { to: '/contact',      label: 'Contacter un expert' },
+  { to: '/informations', label: 'Documentation' },
+  { to: '/connexion',    label: 'Espace client' },
+  { to: '/inscription',  label: 'Démarrer un essai' },
+];
+
+const SEC_BADGES = [
+  { icon: <Lock        size={16} />, cls: 'ssl',  name: 'SSL 256-bit',    desc: 'Chiffrement' },
+  { icon: <Shield      size={16} />, cls: 'iso',  name: 'ISO 27001',      desc: 'Certifié' },
+  { icon: <ShieldCheck size={16} />, cls: 'soc2', name: 'SOC 2 Type II',  desc: 'Audité' },
+  { icon: <Zap         size={16} />, cls: 'rgpd', name: 'RGPD',           desc: 'Conforme' },
+  { icon: <Shield      size={16} />, cls: 'ddos', name: 'DDoS Guard',     desc: 'Rate limiting' },
+];
+
+export default function Footer() {
+  const { t }     = useTranslation();
+  const { width } = useWindowSize();
+
+  if (width <= 650) return null;
 
   return (
-    <footer className="main-footer">
-      <div className="footer-container">
+    <footer className="cf-footer">
 
-        <div className="footer-section">
-          <h3>BOOKS-LIVRE</h3>
-          <p className="footer-info-item"><MapPin size={18} /> {t("footer.address", "Courbevoie, Paris")}</p>
-          <p className="footer-info-item"><Mail size={18} /> assistance@gmail.com</p>
-        </div>
+      {/* ── Colonnes principales ── */}
+      <div className="cf-main">
 
-        <div className="footer-section">
-          <h3>{t("footer.legal", "Informations Légales")}</h3>
-          <nav className="footer-links-list">
-            <a href="/cgu" className="footer-link">{t("footer.cgu", "CGU")}</a>
-            <a href="/mentions-legales" className="footer-link">{t("footer.legal_mentions", "Mentions Légales")}</a>
-            <Link to="/contact" className="footer-link">{t("footer.contact", "Contact")}</Link>
-          </nav>
-        </div>
-
-        <div className="footer-section">
-          <h3>{t("footer.social", "Réseaux Sociaux")}</h3>
-          <div className="social-icons">
-            <a href="https://facebook.com" aria-label="Facebook" className="social-link"><Facebook size={24} /></a>
-            <a href="https://twitter.com" aria-label="Twitter" className="social-link"><Twitter size={24} /></a>
-            <a href="https://instagram.com" aria-label="Instagram" className="social-link"><Instagram size={24} /></a>
+        {/* Marque */}
+        <div className="cf-brand">
+          <Link to="/" className="cf-logo">
+            <div className="cf-logo-icon"><ShieldCheck size={18} /></div>
+            <span className="cf-logo-text">CY<span className="cf-logo-accent">NA</span></span>
+          </Link>
+          <p className="cf-tagline">
+            Plateforme de cybersécurité SaaS pour les entreprises.
+            SOC, EDR et XDR disponibles en souscription mensuelle.
+          </p>
+          <div className="cf-contact-item"><MapPin size={14} /> Paris, France</div>
+          <div className="cf-contact-item"><Mail   size={14} /> contact@cyna-it.fr</div>
+          <div className="cf-socials">
+            <a href="https://linkedin.com" className="cf-social" target="_blank" rel="noopener noreferrer"><Linkedin size={16} /></a>
+            <a href="https://twitter.com"  className="cf-social" target="_blank" rel="noopener noreferrer"><Twitter  size={16} /></a>
+            <a href="https://github.com"   className="cf-social" target="_blank" rel="noopener noreferrer"><Github   size={16} /></a>
           </div>
         </div>
 
-      </div>
+        {/* Solutions */}
+        <div className="cf-col">
+          <p className="cf-col-title">// Solutions</p>
+          <nav className="cf-links">
+            {SOLUTIONS.map(s => (
+              <Link key={s.to} to={s.to} className="cf-link">
+                <ShieldCheck size={12} /> {s.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
-      <div className="footer-security">
-        <p className="security-title">{t("footer.secure_site", "Site protégé & sécurisé")}</p>
-        <div className="security-badges">
+        {/* Légal */}
+        <div className="cf-col">
+          <p className="cf-col-title">// Légal</p>
+          <nav className="cf-links">
+            {LEGAL_LINKS.map(l => (
+              <Link key={l.to} to={l.to} className="cf-link">{l.label}</Link>
+            ))}
+          </nav>
+        </div>
 
-          {/* Je remplace les div par des balises a pour rendre chaque badge cliquable */}
-          <a href="https://fr.wikipedia.org/wiki/Transport_Layer_Security" target="_blank" rel="noopener noreferrer" className="sec-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="sec-badge-icon ssl"><Lock size={18} /></div>
-            <div className="sec-badge-text">
-              <span className="sec-name">SSL 256-bit</span>
-              <span className="sec-desc">{t("footer.encryption", "Chiffrement")}</span>
-            </div>
-          </a>
-
-          <a href="https://fr.wikipedia.org/wiki/Syst%C3%A8me_de_d%C3%A9tection_d%27intrusion" target="_blank" rel="noopener noreferrer" className="sec-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="sec-badge-icon antihack"><Shield size={18} /></div>
-            <div className="sec-badge-text">
-              <span className="sec-name">{t("footer.anti_intrusion", "Anti-Intrusion")}</span>
-              <span className="sec-desc">{t("footer.active_protection", "Protection active")}</span>
-            </div>
-          </a>
-
-          <a href="https://owasp.org/Top10/" target="_blank" rel="noopener noreferrer" className="sec-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="sec-badge-icon owasp"><ShieldCheck size={18} /></div>
-            <div className="sec-badge-text">
-              <span className="sec-name">OWASP</span>
-              <span className="sec-desc">{t("footer.top10_protected", "Top 10 protégé")}</span>
-            </div>
-          </a>
-
-          <a href="https://fr.wikipedia.org/wiki/3-D_Secure" target="_blank" rel="noopener noreferrer" className="sec-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="sec-badge-icon stripe"><span className="badge-logo-text">3D</span></div>
-            <div className="sec-badge-text">
-              <span className="sec-name">3D Secure</span>
-              <span className="sec-desc">{t("footer.secure_payment", "Paiement sécurisé")}</span>
-            </div>
-          </a>
-
-          <a href="https://stripe.com/fr/privacy" target="_blank" rel="noopener noreferrer" className="sec-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="sec-badge-icon stripe"><span className="badge-logo-text">S</span></div>
-            <div className="sec-badge-text">
-              <span className="sec-name">Stripe</span>
-              <span className="sec-desc">{t("footer.pci_certified", "Certifié PCI-DSS")}</span>
-            </div>
-          </a>
-
-          <a href="https://fr.wikipedia.org/wiki/Attaque_par_d%C3%A9ni_de_service" target="_blank" rel="noopener noreferrer" className="sec-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="sec-badge-icon rate"><Shield size={18} /></div>
-            <div className="sec-badge-text">
-              <span className="sec-name">DDoS Guard</span>
-              <span className="sec-desc">Rate limiting</span>
-            </div>
-          </a>
-
-          <a href="https://www.cnil.fr/fr/comprendre-le-rgpd" target="_blank" rel="noopener noreferrer" className="sec-badge rgpd-badge" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="rgpd-icon">
-              <img src="/Logo/rgpd.jpeg" alt="Logo RGPD" />
-            </div>
-            <div className="rgpd-text">
-              <span className="sec-name">{t("footer.rgpd_compliant", "Conforme RGPD, Protection des données")}</span>
-            </div>
-          </a>
+        {/* Ressources */}
+        <div className="cf-col">
+          <p className="cf-col-title">// Ressources</p>
+          <nav className="cf-links">
+            {RESOURCES.map(r => (
+              <Link key={r.to} to={r.to} className="cf-link">{r.label}</Link>
+            ))}
+          </nav>
         </div>
       </div>
 
-      <div className="footer-copyright">
-        &copy; {new Date().getFullYear()} BOOKS-LIVRE. {t("footer.rights_reserved", "Tous droits réservés")}.
+      {/* ── Bandeau sécurité ── */}
+      <div className="cf-security">
+        <div className="cf-security-inner">
+          <span className="cf-sec-label">Infrastructure certifiée</span>
+          <div className="cf-badges">
+            {SEC_BADGES.map((b, i) => (
+              <div key={i} className="cf-badge">
+                <div className={`cf-badge-icon cf-badge-icon--${b.cls}`}>{b.icon}</div>
+                <div>
+                  <div className="cf-badge-name">{b.name}</div>
+                  <div className="cf-badge-desc">{b.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* ── Copyright ── */}
+      <div className="cf-copyright">
+        <span>&copy; {new Date().getFullYear()} Cyna — Tous droits réservés</span>
+        <span>Plateforme SaaS de cybersécurité</span>
+      </div>
+
     </footer>
   );
-};
-
-export default Footer;
+}

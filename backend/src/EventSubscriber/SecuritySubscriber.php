@@ -16,30 +16,21 @@ class SecuritySubscriber implements EventSubscriberInterface
     private LoggerInterface $logger;
     private TranslatorInterface $translator;
 
-    // ── Mes seuils de protection ──
-    private const MAX_REQUESTS_PER_MINUTE  = 60;   // Rate limiting global
-    private const MAX_LOGIN_ATTEMPTS       = 5;    // Brute force login
-    private const LOGIN_BLOCK_DURATION     = 900;  // 15 min de blocage
-    private const RATE_BLOCK_DURATION      = 60;   // 1 min de blocage rate limit
-    private const SUSPICIOUS_BLOCK         = 3600; // 1h pour patterns dangereux
+    private const MAX_REQUESTS_PER_MINUTE  = 60;
+    private const MAX_LOGIN_ATTEMPTS       = 5;
+    private const LOGIN_BLOCK_DURATION     = 900;
+    private const RATE_BLOCK_DURATION      = 60;
+    private const SUSPICIOUS_BLOCK         = 3600;
 
-    // ── Mes patterns d'attaques connus ──
     private const ATTACK_PATTERNS = [
-        // SQL Injection
-        "/(\'|\"|\`|--|;|\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE|CAST|CONVERT|CHAR|NCHAR|VARCHAR)\b)/i",
-        // XSS
-        "/<script[^>]*>|javascript:|on(error|load|click|mouseover|focus)\s*=/i",
-        // Path Traversal
-        "/(\.\.\/|\.\.\\\/etc\/passwd|\/proc\/self)/",
-        // Remote File Inclusion
-        "/(https?:\/\/[^\s]+\.(php|asp|jsp|sh))/i",
-        // Null bytes
-        "/\x00/",
-        // Command injection
-        "/(;\s*(ls|cat|wget|curl|bash|sh|python|perl|ruby|nc|netcat)\s)/i",
+        "/(\\'|\\\"|\\`|--|;|\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|EXEC|EXECUTE|CAST|CONVERT|CHAR|NCHAR|VARCHAR)\\b)/i",
+        "/<script[^>]*>|javascript:|on(error|load|click|mouseover|focus)\\s*=/i",
+        "/(\\.\\.\\/|\\.\\.\\\\\\/etc\\/passwd|\\/proc\\/self)/",
+        "/(https?:\\/\\/[^\\s]+\\.(php|asp|jsp|sh))/i",
+        "/\\x00/",
+        "/(;\\s*(ls|cat|wget|curl|bash|sh|python|perl|ruby|nc|netcat)\\s)/i",
     ];
 
-    // ── Mes user agents malveillants connus ──
     private const MALICIOUS_AGENTS = [
         'sqlmap', 'nikto', 'nmap', 'masscan', 'zgrab',
         'dirbuster', 'hydra', 'medusa', 'burpsuite',
@@ -67,19 +58,15 @@ class SecuritySubscriber implements EventSubscriberInterface
         $path    = $request->getPathInfo();
         $ua      = strtolower($request->headers->get('User-Agent', ''));
 
-        // ── 0. Je bypass la sécurité en local ──
         if (in_array($ip, ['127.0.0.1', '::1'])) return;
 
-        // ── 0b. Je laisse passer les routes de sécurité ──
         if (str_starts_with($path, '/api/security')) return;
 
-        // ── 1. Je vérifie si l'IP est déjà bannie ──
         if ($this->isBlocked($ip)) {
             $event->setResponse($this->blockResponse($this->translator->trans('security.ip_blocked', [], 'messages'), 429));
             return;
         }
 
-        // ── 2. Je détecte les User-Agents malveillants ──
         foreach (self::MALICIOUS_AGENTS as $agent) {
             if (str_contains($ua, $agent)) {
                 $this->blockIp($ip, self::SUSPICIOUS_BLOCK);
@@ -89,7 +76,6 @@ class SecuritySubscriber implements EventSubscriberInterface
             }
         }
 
-        // ── 3. J'applique le Rate Limiting global ──
         $rateLimitKey = "rate_limit_{$ip}";
         $rateItem     = $this->cache->getItem($rateLimitKey);
         $requests     = $rateItem->isHit() ? (int)$rateItem->get() : 0;
@@ -104,7 +90,6 @@ class SecuritySubscriber implements EventSubscriberInterface
         $rateItem->set($requests + 1)->expiresAfter(60);
         $this->cache->save($rateItem);
 
-        // ── 4. Je bloque le Brute Force sur /api/login_check ──
         if (str_contains($path, 'login_check') && $request->getMethod() === 'POST') {
             $loginKey  = "login_attempts_{$ip}";
             $loginItem = $this->cache->getItem($loginKey);
@@ -123,7 +108,6 @@ class SecuritySubscriber implements EventSubscriberInterface
             $this->cache->save($loginItem);
         }
 
-        // ── 5. Je détecte les patterns d'attaque dans l'URL et le body ──
         $toScan = urldecode($request->getRequestUri());
         if ($request->getContent()) {
             $toScan .= ' ' . $request->getContent();
@@ -137,9 +121,6 @@ class SecuritySubscriber implements EventSubscriberInterface
                 return;
             }
         }
-
-        // ── 6. J'ajoute les headers de sécurité sur toutes les réponses ──
-        // (je gère cela dans le ResponseSubscriber)
     }
 
     private function isBlocked(string $ip): bool

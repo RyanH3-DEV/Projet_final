@@ -1,0 +1,244 @@
+<?php
+
+namespace App\DataFixtures;
+
+use App\Entity\ServiceSaas;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Persistence\ObjectManager;
+
+class ServiceSaasFixtures extends Fixture
+{
+    public function load(ObjectManager $manager): void
+    {
+        $services = [
+
+            // ── EDR ────────────────────────────────────────────────────────
+            [
+                'name'          => 'CynaEDR Starter',
+                'category'      => 'edr',
+                'price'         => 29.99,
+                'priority'      => 10,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Solution EDR d\'entrée de gamme pour les PME. Détection comportementale des menaces sur les postes de travail Windows et macOS avec alertes en temps réel.',
+                'technicalSpecs'=> "Compatibilité : Windows 10/11, macOS 12+\nAgents légers : < 2% CPU\nRétention des logs : 30 jours\nTableau de bord : Web (SaaS)\nMises à jour : automatiques\nNombre de postes inclus : jusqu'à 25",
+            ],
+            [
+                'name'          => 'CynaEDR Pro',
+                'category'      => 'edr',
+                'price'         => 59.99,
+                'priority'      => 20,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'EDR professionnel avec isolation automatique des endpoints compromis, analyse forensique intégrée et réponse automatisée aux incidents (SOAR léger).',
+                'technicalSpecs'=> "Compatibilité : Windows, macOS, Linux\nIsolation réseau automatique : oui\nForensique : dump mémoire, timeline\nIntégration SIEM : Syslog / API REST\nRétention des logs : 90 jours\nNombre de postes inclus : jusqu'à 100",
+            ],
+            [
+                'name'          => 'CynaEDR Enterprise',
+                'category'      => 'edr',
+                'price'         => 119.99,
+                'priority'      => 30,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Solution EDR grand compte avec threat hunting proactif, intégration Active Directory, gestion multi-tenants et SLA de réponse garanti sous 15 minutes.',
+                'technicalSpecs'=> "Compatibilité : Windows, macOS, Linux, VDI\nThreat hunting : proactif 24/7\nIntégration AD/LDAP : oui\nMulti-tenants : oui\nRétention des logs : 1 an\nSLA réponse : 15 min\nPostes illimités",
+            ],
+            [
+                'name'          => 'CynaEDR Mobile',
+                'category'      => 'edr',
+                'price'         => 19.99,
+                'priority'      => 5,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Protection EDR dédiée aux appareils mobiles (iOS et Android) en environnement BYOD ou flotte d\'entreprise. Détection des applications malveillantes et du phishing mobile.',
+                'technicalSpecs'=> "Compatibilité : iOS 15+, Android 11+\nGestion MDM : compatible Intune, Jamf\nDétection phishing : oui\nAnti-malware mobile : oui\nRétention : 30 jours\nAppareils inclus : jusqu'à 50",
+            ],
+            [
+                'name'          => 'CynaEDR Cloud Workload',
+                'category'      => 'edr',
+                'price'         => 79.99,
+                'priority'      => 25,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Protection EDR pour les charges de travail cloud (AWS, Azure, GCP). Surveillance des conteneurs Docker, pods Kubernetes et instances EC2/VMs.',
+                'technicalSpecs'=> "Clouds supportés : AWS, Azure, GCP\nConteneurs : Docker, Kubernetes\nAgentless : option disponible\nIntégration CI/CD : GitHub Actions, GitLab\nRétention : 90 jours\nInstances incluses : jusqu'à 50",
+            ],
+
+            // ── XDR ────────────────────────────────────────────────────────
+            [
+                'name'          => 'CynaXDR Core',
+                'category'      => 'xdr',
+                'price'         => 89.99,
+                'priority'      => 30,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Plateforme XDR unifiée corrélant les événements endpoint, réseau et cloud en une seule console. Réduction du temps de détection moyen (MTTD) de 80%.',
+                'technicalSpecs'=> "Sources : EDR + NDR + logs cloud\nCorrelation engine : IA/ML\nConnecteurs natifs : 40+\nMTTD cible : < 5 min\nRétention : 6 mois\nAPI REST : oui",
+            ],
+            [
+                'name'          => 'CynaXDR 360',
+                'category'      => 'xdr',
+                'price'         => 149.99,
+                'priority'      => 40,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'XDR étendu avec visibilité complète sur l\'ensemble du SI hybride. Playbooks de réponse automatisés, intégration ticketing (Jira, ServiceNow) et reporting RSSI mensuel.',
+                'technicalSpecs'=> "Sources : endpoint + réseau + email + cloud + OT/IoT\nPlaybooks SOAR : 100+ inclus\nIntégration ITSM : Jira, ServiceNow\nReporting : PDF mensuel automatique\nRétention : 1 an\nSLA : 99.9%",
+            ],
+            [
+                'name'          => 'CynaXDR Threat Intelligence',
+                'category'      => 'xdr',
+                'price'         => 199.99,
+                'priority'      => 50,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'XDR enrichi avec flux de Threat Intelligence propriétaires et OSINT. Corrélation avec les IoC (Indicators of Compromise) des dernières campagnes d\'attaque mondiales.',
+                'technicalSpecs'=> "Flux TI : propriétaire + MISP + VirusTotal\nIoC mis à jour : toutes les heures\nMITRE ATT&CK mapping : oui\nDark web monitoring : inclus\nRétention : 1 an\nRapports TI hebdomadaires : oui",
+            ],
+            [
+                'name'          => 'CynaXDR OT/ICS',
+                'category'      => 'xdr',
+                'price'         => 249.99,
+                'priority'      => 35,
+                'isAvailable'   => false,
+                'image'         => null,
+                'description'   => 'Solution XDR spécialisée pour les environnements industriels (OT/ICS/SCADA). Détection passive sans impact sur les systèmes de contrôle critiques.',
+                'technicalSpecs'=> "Protocoles OT : Modbus, DNP3, IEC 61850, Profinet\nMode passif : oui (pas d\'agent)\nIntégration SCADA : oui\nConformité IEC 62443 : oui\nRétention : 1 an",
+            ],
+            [
+                'name'          => 'CynaXDR Email Security',
+                'category'      => 'xdr',
+                'price'         => 69.99,
+                'priority'      => 20,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Module XDR dédié à la sécurité email. Protection anti-phishing, anti-spoofing (SPF/DKIM/DMARC) et analyse des pièces jointes en sandbox isolée.',
+                'technicalSpecs'=> "Compatibilité : Microsoft 365, Google Workspace\nSandbox : oui (analyse dynamique)\nAnti-phishing IA : oui\nDMARC/DKIM/SPF : automatisation\nBoîtes protégées : illimitées\nRétention : 90 jours",
+            ],
+
+            // ── SOC ────────────────────────────────────────────────────────
+            [
+                'name'          => 'CynaSOC Essentiel',
+                'category'      => 'soc',
+                'price'         => 149.99,
+                'priority'      => 30,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'SOC managé en heures ouvrées (8h-20h, lun-ven). Surveillance SIEM, gestion des alertes et escalade vers votre équipe IT en cas d\'incident confirmé.',
+                'technicalSpecs'=> "Couverture : 8h-20h, lun-ven\nSIEM inclus : oui (hébergé)\nAnalystes dédiés : mutualisés\nEscalade : email + téléphone\nRapport mensuel : oui\nSLA réponse : 1h",
+            ],
+            [
+                'name'          => 'CynaSOC 24/7',
+                'category'      => 'soc',
+                'price'         => 299.99,
+                'priority'      => 50,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'SOC managé 24h/24 et 7j/7 par des analystes N1/N2 certifiés (GCIH, GCFA). Supervision continue, triage des alertes, confinement des incidents et rapport d\'activité hebdomadaire.',
+                'technicalSpecs'=> "Couverture : 24/7/365\nNiveaux analystes : N1 + N2\nCertifications : GCIH, GCFA\nSIEM inclus : oui\nConfinement : automatique + manuel\nSLA réponse : 15 min\nRapport : hebdomadaire + mensuel",
+            ],
+            [
+                'name'          => 'CynaSOC Premium',
+                'category'      => 'soc',
+                'price'         => 499.99,
+                'priority'      => 60,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'SOC premium avec analyste dédié (vCISO), threat hunting proactif mensuel, tests d\'intrusion trimestriels inclus et revue de posture sécurité semestrielle.',
+                'technicalSpecs'=> "Couverture : 24/7/365\nAnalyste dédié : vCISO inclus\nThreat hunting : mensuel\nPentest : trimestriel inclus\nRevue posture : semestrielle\nSLA réponse : 5 min\nDashboard RSSI : temps réel",
+            ],
+            [
+                'name'          => 'CynaSOC Compliance',
+                'category'      => 'soc',
+                'price'         => 349.99,
+                'priority'      => 40,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'SOC orienté conformité réglementaire. Reporting automatique pour NIS2, ISO 27001, RGPD et PCI-DSS. Idéal pour les secteurs bancaire, santé et infrastructures critiques.',
+                'technicalSpecs'=> "Référentiels : NIS2, ISO 27001, RGPD, PCI-DSS\nAudit trail : 3 ans\nRapports compliance : automatiques\nPréparation audits : incluse\nCouverture : 24/7\nSLA réponse : 30 min",
+            ],
+            [
+                'name'          => 'CynaSOC Starter',
+                'category'      => 'soc',
+                'price'         => 99.99,
+                'priority'      => 20,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Première brique SOC pour les TPE/PME. Collecte et corrélation des logs, tableau de bord de sécurité et alertes automatiques par email sans analyste humain dédié.',
+                'technicalSpecs'=> "SIEM cloud : inclus\nSources de logs : jusqu'à 5\nAlertes : email + Slack\nDashboard : web\nSans analyste humain dédié\nRétention : 30 jours",
+            ],
+
+            // ── EDR supplémentaires ────────────────────────────────────────
+            [
+                'name'          => 'CynaEDR Server Protection',
+                'category'      => 'edr',
+                'price'         => 49.99,
+                'priority'      => 15,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Protection EDR spécialisée pour les serveurs Windows Server et Linux. Surveillance des processus système, détection de rootkits et protection des accès privilégiés (PAM).',
+                'technicalSpecs'=> "OS : Windows Server 2016/2019/2022, Linux (RHEL, Ubuntu, Debian)\nAnti-rootkit : oui\nPAM : surveillance des comptes privilégiés\nIntégration : Active Directory\nRétention : 90 jours\nServeurs inclus : jusqu'à 20",
+            ],
+
+            // ── XDR supplémentaires ────────────────────────────────────────
+            [
+                'name'          => 'CynaXDR Network Detection',
+                'category'      => 'xdr',
+                'price'         => 129.99,
+                'priority'      => 35,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Module NDR (Network Detection & Response) intégré à la plateforme XDR. Analyse du trafic réseau en temps réel, détection des mouvements latéraux et des exfiltrations de données.',
+                'technicalSpecs'=> "Déploiement : sonde réseau (virtuelle ou physique)\nAnalyse : DPI + ML comportemental\nDétection : mouvements latéraux, C2, exfiltration\nIntégration XDR : native\nBande passante max : 10 Gbps\nRétention : 6 mois",
+            ],
+
+            // ── SOC supplémentaires ────────────────────────────────────────
+            [
+                'name'          => 'CynaSOC Incident Response',
+                'category'      => 'soc',
+                'price'         => 399.99,
+                'priority'      => 45,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Service de réponse à incident activable en urgence. Intervention d\'une équipe CSIRT dédiée en moins de 2 heures en cas de cyberattaque avérée (ransomware, APT, etc.).',
+                'technicalSpecs'=> "Délai d'intervention : < 2h\nMode : remote + on-site (France)\nEquipe CSIRT : 3 analystes dédiés\nForensique : incluse\nRapport post-incident : oui\nDisponibilité : 24/7/365",
+            ],
+            [
+                'name'          => 'CynaSOC SIEM Only',
+                'category'      => 'soc',
+                'price'         => 79.99,
+                'priority'      => 15,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Accès à la plateforme SIEM Cyna en self-service. Collecte illimitée de logs, corrélation de règles SIGMA et dashboards personnalisables. Sans analyste inclus.',
+                'technicalSpecs'=> "SIEM : Opensearch-based\nRègles : SIGMA compatibles\nSources : illimitées\nAPI ingest : REST + Syslog + Beats\nDashboards : Kibana-like\nRétention : 1 an\nSelf-service uniquement",
+            ],
+            [
+                'name'          => 'CynaXDR Vulnerability Management',
+                'category'      => 'xdr',
+                'price'         => 109.99,
+                'priority'      => 28,
+                'isAvailable'   => true,
+                'image'         => null,
+                'description'   => 'Module de gestion des vulnérabilités intégré à la plateforme XDR. Scan continu des actifs, priorisation par score CVSS/EPSS et suivi du plan de remédiation.',
+                'technicalSpecs'=> "Scan : continu (agentless + agent)\nBase CVE : mise à jour quotidienne\nPriorisation : CVSS v3 + EPSS\nIntégration patch management : WSUS, Ansible\nActifs inclus : jusqu'à 500\nRétention : 1 an",
+            ],
+        ];
+
+        foreach ($services as $data) {
+            $service = new ServiceSaas();
+            $service->setName($data['name']);
+            $service->setCategory($data['category']);
+            $service->setPrice($data['price']);
+            $service->setPriority($data['priority']);
+            $service->setAvailable($data['isAvailable']);
+            $service->setImage($data['image']);
+            $service->setDescription($data['description']);
+            $service->setTechnicalSpecs($data['technicalSpecs']);
+
+            $manager->persist($service);
+        }
+
+        $manager->flush();
+    }
+}

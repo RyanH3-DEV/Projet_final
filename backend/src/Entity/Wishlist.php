@@ -6,7 +6,8 @@ use App\Repository\WishlistRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: WishlistRepository::class)]
-#[ORM\UniqueConstraint(name: 'unique_wishlist', columns: ['user_id', 'livre_id'])]
+#[ORM\Table(name: 'wishlist')]
+#[ORM\UniqueConstraint(name: 'unique_wishlist', columns: ['user_id', 'service_saas_id'])]
 class Wishlist
 {
     #[ORM\Id]
@@ -18,9 +19,9 @@ class Wishlist
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: Livre::class)]
+    #[ORM\ManyToOne(targetEntity: ServiceSaas::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Livre $livre = null;
+    private ?ServiceSaas $serviceSaas = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $addedAt;
@@ -33,7 +34,7 @@ class Wishlist
     public function getId(): ?int { return $this->id; }
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): self { $this->user = $user; return $this; }
-    public function getLivre(): ?Livre { return $this->livre; }
-    public function setLivre(?Livre $livre): self { $this->livre = $livre; return $this; }
+    public function getServiceSaas(): ?ServiceSaas { return $this->serviceSaas; }
+    public function setServiceSaas(?ServiceSaas $serviceSaas): self { $this->serviceSaas = $serviceSaas; return $this; }
     public function getAddedAt(): \DateTimeImmutable { return $this->addedAt; }
 }

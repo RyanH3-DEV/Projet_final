@@ -40,28 +40,28 @@ class StatsController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'dashboard', methods: ['GET', 'OPTIONS'])]
-public function dashboard(Request $request): JsonResponse
-{
-    if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
+    public function dashboard(Request $request): JsonResponse
+    {
+        if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
 
-    $adminKey    = $request->headers->get('X-Admin-Key');
-    $expectedKey = $_ENV['ADMIN_STATS_KEY'] ?? 'books-admin-2025';
+        $adminKey    = $request->headers->get('X-Admin-Key');
+        $expectedKey = $_ENV['ADMIN_STATS_KEY'] ?? 'cyna-admin-2026';
 
-    if ($adminKey !== $expectedKey) {
-        return new JsonResponse(['error' => 'Accès refusé'], 403);
+        if ($adminKey !== $expectedKey) {
+            return new JsonResponse(['error' => 'Accès refusé'], 403);
+        }
+
+        return new JsonResponse([
+            'visits' => [
+                'total'  => $this->pageViewRepo->countTotal(),
+                'today'  => $this->pageViewRepo->countToday(),
+                'byPage' => $this->pageViewRepo->countByPage(),
+                'byDay'  => $this->pageViewRepo->countByDay(30),
+            ],
+            'browsers' => $this->pageViewRepo->countByBrowser(),
+            'os'       => $this->pageViewRepo->countByOs(),
+        ]);
     }
-
-    return new JsonResponse([
-        'visits' => [
-            'total'  => $this->pageViewRepo->countTotal(),
-            'today'  => $this->pageViewRepo->countToday(),
-            'byPage' => $this->pageViewRepo->countByPage(),
-            'byDay'  => $this->pageViewRepo->countByDay(30),
-        ],
-        'browsers' => $this->pageViewRepo->countByBrowser(),
-        'os'       => $this->pageViewRepo->countByOs(),
-    ]);
-}
 
     private function detectBrowser(string $ua): string
     {

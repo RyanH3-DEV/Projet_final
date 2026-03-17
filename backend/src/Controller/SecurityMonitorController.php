@@ -18,10 +18,6 @@ class SecurityMonitorController extends AbstractController
         $this->logger = $logger;
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // Analyse chaque requête entrante pour détecter
-    // les patterns suspects (XSS, SQLi, scan de ports)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #[Route('/check', name: 'check', methods: ['POST', 'OPTIONS'])]
     public function checkRequest(Request $request): JsonResponse
     {
@@ -31,7 +27,7 @@ class SecurityMonitorController extends AbstractController
         $ip      = $request->getClientIp();
         $threats = [];
 
-        // --- Patterns suspects à détecter ---
+        // Je définis ici les patterns de menaces à détecter
         $patterns = [
             'xss'      => ['<script', 'javascript:', 'onerror=', 'onload=', 'eval(', 'alert('],
             'sqli'     => ["' OR", "' AND", 'UNION SELECT', 'DROP TABLE', 'INSERT INTO', '--', '1=1'],
@@ -64,19 +60,15 @@ class SecurityMonitorController extends AbstractController
         ]);
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // Vérifie le site via Google Safe Browsing API
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #[Route('/google-safe-browsing', name: 'gsb', methods: ['GET', 'OPTIONS'])]
     public function googleSafeBrowsing(Request $request): JsonResponse
     {
         if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
 
         $apiKey  = $_ENV['GOOGLE_SAFE_BROWSING_API_KEY'] ?? null;
-        $siteUrl = $_ENV['SITE_URL'] ?? 'http://localhost:5173';
+        $siteUrl = $_ENV['FRONTEND_URL'] ?? 'https://www.cyna-it.fr';
 
         if (!$apiKey) {
-            // Sans clé API → on retourne "safe" par défaut (mode demo)
             return $this->json([
                 'safe'      => true,
                 'source'    => 'demo',
@@ -90,7 +82,8 @@ class SecurityMonitorController extends AbstractController
                 "https://safebrowsing.googleapis.com/v4/threatMatches:find?key={$apiKey}",
                 [
                     'json' => [
-                        'client'     => ['clientId' => 'books-livre', 'clientVersion' => '1.0'],
+                        // J'actualise le nom du client pour correspondre au projet Cyna
+                        'client'     => ['clientId' => 'cyna-it', 'clientVersion' => '1.0'],
                         'threatInfo' => [
                             'threatTypes'      => ['MALWARE', 'SOCIAL_ENGINEERING', 'UNWANTED_SOFTWARE'],
                             'platformTypes'    => ['ANY_PLATFORM'],
@@ -114,9 +107,6 @@ class SecurityMonitorController extends AbstractController
         }
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // Status global de sécurité du site
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #[Route('/status', name: 'status', methods: ['GET', 'OPTIONS'])]
     public function status(Request $request): JsonResponse
     {
@@ -124,7 +114,7 @@ class SecurityMonitorController extends AbstractController
 
         return $this->json([
             'ssl'           => true,
-            'https'         => str_starts_with($_ENV['SITE_URL'] ?? 'http', 'https'),
+            'https'         => str_starts_with($_ENV['FRONTEND_URL'] ?? 'https', 'https'),
             'symfony'       => true,
             'stripeSecure'  => true,
             'lastCheck'     => (new \DateTimeImmutable())->format('d/m/Y H:i:s'),

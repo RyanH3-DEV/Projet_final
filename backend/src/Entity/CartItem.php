@@ -16,12 +16,15 @@ class CartItem
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: Livre::class)]
+    #[ORM\ManyToOne(targetEntity: ServiceSaas::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Livre $livre = null;
+    private ?ServiceSaas $serviceSaas = null;
 
     #[ORM\Column]
     private ?int $quantity = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $subscriptionDuration = null;
 
     public function getId(): ?int
     {
@@ -39,14 +42,14 @@ class CartItem
         return $this;
     }
 
-    public function getLivre(): ?Livre
+    public function getServiceSaas(): ?ServiceSaas
     {
-        return $this->livre;
+        return $this->serviceSaas;
     }
 
-    public function setLivre(?Livre $livre): static
+    public function setServiceSaas(?ServiceSaas $serviceSaas): static
     {
-        $this->livre = $livre;
+        $this->serviceSaas = $serviceSaas;
         return $this;
     }
 
@@ -58,6 +61,17 @@ class CartItem
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
+        return $this;
+    }
+
+    public function getSubscriptionDuration(): ?string
+    {
+        return $this->subscriptionDuration;
+    }
+
+    public function setSubscriptionDuration(string $subscriptionDuration): static
+    {
+        $this->subscriptionDuration = $subscriptionDuration;
         return $this;
     }
 }

@@ -18,9 +18,6 @@ class PaiementController extends AbstractController
         $this->translator = $translator;
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // STRIPE — Créer un PaymentIntent (3D Secure auto)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #[Route('/stripe/intent', name: 'stripe_intent', methods: ['POST', 'OPTIONS'])]
     public function stripeIntent(Request $request): JsonResponse
     {
@@ -52,9 +49,6 @@ class PaiementController extends AbstractController
         }
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // PAYPAL — Créer une commande
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #[Route('/paypal/create', name: 'paypal_create', methods: ['POST', 'OPTIONS'])]
     public function paypalCreate(Request $request): JsonResponse
     {
@@ -101,9 +95,6 @@ class PaiementController extends AbstractController
         }
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // PAYPAL — Capturer le paiement
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #[Route('/paypal/capture', name: 'paypal_capture', methods: ['POST', 'OPTIONS'])]
     public function paypalCapture(Request $request): JsonResponse
     {
@@ -130,9 +121,6 @@ class PaiementController extends AbstractController
         }
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // HELPERS PRIVÉS
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     private function getPaypalBaseUrl(): string
     {
         $isSandbox = ($_ENV['PAYPAL_ENV'] ?? 'sandbox') !== 'production';
@@ -158,7 +146,6 @@ class PaiementController extends AbstractController
 
         $ch = curl_init("$baseUrl/v1/oauth2/token");
 
-        // J'ai désactivé la vérification SSL ici pour le développement local
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
@@ -166,7 +153,7 @@ class PaiementController extends AbstractController
             CURLOPT_POSTFIELDS     => 'grant_type=client_credentials',
             CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
             CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ]);
 
         $result = json_decode(curl_exec($ch), true);
@@ -188,7 +175,6 @@ class PaiementController extends AbstractController
     {
         $ch = curl_init($url);
 
-        // J'ai également désactivé la vérification SSL ici pour le développement local
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST  => $method,
@@ -198,7 +184,7 @@ class PaiementController extends AbstractController
                 'Content-Type: application/json',
             ],
             CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ]);
 
         $result = json_decode(curl_exec($ch), true);
