@@ -43,7 +43,7 @@ export default function Footer() {
   return (
     <footer className="cf-footer">
 
-      {/* ── Colonnes principales ── */}
+      {/* ── Colonnes principales -── */}
       <div className="cf-main">
 
         {/* Marque */}
