@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Shield, ShieldCheck, ShieldAlert, Lock, Globe, Cpu, ChevronUp, ChevronDown } from 'lucide-react';
 import '../Style_localisés/SecurityBadge.css';
 
-// Je récupère l'URL de base depuis l'environnement, sinon je retombe sur mon serveur local
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const API = `${BASE_URL}/api/security`;
 

@@ -1,0 +1,154 @@
+/* Positionnement fixe en bas à droite */
+.chatbot-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 380px;
+    max-height: 500px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 10000;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* En-tête bleu comme ton site */
+.chatbot-header {
+    background-color: #1e293b;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Zone de messages */
+.chatbot-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f8fafc;
+    min-height: 200px;
+}
+
+.message-bot {
+    background-color: #e2e8f0;
+    color: #1e293b;
+    padding: 10px;
+    border-radius: 10px 10px 10px 0;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Zone de saisie */
+.chatbot-input-area {
+    padding: 15px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+}
+
+.chatbot-input-area input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+}
+
+.chatbot-input-area button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.chatbot-input-area button:disabled {
+    background-color: #94a3b8;
+}
+/* Le bouton rond flottant */
+.chatbot-toggle-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #2563eb; /* Je garde le bleu de la charte */
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.chatbot-toggle-btn:hover {
+    transform: scale(1.1);
+    background-color: #1d4ed8;
+}
+
+/* On ajuste la fenêtre pour qu'elle soit juste au-dessus du bouton */
+.chatbot-container {
+    position: fixed;
+    bottom: 100px; /* Je remonte la fenêtre pour laisser la place au bouton */
+    right: 30px;
+    width: 380px;
+    max-height: 500px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 10000;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out; /* Petite animation d'ouverture */
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Couleur différente pour les réponses du bot afin de les distinguer */
+.bot-reply {
+    background-color: #dcf8c6 !important;
+}
+.message-bubble {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 85%;
+    font-size: 0.9rem;
+}
+
+.bot-msg {
+    background-color: #f1f5f9;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+
+.user-msg {
+    background-color: #dbeafe;
+    color: #1e40af;
+    align-self: flex-end;
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+    flex-direction: row-reverse;
+}

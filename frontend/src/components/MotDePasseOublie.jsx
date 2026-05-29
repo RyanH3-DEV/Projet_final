@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Shield, Mail, ArrowLeft, Send, Loader2, CheckCircle } from 'lucide-react';
-import '../style_localisés/Connexion.css'; // Je réutilise les styles de connexion pour la cohérence
+import '../style_localisés/Connexion.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -28,14 +28,13 @@ function MotDePasseOublie() {
       });
 
       if (response.ok) {
-        // Pour des raisons de sécurité, le backend renvoie souvent OK même si l'email n'existe pas
         setSucces(true);
       } else {
         const data = await response.json();
-        setErreur(data.message || t('auth.err_generic', "Une erreur est survenue."));
+        setErreur(data.message || t('auth.err_generic'));
       }
     } catch (err) {
-      setErreur(t('alerts.server_unreachable', "Le serveur Cyna est injoignable."));
+      setErreur(t('alerts.server_unreachable'));
     } finally {
       setChargement(false);
     }
@@ -46,9 +45,9 @@ function MotDePasseOublie() {
       <div className="login-card">
         <div className="brand-header">
           <Shield className="brand-icon" size={42} />
-          <h2>{t('auth.forgot_password_title', 'Récupération d\'accès')}</h2>
+          <h2>{t('auth.forgot_password_title')}</h2>
           <p className="subtitle">
-            {t('auth.forgot_password_desc', 'Saisissez votre e-mail pour recevoir un lien de réinitialisation sécurisé.')}
+            {t('auth.forgot_password_desc')}
           </p>
         </div>
 
@@ -56,10 +55,10 @@ function MotDePasseOublie() {
           <div className="success-state">
             <CheckCircle className="success-icon" size={48} color="#2ecc71" />
             <p className="success-msg">
-              {t('auth.forgot_email_sent', 'Si cette adresse est enregistrée, un e-mail vient d\'être envoyé avec les instructions.')}
+              {t('auth.forgot_email_sent')}
             </p>
             <button onClick={() => navigate('/connexion')} className="btn-login">
-              {t('auth.back_to_login', 'Retour à la connexion')}
+              {t('auth.back_to_login')}
             </button>
           </div>
         ) : (
@@ -67,7 +66,7 @@ function MotDePasseOublie() {
             {erreur && <div className="error-box">⚠ {erreur}</div>}
 
             <div className="form-group">
-              <label>{t('auth.email', 'E-mail professionnel')}</label>
+              <label>{t('auth.email_pro')}</label>
               <div className="input-with-icon">
                 <Mail className="input-icon" size={18} />
                 <input
@@ -83,14 +82,14 @@ function MotDePasseOublie() {
 
             <button type="submit" className="btn-login" disabled={chargement || !email}>
               {chargement ? (
-                <span className="loader-btn"><Loader2 className="spinner" size={18} /> {t('auth.sending', 'Envoi...')}</span>
+                <span className="loader-btn"><Loader2 className="spinner" size={18} /> {t('auth.sending')}</span>
               ) : (
-                <span className="loader-btn"><Send size={18} /> {t('auth.send_link', 'Envoyer le lien')}</span>
+                <span className="loader-btn"><Send size={18} /> {t('auth.send_link')}</span>
               )}
             </button>
 
             <Link to="/connexion" className="btn-back-link">
-              <ArrowLeft size={16} /> {t('auth.back_to_login', 'Retour à la connexion')}
+              <ArrowLeft size={16} /> {t('auth.back_to_login')}
             </Link>
           </form>
         )}

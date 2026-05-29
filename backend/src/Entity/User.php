@@ -42,6 +42,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $newsletter = false;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;
 
@@ -56,6 +59,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $addresses;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastNewsletterSentAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $unsubscribeToken = null;
 
     public function __construct()
     {
@@ -102,6 +111,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isVerified(): bool { return $this->isVerified; }
     public function setIsVerified(bool $isVerified): self { $this->isVerified = $isVerified; return $this; }
+
+    public function isNewsletter(): bool { return $this->newsletter; }
+    public function setNewsletter(bool $newsletter): self { $this->newsletter = $newsletter; return $this; }
 
     public function getConfirmationToken(): ?string { return $this->confirmationToken; }
     public function setConfirmationToken(?string $confirmationToken): self { $this->confirmationToken = $confirmationToken; return $this; }
@@ -151,6 +163,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $address->setUser(null);
             }
         }
+        return $this;
+    }
+
+    public function getLastNewsletterSentAt(): ?\DateTimeImmutable
+    {
+        return $this->lastNewsletterSentAt;
+    }
+
+    public function setLastNewsletterSentAt(?\DateTimeImmutable $lastNewsletterSentAt): static
+    {
+        $this->lastNewsletterSentAt = $lastNewsletterSentAt;
+
+        return $this;
+    }
+
+    public function getUnsubscribeToken(): ?string
+    {
+        return $this->unsubscribeToken;
+    }
+
+    public function setUnsubscribeToken(?string $unsubscribeToken): static
+    {
+        $this->unsubscribeToken = $unsubscribeToken;
+
         return $this;
     }
 }

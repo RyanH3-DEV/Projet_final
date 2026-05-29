@@ -1,3 +1,5 @@
+/* src/style_localisés/Inscription.css */
+
 /* --- CONTAINER GLOBAL --- */
 .inscription-container {
   display: flex;
@@ -5,8 +7,7 @@
   align-items: center;
   min-height: 100vh;
   padding: 40px 20px;
-  background-color: #010a13;
-  background-image: radial-gradient(circle at top, rgba(200,155,60,0.15), transparent 70%);
+  background-color: #f8fafc; /* Fond clair harmonisé avec Connexion */
 }
 
 /* --- CARTE PRINCIPALE --- */
@@ -15,17 +16,36 @@
   padding: 40px;
   border-radius: 12px;
   width: 100%;
-  max-width: 650px;
-  border-top: 4px solid #c89b3c;
-  box-shadow: 0 12px 45px rgba(0,0,0,0.55);
+  max-width: 500px;
+  border: 1px solid #e2e8f0; /* Bordure standard au lieu du top-border doré */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand-icon {
+  color: #1e293b; /* Bleu ardoise */
+  margin-bottom: 1rem;
 }
 
 .inscription-card h2 {
   text-align: center;
-  font-size: 1.9rem;
-  color: #1e2328;
-  text-transform: uppercase;
-  margin-bottom: 30px;
+  font-size: 1.8rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0;
+  text-align: center;
 }
 
 /* --- MESSAGE D'ERREUR --- */
@@ -33,26 +53,24 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background-color: #fff5f5;
-  color: #b91c1c;
-  padding: 16px 18px;
+  background-color: #fff1f2;
+  color: #e11d48;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid #fca5a5;
-  border-left: 5px solid #dc2626;
-  margin-bottom: 25px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  box-shadow: 0 4px 14px rgba(220,38,38,0.15);
+  border: 1px solid #fda4af;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+  justify-content: center;
   animation: slideInError 0.3s ease;
 }
 
 .error-box::before {
   content: "⚠";
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
+  color: #e11d48;
   margin-top: 1px;
-  color: #dc2626;
 }
 
 @keyframes slideInError {
@@ -60,81 +78,56 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* --- AVATARS --- */
-.avatar-grid {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 35px;
-}
-
-.avatar-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.avatar-item img {
-  width: 75px;
-  height: 75px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid transparent;
-  transition: all 0.25s ease;
-}
-
-.avatar-item span {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #1e2328;
-}
-
-.avatar-item.active img {
-  border-color: #c89b3c;
-  box-shadow: 0 0 12px rgba(200,155,60,0.45);
-  transform: scale(1.1);
-}
-
-.avatar-item:hover img { transform: scale(1.08); }
-
-/* --- FORMULAIRE --- */
+/* --- FORMULAIRE & INPUTS --- */
 .form-content {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.form-content input {
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.input-group input {
   width: 100%;
-  padding: 14px;
-  border: 1px solid #b8b8b8;
-  background: #f5f5f5;
+  padding: 14px 14px 14px 42px; /* L'espace à gauche pour l'icône */
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
   font-size: 1rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   box-sizing: border-box;
 }
 
-.form-content input:focus {
+.input-group input:focus {
   outline: none;
-  border-color: #c89b3c;
-  background: #ffffff;
-  box-shadow: 0 0 8px rgba(200,155,60,0.35);
+  border-color: #2563eb; /* Focus bleu vif */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.form-content input.input-error {
-  border-color: #dc2626;
-  background: #fff5f5;
+.password-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: -10px;
+  margin-bottom: 5px;
 }
 
 /* --- CHECKBOX --- */
 .checkbox-group {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
   margin: 10px 0 20px 0;
 }
 
@@ -142,43 +135,64 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #c89b3c;
+  accent-color: #2563eb; /* Case à cocher bleue */
+  margin-top: 2px;
 }
 
 .cgv-text {
   font-size: 0.9rem;
-  color: #1e2328;
+  color: #334155;
+  line-height: 1.4;
 }
-
-.cgv-text a {
-  color: #c89b3c;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.cgv-text a:hover { text-decoration: underline; }
 
 /* --- BOUTON SUBMIT --- */
 .btn-submit {
   width: 100%;
-  padding: 16px;
-  background-color: #1e2328;
-  color: #cdbe91;
-  border: 1px solid #c89b3c;
-  font-weight: 700;
-  text-transform: uppercase;
+  padding: 12px;
+  background-color: #1e293b; /* Bouton bleu ardoise */
+  color: white;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 6px;
-  letter-spacing: 1px;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.btn-submit:hover {
-  background-color: #2c3137;
-  box-shadow: 0 0 14px rgba(200,155,60,0.45);
+.btn-submit:hover:not(:disabled) {
+  background-color: #0f172a;
 }
 
+.btn-submit:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* --- PIED DE PAGE --- */
+.footer-link {
+  margin-top: 2rem;
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.footer-link a {
+  color: #2563eb; /* Lien bleu vif */
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 5px;
+  transition: color 0.2s;
+}
+
+.footer-link a:hover {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
 
 /* ── Tablette (≤ 768px) ── */
 @media (max-width: 768px) {
@@ -195,56 +209,31 @@
     font-size: 1.6rem;
     margin-bottom: 24px;
   }
-
-  .avatar-item img {
-    width: 65px;
-    height: 65px;
-  }
-
-  .avatar-item span {
-    font-size: 0.8rem;
-  }
 }
-
 
 /* ── Mobile (≤ 480px) ── */
 @media (max-width: 480px) {
   .inscription-container {
     padding: 20px 12px;
     align-items: flex-start;
+    padding-top: 2rem;
   }
 
   .inscription-card {
     padding: 24px 16px;
     border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .inscription-card h2 {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     margin-bottom: 20px;
-    letter-spacing: 0.5px;
-  }
-
-  /* Avatars : taille réduite, labels masqués si trop serrés */
-  .avatar-grid {
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .avatar-item img {
-    width: 52px;
-    height: 52px;
-  }
-
-  .avatar-item span {
-    font-size: 0.72rem;
-    margin-top: 5px;
   }
 
   /* Inputs : font-size 16px pour éviter le zoom iOS */
-  .form-content input {
+  .input-group input {
     font-size: 16px;
-    padding: 12px;
+    padding: 14px 12px 14px 38px;
   }
 
   .form-content {
@@ -252,18 +241,15 @@
   }
 
   .checkbox-group {
-    align-items: flex-start;  /* label CGV peut être sur 2 lignes */
     margin: 6px 0 16px 0;
   }
 
   .cgv-text {
     font-size: 0.82rem;
-    line-height: 1.5;
   }
 
   .btn-submit {
     padding: 14px;
-    font-size: 0.9rem;
   }
 
   .error-box {

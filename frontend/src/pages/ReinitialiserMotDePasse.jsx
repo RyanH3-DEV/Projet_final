@@ -11,7 +11,6 @@ function ReinitialiserMotDePasse() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Je récupère le token de sécurité directement dans l'URL
   const token = searchParams.get('token');
 
   const [form, setForm] = useState({ password: '', confirm: '' });
@@ -24,12 +23,12 @@ function ReinitialiserMotDePasse() {
     setErreur('');
 
     if (form.password !== form.confirm) {
-      setErreur(t('auth.err_password_match', "Les mots de passe ne sont pas identiques."));
+      setErreur(t('auth.err_password_match'));
       return;
     }
 
     if (!token) {
-      setErreur(t('auth.err_token_missing', "Le jeton de sécurité est manquant ou expiré."));
+      setErreur(t('auth.err_token_missing'));
       return;
     }
 
@@ -51,10 +50,10 @@ function ReinitialiserMotDePasse() {
         setSucces(true);
         setTimeout(() => navigate('/connexion'), 3000);
       } else {
-        setErreur(data.message || t('auth.err_generic', "Impossible de mettre à jour le mot de passe."));
+        setErreur(data.message || t('auth.err_generic'));
       }
     } catch (err) {
-      setErreur(t('alerts.server_unreachable', "Le serveur Cyna est injoignable."));
+      setErreur(t('alerts.server_unreachable'));
     } finally {
       setChargement(false);
     }
@@ -65,8 +64,8 @@ function ReinitialiserMotDePasse() {
       <div className="reset-password-container">
         <div className="reset-password-card succes-state">
           <CheckCircle size={48} color="#2ecc71" />
-          <h2>{t('auth.reset_success', 'Mot de passe mis à jour')}</h2>
-          <p>{t('auth.redirect_login', 'Redirection vers la page de connexion...')}</p>
+          <h2>{t('auth.reset_success')}</h2>
+          <p>{t('auth.redirect_login')}</p>
         </div>
       </div>
     );
@@ -77,8 +76,8 @@ function ReinitialiserMotDePasse() {
       <div className="reset-password-card">
         <div className="brand-header">
           <Shield className="brand-icon" size={40} />
-          <h2>{t('auth.new_password_title', 'Sécurisez votre accès')}</h2>
-          <p>{t('auth.reset_instruction', 'Veuillez saisir votre nouveau mot de passe professionnel.')}</p>
+          <h2>{t('auth.new_password_title')}</h2>
+          <p>{t('auth.reset_instruction')}</p>
         </div>
 
         {erreur && (
@@ -90,7 +89,7 @@ function ReinitialiserMotDePasse() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>{t('auth.new_password', 'Nouveau mot de passe')}</label>
+            <label>{t('auth.new_password')}</label>
             <div className="input-with-icon">
               <Lock className="input-icon" size={18} />
               <input
@@ -104,7 +103,7 @@ function ReinitialiserMotDePasse() {
           </div>
 
           <div className="form-group">
-            <label>{t('auth.confirm_new_password', 'Confirmer le nouveau mot de passe')}</label>
+            <label>{t('auth.confirm_new_password')}</label>
             <div className="input-with-icon">
               <Lock className="input-icon" size={18} />
               <input
@@ -118,12 +117,12 @@ function ReinitialiserMotDePasse() {
           </div>
 
           <button type="submit" className="btn-reset" disabled={chargement || !token}>
-            {chargement ? <Loader2 className="spinner" size={18} /> : t('auth.change_btn', 'Mettre à jour mon accès')}
+            {chargement ? <Loader2 className="spinner" size={18} /> : t('auth.change_btn')}
           </button>
         </form>
 
         <button onClick={() => navigate('/connexion')} className="btn-back">
-          {t('auth.back_to_login', 'Retour à la connexion')}
+          {t('auth.back_to_login')}
         </button>
       </div>
     </div>

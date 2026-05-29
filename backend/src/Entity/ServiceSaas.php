@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ServiceSaasRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,7 +22,7 @@ class ServiceSaas
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $technicalSpecs = null;
 
     #[ORM\Column]
@@ -37,6 +39,18 @@ class ServiceSaas
 
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $priority = 0;
+
+    #[ORM\OneToMany(mappedBy: 'service', targetEntity: ServiceImage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $images;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -137,5 +151,36 @@ class ServiceSaas
         $this->priority = $priority;
 
         return $this;
+    }
+
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(ServiceImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setService($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(ServiceImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            if ($image->getService() === $this) {
+                $image->setService(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 }
