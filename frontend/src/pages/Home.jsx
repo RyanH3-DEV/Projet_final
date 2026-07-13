@@ -9,7 +9,9 @@ import axios from 'axios';
 import { useContent } from '../context/ContentContext';
 import '../style_localisés/Home.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : 'http://localhost:8000/api';
 
 const cleanText = (html) => html ? html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ') : null;
 

@@ -6,7 +6,7 @@ import '../Style_localisés/AdminDashboard.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const API       = `${BASE_URL}/api/stats`;
-const ADMIN_KEY = 'books-admin-2026';
+const ADMIN_KEY = 'cyna-admin-2026';
 const COLORS    = ['#c89b3c','#3b82f6','#22c55e','#f97316','#a855f7','#ef4444'];
 
 export default function AdminDashboard() {

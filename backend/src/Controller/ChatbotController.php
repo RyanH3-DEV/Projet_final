@@ -12,10 +12,17 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ChatbotController extends AbstractController
 {
     private $httpClient;
+    private string $hfToken;
+    private string $hfUrl;
 
-    public function __construct(HttpClientInterface $httpClient)
-    {
+    public function __construct(
+        HttpClientInterface $httpClient,
+        string $hfToken,
+        string $hfUrl
+    ) {
         $this->httpClient = $httpClient;
+        $this->hfToken = $hfToken;
+        $this->hfUrl = $hfUrl;
     }
 
     #[Route('/api/chatbot', name: 'api_chatbot', methods: ['POST'])]
@@ -28,34 +35,22 @@ class ChatbotController extends AbstractController
             return new JsonResponse(['error' => 'Message vide'], 400);
         }
 
-        // Je récupère les instructions dynamiques depuis la base de données
         $content = $contentRepo->findOneBy(['identifier' => 'chatbot_prompt']);
-
-        // J'utilise le texte de la base ou un fallback si la ligne n'existe pas encore
         $systemPrompt = $content ? $content->getTextContent() : "Tu es l'assistant de SBH.";
 
-        $apiUrl = 'https://router.huggingface.co/v1/chat/completions';
-        $apiToken = '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';
-
         try {
-            $response = $this->httpClient->request('POST', $apiUrl, [
-                'verify_peer' => false,
-                'verify_host' => false,
+            $response = $this->httpClient->request('POST', $this->hfUrl, [
+                'timeout' => 15,
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $apiToken,
+                    'Authorization' => 'Bearer ' . $this->hfToken,
                     'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
                 ],
                 'json' => [
                     'model' => 'Qwen/Qwen2.5-7B-Instruct',
                     'messages' => [
-                        [
-                            'role' => 'system',
-                            'content' => $systemPrompt
-                        ],
-                        [
-                            'role' => 'user',
-                            'content' => $userMessage
-                        ]
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => $userMessage]
                     ],
                     'max_tokens' => 250
                 ]
@@ -65,8 +60,8 @@ class ChatbotController extends AbstractController
             $result = json_decode($rawContent, true);
 
             if (isset($result['error'])) {
-                 $errorMessage = is_array($result['error']) ? json_encode($result['error']) : $result['error'];
-                 return new JsonResponse(['error' => 'Erreur HF : ' . $errorMessage], 500);
+                $errorMessage = is_array($result['error']) ? json_encode($result['error']) : $result['error'];
+                return new JsonResponse(['error' => 'Erreur HF : ' . $errorMessage], 500);
             }
 
             $reply = $result['choices'][0]['message']['content'] ?? "Je rencontre une difficulté pour répondre.";
@@ -74,7 +69,7 @@ class ChatbotController extends AbstractController
             return new JsonResponse(['reply' => $reply]);
 
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Détails techniques : ' . $e->getMessage()], 500);
+            return new JsonResponse(['error' => 'DEBUG: ' . $e->getMessage()], 500);
         }
     }
 }

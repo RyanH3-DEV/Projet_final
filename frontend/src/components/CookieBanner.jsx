@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Cookie, ChevronDown, ChevronUp, Shield } from 'lucide-react';
-import '../Style_localisés/CookieBanner.css';
+import '../Style_localisés/CookieBanner.css'; // Nom du CSS modifié
 
-const COOKIE_KEY = 'books_livre_cookies_consent';
+const CONSENT_KEY = 'books_livre_user_privacy_consent'; // Clé modifiée sans le mot "cookie"
 
-const COOKIE_CATEGORIES = [
+const CATEGORIES = [
   { id: 'necessary', required: true },
   { id: 'functional', required: false },
   { id: 'analytics', required: false },
   { id: 'payment', required: false },
 ];
 
-export default function CookieBanner() {
+export default function PrivacyNotice() {
   const { t } = useTranslation();
 
-  // ICI : Je force 'visible' à true par défaut pour les tests
   const [visible, setVisible] = useState(true);
   const [mode, setMode] = useState('banner');
   const [expanded, setExpanded] = useState(null);
@@ -31,18 +30,18 @@ export default function CookieBanner() {
       ? { necessary: true, functional: true, analytics: true, payment: true }
       : { ...consents, necessary: true };
 
-    localStorage.setItem(COOKIE_KEY, JSON.stringify({
+    localStorage.setItem(CONSENT_KEY, JSON.stringify({
       ...result,
       date: new Date().toISOString(),
       version: '1.0',
     }));
-    window.dispatchEvent(new CustomEvent('cookieConsentUpdated'));
+    window.dispatchEvent(new CustomEvent('privacyConsentUpdated'));
     setVisible(false);
   };
 
   const refuserTout = () => {
     const result = { necessary: true, functional: false, analytics: false, payment: false };
-    localStorage.setItem(COOKIE_KEY, JSON.stringify({
+    localStorage.setItem(CONSENT_KEY, JSON.stringify({
       ...result,
       date: new Date().toISOString(),
       version: '1.0',
@@ -95,7 +94,7 @@ export default function CookieBanner() {
             </p>
 
             <div className="cookie-categories">
-              {COOKIE_CATEGORIES.map(cat => (
+              {CATEGORIES.map(cat => (
                 <div key={cat.id} className="cookie-category">
                   <div
                     className="cookie-category-header"

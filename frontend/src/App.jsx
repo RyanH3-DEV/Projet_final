@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Chatbot from './components/Chatbot';
@@ -13,7 +12,6 @@ import Contact from './pages/Contact';
 import MonProfil from './pages/MonProfil';
 import Catalogue from './pages/Catalogue';
 
-// 1. J'ajoute l'import du nouveau composant ici
 import ProductDetail from './pages/ProductDetail';
 
 import CookieBanner from './components/CookieBanner';
@@ -21,6 +19,7 @@ import SecurityBadge from './components/SecurityBadge';
 import CGV from './components/CGV';
 import CGU from './components/CGU';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import ConfirmationEmail from './pages/ConfirmationEmail';
 import Desabonnement from './pages/Desabonnement';
 import { getCart, addToCart } from './api/cartApi';
@@ -29,7 +28,7 @@ import { usePageTracking } from './hooks/usePageTracking';
 import { mergeGuestCartOnLogin } from './utils/mergeGuestCart';
 import { useContent } from './context/ContentContext';
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 function Tracker() {
   const location = useLocation();
@@ -209,7 +208,6 @@ function AppContent() {
           <Route path="/catalogue"            element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
           <Route path="/catalogue/:categorie" element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
 
-          {/* 2. J'ajoute la nouvelle route pour le détail du produit ici */}
           <Route path="/produit/:id"          element={<ProductDetail ajouterAuPanier={ajouterAuPanier} />} />
 
           <Route path="/panier" element={
@@ -237,6 +235,11 @@ function AppContent() {
               <SuperAdminDashboard />
             </AdminRoute>
           } />
+            <Route path="/admin" element={
+              <AdminRoute user={user} requiredRole="ROLE_ADMIN">
+                <AdminDashboard />
+              </AdminRoute>
+            } />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -245,7 +248,7 @@ function AppContent() {
       <Footer />
       <SecurityBadge />
       <CookieBanner />
-        <Chatbot />
+      <Chatbot />
       {afficherModal && (
         <InactivityModal
           secondesRestantes={secondesRestantes}

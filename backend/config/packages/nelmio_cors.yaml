@@ -10,4 +10,11 @@ nelmio_cors:
         expose_headers: ['Link']
         max_age: 3600
     paths:
-        '^/': null
+        '^/api':
+            allow_origin:
+                - '^https?://(localhost|127\.0\.0\.1)(:\d+)?$'
+                - '^https://sbh\.alwaysdata\.net$'
+                - '^https://api-sbh\.alwaysdata\.net$'
+            allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+            allow_headers: ['Content-Type', 'Authorization', 'X-Admin-Key', 'X-User-Email']
+            max_age: 3600

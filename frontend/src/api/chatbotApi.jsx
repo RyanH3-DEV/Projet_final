@@ -1,7 +1,4 @@
-// frontend/src/api/chatbotApi.js
-
-// Je vérifie quel port j'utilise pour Symfony (8000 ou 3305)
-const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const askMistral = async (messageText) => {
     try {
@@ -15,7 +12,6 @@ export const askMistral = async (messageText) => {
         });
 
         if (!response.ok) {
-            // Je renvoie la clé accompagnée du code HTTP pour le débogage
             throw new Error(`chatbot.api.server_error: ${response.status}`);
         }
 

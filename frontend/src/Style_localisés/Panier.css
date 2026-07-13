@@ -1,4 +1,394 @@
-/* --- ÉTATS DÉSACTIVÉS --- */
+﻿/* --- CONTAINER GLOBAL --- */
+.panier-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.panier-container h2 {
+  font-size: 1.8rem;
+  color: #1e2328;
+  margin-bottom: 30px;
+  border-bottom: 3px solid #c89b3c;
+  padding-bottom: 10px;
+}
+
+/* --- ARTICLES --- */
+.panier-items {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 25px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  margin-bottom: 25px;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+.item-row:last-of-type { border-bottom: none; }
+.item-row:hover { background-color: #fafafa; }
+
+.item-img {
+  width: 70px; height: 100px;
+  object-fit: contain; margin-right: 20px;
+  border-radius: 4px; background-color: #f9f9f9;
+  flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.item-details { flex: 1; margin-right: 20px; }
+.item-title { font-size: 1.05rem; margin: 0 0 5px 0; color: #1e2328; font-weight: 700; }
+.item-details p { margin: 0; color: #666; font-size: 0.95rem; }
+
+.item-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.btn-quantite {
+  width: 34px; height: 34px;
+  border: 1.5px solid #c89b3c; background-color: #fff; color: #1e2328;
+  cursor: pointer; border-radius: 6px; font-size: 1.1rem; font-weight: bold;
+  transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
+}
+.btn-quantite:hover { background-color: #c89b3c; color: #fff; }
+
+.qte-text { font-weight: bold; font-size: 1rem; min-width: 24px; text-align: center; color: #1e2328; }
+
+.btn-supprimer {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.2rem; color: #e74c3c;
+  padding: 4px 8px; border-radius: 4px;
+  transition: all 0.2s ease; margin-left: 10px;
+}
+.btn-supprimer:hover { background-color: #fde8e8; color: #c0392b; }
+
+.divider { border: none; border-top: 2px solid #f0f0f0; margin: 20px 0 15px 0; }
+.total-text { font-size: 1.3rem; font-weight: 700; color: #1e2328; text-align: right; margin: 0; }
+
+/* --- SECTION PAIEMENT --- */
+.paiement-section {
+  background: #fff; border-radius: 10px;
+  padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-top: 3px solid #c89b3c; margin-bottom: 25px;
+}
+.paiement-section h3 { font-size: 1.2rem; color: #1e2328; margin: 0 0 8px 0; }
+.paiement-desc { color: #666; font-size: 0.95rem; margin: 0 0 20px 0; }
+
+.paiement-boutons { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+
+.btn-mastercard {
+  padding: 0 22px; height: 46px; font-size: 0.95rem; cursor: pointer;
+  border-radius: 6px; background-color: #1e2328; color: #cdbe91;
+  font-weight: bold; display: flex; align-items: center; gap: 8px;
+  transition: all 0.3s ease; border: 1px solid #c89b3c;
+}
+.btn-mastercard:hover { background-color: #2c3137; box-shadow: 0 0 12px rgba(200,155,60,0.4); }
+
+.btn-paypal {
+  padding: 0 22px; height: 46px; background-color: #ffc439;
+  border: none; border-radius: 6px; font-weight: bold;
+  cursor: pointer; color: #003087; font-size: 0.95rem; transition: all 0.2s ease;
+}
+.btn-paypal:hover { background-color: #f0b429; box-shadow: 0 4px 12px rgba(255,196,57,0.5); }
+
+/* --- WRAPPER FORMULAIRE --- */
+.paiement-form-wrapper { margin-top: 10px; }
+
+.btn-retour {
+  background: none; border: none; color: #c89b3c;
+  font-weight: 600; cursor: pointer; font-size: 0.9rem;
+  margin-bottom: 15px; padding: 0; transition: color 0.2s;
+}
+.btn-retour:hover { color: #a07830; }
+
+/* --- FORMULAIRE STRIPE --- */
+.stripe-form { display: flex; flex-direction: column; gap: 15px; }
+.stripe-label { font-weight: 600; color: #1e2328; margin: 0; }
+
+.card-element-wrapper {
+  border: 1.5px solid #c89b3c; border-radius: 8px;
+  padding: 14px 16px; background: #fafafa; transition: box-shadow 0.2s;
+}
+.card-element-wrapper:focus-within { box-shadow: 0 0 8px rgba(200,155,60,0.35); background: #fff; }
+
+.stripe-error { color: #dc2626; font-size: 0.9rem; margin: 0; }
+
+.btn-payer-carte {
+  width: 100%; padding: 15px;
+  background-color: #1e2328; color: #cdbe91;
+  border: 1px solid #c89b3c; border-radius: 8px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: all 0.3s ease; letter-spacing: 0.5px;
+}
+.btn-payer-carte:hover:not(:disabled) { background-color: #2c3137; box-shadow: 0 0 14px rgba(200,155,60,0.45); }
+.btn-payer-carte:disabled { opacity: 0.6; cursor: not-allowed; }
+.secure-note { font-size: 0.8rem; color: #888; text-align: center; margin: 0; }
+
+/* --- ERREUR --- */
+.error-box {
+  display: flex; align-items: flex-start; gap: 12px;
+  background-color: #fff5f5; color: #b91c1c;
+  padding: 16px 18px; border-radius: 8px;
+  border: 1px solid #fca5a5; border-left: 5px solid #dc2626;
+  font-weight: 600; font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.15);
+  animation: slideInError 0.3s ease;
+}
+@keyframes slideInError {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- CONFIRMATION --- */
+.paiement-confirme {
+  text-align: center; padding: 60px 20px;
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-top: 4px solid #c89b3c;
+}
+.confirme-icon { font-size: 4rem; margin-bottom: 15px; }
+.paiement-confirme h2 { color: #1e2328; font-size: 1.8rem; margin-bottom: 10px; }
+.paiement-confirme p { color: #666; font-size: 1rem; }
+
+/* --- BANDEAU S├ëCURIT├ë --- */
+.securite-bandeau {
+  background: #fff; border-radius: 10px;
+  padding: 20px 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  text-align: center; border-top: 3px solid #e8e8e8;
+}
+.securite-titre {
+  font-size: 0.9rem; font-weight: 700; color: #555;
+  margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px;
+}
+.securite-logos {
+  display: flex; align-items: center;
+  justify-content: center; gap: 15px; flex-wrap: wrap;
+}
+
+.badge-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  background: #fafafa; min-width: 70px; min-height: 50px;
+  transition: all 0.2s ease;
+}
+.badge-item:hover { border-color: #c89b3c; box-shadow: 0 2px 8px rgba(200,155,60,0.2); }
+.badge-icon { font-size: 1.4rem; line-height: 1; }
+.badge-text { font-size: 0.65rem; font-weight: 700; color: #555; text-align: center; margin-top: 4px; line-height: 1.2; }
+
+.badge-highlight { border-color: #2563eb; background: #eff6ff; }
+.badge-highlight .badge-icon { color: #2563eb; }
+.badge-highlight .badge-text { color: #2563eb; }
+
+.badge-visa { background: #1a1f71; border-color: #1a1f71; }
+.visa-text { font-size: 1.2rem; font-weight: 900; color: #fff; font-style: italic; font-family: 'Arial Black', sans-serif; letter-spacing: -1px; }
+
+.mastercard-circles { display: flex; align-items: center; }
+.mc-circle { width: 28px; height: 28px; border-radius: 50%; }
+.mc-red { background-color: #eb001b; }
+.mc-orange { background-color: #f79e1b; margin-left: -10px; opacity: 0.85; }
+
+.badge-paypal-logo { background: #fff; }
+.paypal-logo-text { font-size: 1rem; font-weight: 800; font-family: 'Arial', sans-serif; }
+.pp-blue { color: #009cde; }
+.pp-dark { color: #003087; }
+
+.badge-stripe { background: #635bff; border-color: #635bff; }
+.stripe-logo-text { font-size: 1rem; font-weight: 700; color: #fff; font-family: 'Arial', sans-serif; letter-spacing: -0.5px; }
+
+/* --- PANIER VIDE --- */
+.panier-vide { text-align: center; color: #999; font-size: 1.1rem; margin-top: 60px; }
+
+/* --- CHAMPS STRIPE S├ëPAR├ëS --- */
+.stripe-field-group {
+  display: flex; flex-direction: column; gap: 6px; flex: 1;
+}
+.stripe-field-label { font-size: 0.85rem; font-weight: 600; color: #555; }
+
+.stripe-input-text {
+  padding: 12px 14px;
+  border: 1.5px solid #c89b3c; border-radius: 8px;
+  font-size: 16px; background: #fafafa; color: #1e2328;
+  outline: none; transition: all 0.2s;
+  font-family: 'Segoe UI', sans-serif;
+}
+.stripe-input-text:focus {
+  border-color: #a07830; background: #fff;
+  box-shadow: 0 0 8px rgba(200,155,60,0.35);
+}
+
+.stripe-row { display: flex; gap: 15px; }
+.stripe-row .stripe-field-group { flex: 1; }
+
+/* --- WISHLIST + PANIER --- */
+.book-btn-group { display: flex; gap: 8px; align-items: center; }
+
+.add-to-wishlist-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid #e0e0e0; background: #fff; color: #aaa;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease; flex-shrink: 0;
+}
+.add-to-wishlist-btn:hover { border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }
+.add-to-wishlist-btn.wishlisted { border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }
+
+/* --- PAGINATION --- */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin: 40px 0 20px; flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 40px; height: 40px; padding: 0 12px;
+  border: 1.5px solid #e0e0e0; background: #fff; color: #1e2328;
+  border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.page-btn:hover:not(:disabled) { border-color: #c89b3c; color: #c89b3c; background: #fffbf0; }
+.page-btn.active { background: #1e2328; color: #cdbe91; border-color: #c89b3c; }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-nav { background: #fafafa; }
+.page-dots { color: #aaa; font-size: 1.1rem; padding: 0 4px; user-select: none; }
+
+
+/* ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+   TABLETTE (Ôëñ 768px)
+   ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ */
+
+@media (max-width: 768px) {
+  .panier-container {
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  .panier-container h2 { font-size: 1.5rem; }
+
+  .panier-items { padding: 16px 18px; }
+
+  .item-img {
+    width: 55px;
+    height: 78px;
+    margin-right: 14px;
+  }
+
+  .item-title { font-size: 0.95rem; }
+  .item-details p { font-size: 0.88rem; }
+
+  .paiement-boutons { gap: 10px; }
+
+  .btn-mastercard,
+  .btn-paypal { width: 100%; justify-content: center; }
+}
+
+
+/* ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+   MOBILE (Ôëñ 480px)
+   ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ */
+
+@media (max-width: 480px) {
+  .panier-container {
+    margin: 12px auto;
+    padding: 0 12px;
+  }
+
+  .panier-container h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+
+  .panier-items { padding: 12px 14px; }
+
+  /* Article : image + d├®tails + actions r├®organis├®s */
+  .item-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 4px;
+  }
+
+  .item-img {
+    width: 48px;
+    height: 68px;
+    margin-right: 10px;
+  }
+
+  .item-details { margin-right: 0; }
+  .item-title  { font-size: 0.88rem; }
+  .item-details p { font-size: 0.8rem; }
+
+  /* Actions sous l'article, align├®es ├á droite */
+  .item-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .btn-quantite { width: 30px; height: 30px; font-size: 1rem; }
+  .qte-text     { font-size: 0.9rem; }
+  .btn-supprimer { margin-left: 4px; }
+
+  .total-text { font-size: 1.1rem; }
+
+  /* Paiement */
+  .paiement-section { padding: 18px 16px; }
+  .paiement-section h3 { font-size: 1.05rem; }
+  .paiement-desc { font-size: 0.88rem; }
+
+  .paiement-boutons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-mastercard,
+  .btn-paypal {
+    width: 100%;
+    justify-content: center;
+    height: 48px;
+  }
+
+  /* Stripe : date + CVC empil├®s */
+  .stripe-row { flex-direction: column; gap: 12px; }
+
+  .btn-payer-carte { padding: 13px; font-size: 0.92rem; }
+
+  /* Confirmation */
+  .paiement-confirme {
+    padding: 40px 16px;
+  }
+  .paiement-confirme h2 { font-size: 1.4rem; }
+  .confirme-icon { font-size: 3rem; }
+
+  /* Bandeau s├®curit├® */
+  .securite-bandeau { padding: 16px 12px; }
+  .securite-logos { gap: 8px; }
+  .badge-item {
+    min-width: 58px;
+    min-height: 44px;
+    padding: 6px 10px;
+  }
+  .badge-icon  { font-size: 1.1rem; }
+  .badge-text  { font-size: 0.58rem; }
+  .visa-text   { font-size: 1rem; }
+  .stripe-logo-text,
+  .paypal-logo-text { font-size: 0.88rem; }
+
+  /* Pagination compacte */
+  .pagination { gap: 5px; margin: 28px 0 16px; }
+  .page-btn {
+    min-width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+    padding: 0 8px;
+  }
+}
+
+
+/* --- Styles ajoutés récemment (indisponibilité, connexion invité) --- */
+
+/* --- Ã‰TATS DÃ‰SACTIVÃ‰S --- */
 .btn-mastercard:disabled,
 .btn-paypal:disabled {
   opacity: 0.4;

@@ -13,7 +13,7 @@ import {
   removeFromGuestCart, updateGuestCartItem,
 } from '../utils/guestCartUtils';
 import { useContent } from '../context/ContentContext';
-import '../style_localisés/Panier.css';
+import '../Style_localisés/Panier.css';
 
 const BASE_URL   = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const IS_SANDBOX = import.meta.env.VITE_PAYMENT_ENV !== 'production';
