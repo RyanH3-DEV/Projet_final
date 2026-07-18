@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class SecurityController extends AbstractController
 {
     #[Route('/api/connexion_directe', name: 'api_login_direct', methods: ['POST', 'OPTIONS'])]
-    public function login(Request $request, UserRepository $userRepo, UserPasswordHasherInterface $hasher): JsonResponse
+    public function login(Request $request, UserRepository $userRepo, UserPasswordHasherInterface $hasher, EntityManagerInterface $em, MailerInterface $mailer): JsonResponse
     {
         if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
 
@@ -33,6 +33,62 @@ class SecurityController extends AbstractController
         if (!$user->isVerified()) {
             return new JsonResponse(['message' => 'Votre compte n\'est pas encore activé. Vérifiez vos e-mails.'], 403);
         }
+
+        // Génération du code 2FA à 6 chiffres
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->setTwoFactorCode($code);
+        $user->setTwoFactorCodeExpiresAt(new \DateTimeImmutable('+10 minutes'));
+        $em->flush();
+
+        $mail = (new Email())
+            ->from('r.sebbouh@h3hitema.fr')
+            ->to($user->getEmail())
+            ->subject('Votre code de connexion Cyna')
+            ->html("<p>Bonjour {$user->getPrenom()},</p><p>Votre code de vérification est : <strong>{$code}</strong></p><p>Ce code expire dans 10 minutes.</p>");
+
+        try {
+            $mailer->send($mail);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'Erreur lors de l\'envoi du code : ' . $e->getMessage()], 500);
+        }
+
+        // Réponse partielle : pas de token tant que le code 2FA n'est pas validé
+        return new JsonResponse([
+            'requiresTwoFactor' => true,
+            'email' => $user->getEmail(),
+        ]);
+    }
+
+    #[Route('/api/connexion_2fa_verify', name: 'api_login_2fa_verify', methods: ['POST', 'OPTIONS'])]
+    public function verifyTwoFactor(Request $request, UserRepository $userRepo, EntityManagerInterface $em): JsonResponse
+    {
+        if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
+
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? '';
+        $code = $data['code'] ?? '';
+
+        $user = $userRepo->findOneBy(['email' => $email]);
+
+        if (!$user || !$user->getTwoFactorCode()) {
+            return new JsonResponse(['message' => 'Aucune demande de connexion en cours.'], 400);
+        }
+
+        if ($user->getTwoFactorCodeExpiresAt() < new \DateTimeImmutable()) {
+            $user->setTwoFactorCode(null);
+            $user->setTwoFactorCodeExpiresAt(null);
+            $em->flush();
+            return new JsonResponse(['message' => 'Code expiré, veuillez vous reconnecter.'], 400);
+        }
+
+        if ($user->getTwoFactorCode() !== $code) {
+            return new JsonResponse(['message' => 'Code incorrect.'], 401);
+        }
+
+        // Code validé : on nettoie et on délivre le token
+        $user->setTwoFactorCode(null);
+        $user->setTwoFactorCodeExpiresAt(null);
+        $em->flush();
 
         return new JsonResponse([
             'token' => 'eyJhbGci.eyJzdWIiOiIxIn0.signature',
@@ -73,7 +129,6 @@ class SecurityController extends AbstractController
 
         $user->setNewsletter($data['newsletter'] ?? false);
         $user->setUnsubscribeToken(bin2hex(random_bytes(32)));
-        // Je force la date à null pour que le robot déclenche le premier envoi rapidement
         $user->setLastNewsletterSentAt(null);
 
         $token = bin2hex(random_bytes(32));

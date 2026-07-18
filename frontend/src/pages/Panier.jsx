@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { useNavigate } from 'react-router-dom';
 import {
   Elements, CardNumberElement, CardExpiryElement,
   CardCvcElement, useStripe, useElements,
@@ -13,6 +14,7 @@ import {
   removeFromGuestCart, updateGuestCartItem,
 } from '../utils/guestCartUtils';
 import { useContent } from '../context/ContentContext';
+import { useCart } from '../context/CartContext';
 import '../Style_localisés/Panier.css';
 
 const BASE_URL   = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
@@ -137,6 +139,8 @@ function LoginNudge({ onLoginRedirect }) {
 function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect }) {
   const { t } = useTranslation();
   const { contents } = useContent();
+  const navigate = useNavigate();
+  const { refreshCart } = useCart();
   const connecte = isLoggedIn();
 
   const [panierInvite, setPanierInvite] = useState(() => connecte ? [] : getGuestCart());
@@ -154,6 +158,7 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   const [paiementReussi, setPaiementReussi] = useState(false);
   const [erreurPaiement, setErreurPaiement] = useState('');
   const [showLoginNudge, setShowLoginNudge] = useState(false);
+  const [derniereCommande, setDerniereCommande] = useState(null);
 
   const total = panier.reduce((acc, item) => {
     let prixUnitaire = item.price;
@@ -171,6 +176,9 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
       try {
         await removeFromCart(id);
         await rafraichirPanier();
+        console.log('TEST refreshCart appelé dans gererSuppression');
+        await refreshCart();
+        console.log('TEST refreshCart terminé');
       } catch {
         alert(t('cart.err_delete'));
       }
@@ -186,6 +194,7 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
       try {
         await updateCartItem(id, { quantity: nouvelleQte });
         await rafraichirPanier();
+        await refreshCart();
       } catch {
         alert(t('cart.err_update'));
       }
@@ -214,16 +223,41 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   };
 
   const onSuccess = async (methode) => {
+    const panierAvantVidage = [...panier];
+    const totalAvantVidage = total;
+    const methodeLabel = methode === 'paypal' ? 'PayPal' : 'Carte bancaire';
+
     try {
-      await fetch(`${BASE_URL}/api/profil/commandes/creer`, {
+      const res = await fetch(`${BASE_URL}/api/profil/commandes/creer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: localStorage.getItem('userEmail'), paymentMethod: methode, billingAddress: 'Adresse de facturation par défaut' }),
+        body: JSON.stringify({
+          email: localStorage.getItem('userEmail'),
+          paymentMethod: methode,
+          billingAddress: 'Adresse de facturation par défaut',
+          cart: panierAvantVidage.map(item => ({
+            id: item.id,
+            quantity: item.quantity,
+            subscriptionDuration: item.subscriptionDuration || 'mensuel',
+          })),
+        }),
       });
-    } catch (e) { console.error('Erreur sauvegarde commande', e); }
+      const data = await res.json();
+      setDerniereCommande({
+        orderId: data.orderId,
+        items: panierAvantVidage,
+        total: totalAvantVidage,
+        methode: methodeLabel,
+      });
+    } catch (e) {
+      console.error('Erreur sauvegarde commande', e);
+    }
     setPaiementReussi(true);
     setModePaiement(null);
-    if (connecte) await rafraichirPanier();
+    if (connecte) {
+      await rafraichirPanier();
+      await refreshCart();
+    }
   };
 
   if (paiementReussi) {
@@ -233,6 +267,36 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
           <div className="confirme-icon"><ShieldCheck size={64} color="#2ecc71" /></div>
           <h2>{contents.success_title || t('cart.success_title')}</h2>
           <p>{contents.success_msg || t('cart.success_msg')}</p>
+
+          {derniereCommande && (
+            <div className="confirmation-recap">
+              <p className="confirmation-order-id">
+                {contents.order_ref || t('cart.order_ref')} <strong>#{derniereCommande.orderId}</strong>
+              </p>
+
+              <div className="confirmation-items">
+                {derniereCommande.items.map((item) => (
+                  <div key={item.id} className="confirmation-item-row">
+                    <span>{item.name}</span>
+                    <span>{item.quantity} × {item.subscriptionDuration}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="confirmation-total">
+                <span>{contents.txt_total || t('cart.total')}</span>
+                <strong>{derniereCommande.total.toFixed(2)} EUR</strong>
+              </div>
+
+              <p className="confirmation-payment-method">
+                {contents.paid_via || t('cart.paid_via')} {derniereCommande.methode}
+              </p>
+            </div>
+          )}
+
+          <button className="btn-voir-souscriptions" onClick={() => navigate('/profil')}>
+            {contents.btn_view_subscriptions || t('cart.view_subscriptions')}
+          </button>
         </div>
       </div>
     );

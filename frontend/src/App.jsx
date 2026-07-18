@@ -11,6 +11,7 @@ import Informations from './pages/Informations';
 import Contact from './pages/Contact';
 import MonProfil from './pages/MonProfil';
 import Catalogue from './pages/Catalogue';
+import MentionsLegales from './components/MentionsLegales';
 
 import ProductDetail from './pages/ProductDetail';
 
@@ -50,11 +51,12 @@ function AdminRoute({ user, children, requiredRole = 'ROLE_ADMIN' }) {
 
 function lireUserDepuisStorage() {
   try {
-    const token = localStorage.getItem('token');
-    const userDataRaw = localStorage.getItem('userData');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const userDataRaw = localStorage.getItem('userData') || sessionStorage.getItem('userData');
     if (token && userDataRaw) return JSON.parse(userDataRaw);
   } catch {
     localStorage.clear();
+    sessionStorage.clear();
   }
   return null;
 }
@@ -95,7 +97,7 @@ function AppContent() {
   }, [contents]);
 
   const rafraichirPanier = useCallback(async (email) => {
-    const cible = email || localStorage.getItem('userEmail');
+    const cible = email || localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
     if (!cible) return;
     try {
       const data = await getCart(cible);
@@ -106,7 +108,7 @@ function AppContent() {
   }, []);
 
   const rafraichirWishlist = useCallback(async (email) => {
-    const cible = email || localStorage.getItem('userEmail');
+    const cible = email || localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
     if (!cible) return;
     try {
       const res  = await fetch(`${BASE_URL}/api/profil/wishlist?email=${encodeURIComponent(cible)}`);
@@ -139,10 +141,17 @@ function AppContent() {
     }
   }, [user, rafraichirPanier, rafraichirWishlist]);
 
-  const connecterUtilisateur = useCallback(async (userData) => {
-    localStorage.setItem('token', userData.token || '');
-    localStorage.setItem('userEmail', userData.email);
-    localStorage.setItem('userData', JSON.stringify(userData));
+  const connecterUtilisateur = useCallback(async (userData, resterConnecte = true) => {
+    const storage = resterConnecte ? localStorage : sessionStorage;
+    const autre = resterConnecte ? sessionStorage : localStorage;
+
+    autre.removeItem('token');
+    autre.removeItem('userData');
+    autre.removeItem('userEmail');
+
+    storage.setItem('token', userData.token || '');
+    storage.setItem('userEmail', userData.email);
+    storage.setItem('userData', JSON.stringify(userData));
     skipNextUserEffect.current = true;
     setUser(userData);
     await mergeGuestCartOnLogin(userData.email, () => rafraichirPanier(userData.email));
@@ -152,6 +161,9 @@ function AppContent() {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     localStorage.removeItem('userEmail');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('userEmail');
     setUser(null);
     setPanier([]);
     setWishlist([]);
@@ -203,6 +215,7 @@ function AppContent() {
           <Route path="/contact"     element={<Contact />} />
           <Route path="/cgv"         element={<CGV />} />
           <Route path="/cgu"         element={<CGU />} />
+          <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/desabonnement" element={<Desabonnement />} />
 
           <Route path="/catalogue"            element={<Catalogue ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />

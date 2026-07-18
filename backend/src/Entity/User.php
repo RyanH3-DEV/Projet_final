@@ -21,6 +21,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
+    #[ORM\Column(length: 6, nullable: true)]
+    private ?string $twoFactorCode = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $twoFactorCodeExpiresAt = null;
+
     #[ORM\Column]
     private ?string $password = null;
 
@@ -123,6 +129,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }
     public function setResetTokenExpiresAt(?\DateTimeImmutable $resetTokenExpiresAt): static { $this->resetTokenExpiresAt = $resetTokenExpiresAt; return $this; }
+
+    public function getTwoFactorCode(): ?string { return $this->twoFactorCode; }
+    public function setTwoFactorCode(?string $twoFactorCode): self { $this->twoFactorCode = $twoFactorCode; return $this; }
+
+    public function getTwoFactorCodeExpiresAt(): ?\DateTimeImmutable { return $this->twoFactorCodeExpiresAt; }
+    public function setTwoFactorCodeExpiresAt(?\DateTimeImmutable $twoFactorCodeExpiresAt): self { $this->twoFactorCodeExpiresAt = $twoFactorCodeExpiresAt; return $this; }
 
     public function getCartItems(): Collection { return $this->cartItems; }
 

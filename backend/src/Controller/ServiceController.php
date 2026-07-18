@@ -53,6 +53,7 @@ class ServiceController extends AbstractController
             default: $queryBuilder->orderBy('s.priority', 'DESC')->addOrderBy('s.isAvailable', 'DESC');
         }
 
+        $queryBuilder->leftJoin('s.images', 'img')->addSelect('img');
         $services = $queryBuilder->getQuery()->getResult();
 
         $data = array_map(fn(ServiceSaas $s) => [

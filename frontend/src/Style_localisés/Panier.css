@@ -498,3 +498,73 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+.confirmation-recap {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.confirmation-order-id {
+  font-size: 14px;
+  color: rgba(232, 234, 240, 0.6);
+  margin: 0 0 16px;
+}
+
+.confirmation-order-id strong {
+  color: #00e5ff;
+}
+
+.confirmation-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.confirmation-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #e8eaf0;
+}
+
+.confirmation-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.confirmation-total strong {
+  color: #00e5ff;
+  font-size: 20px;
+}
+
+.confirmation-payment-method {
+  font-size: 13px;
+  color: rgba(232, 234, 240, 0.5);
+  margin: 0;
+}
+
+.btn-voir-souscriptions {
+  padding: 14px 32px;
+  background: #00e5ff;
+  color: #050810;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-voir-souscriptions:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+}
