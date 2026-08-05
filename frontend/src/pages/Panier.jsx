@@ -7,7 +7,7 @@ import {
   Elements, CardNumberElement, CardExpiryElement,
   CardCvcElement, useStripe, useElements,
 } from '@stripe/react-stripe-js';
-import { ShieldCheck, AlertTriangle, LogIn } from 'lucide-react';
+import { ShieldCheck, AlertTriangle } from 'lucide-react';
 import { removeFromCart, updateCartItem } from '../api/cartApi';
 import {
   isLoggedIn, getGuestCart,
@@ -19,6 +19,7 @@ import '../Style_localisés/Panier.css';
 
 const BASE_URL   = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const IS_SANDBOX = import.meta.env.VITE_PAYMENT_ENV !== 'production';
+const MAX_QUANTITE = 50;
 
 const PAYPAL_CLIENT_ID = IS_SANDBOX
   ? import.meta.env.VITE_PAYPAL_SANDBOX_CLIENT_ID
@@ -37,7 +38,7 @@ const STRIPE_STYLE = {
   },
 };
 
-function StripeForm({ total, onSuccess, onError }) {
+function StripeForm({ total, connecte, emailInvite, setEmailInvite, onSuccess, onError }) {
   const { t } = useTranslation();
   const { contents } = useContent();
   const stripe = useStripe();
@@ -46,20 +47,28 @@ function StripeForm({ total, onSuccess, onError }) {
   const [erreur, setErreur] = useState('');
   const [nom, setNom] = useState('');
 
+  const emailPourPaiement = connecte ? localStorage.getItem('userEmail') : emailInvite;
+
   const payer = async (e) => {
     e.preventDefault();
     if (!stripe || !elements) return;
+
+    if (!connecte && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInvite || '')) {
+      setErreur(t('cart.err_email_required', 'Veuillez saisir une adresse e-mail valide.'));
+      return;
+    }
+
     setLoading(true);
     setErreur('');
     try {
       const res = await fetch(`${BASE_URL}/api/paiement/stripe/intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Math.round(total * 100), currency: 'eur', email: localStorage.getItem('userEmail') }),
+        body: JSON.stringify({ amount: Math.round(total * 100), currency: 'eur', email: emailPourPaiement }),
       });
       const { clientSecret } = await res.json();
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: elements.getElement(CardNumberElement), billing_details: { name: nom, email: localStorage.getItem('userEmail') } },
+        payment_method: { card: elements.getElement(CardNumberElement), billing_details: { name: nom, email: emailPourPaiement } },
       });
       if (error) { setErreur(error.message); onError(error.message); }
       else if (paymentIntent.status === 'succeeded') onSuccess('stripe');
@@ -72,25 +81,43 @@ function StripeForm({ total, onSuccess, onError }) {
   return (
     <form onSubmit={payer} className="stripe-form">
       <p className="stripe-label">{contents.stripe_title || t('cart.stripe_title')}</p>
+
+      {!connecte && (
+        <div className="stripe-field-group">
+          <label className="stripe-field-label" htmlFor="email-invite">
+            {t('cart.email_for_order', 'E-mail pour recevoir votre confirmation')}
+          </label>
+          <input
+            id="email-invite"
+            type="email"
+            className="stripe-input-text"
+            placeholder="vous@exemple.fr"
+            value={emailInvite}
+            onChange={e => setEmailInvite(e.target.value)}
+            required
+          />
+        </div>
+      )}
+
       <div className="stripe-field-group">
-        <label className="stripe-field-label">{contents.name_on_card || t('cart.name_on_card')}</label>
-        <input type="text" className="stripe-input-text" placeholder="Jean Dupont" value={nom} onChange={e => setNom(e.target.value)} required />
+        <label className="stripe-field-label" htmlFor="nom-carte">{contents.name_on_card || t('cart.name_on_card')}</label>
+        <input id="nom-carte" type="text" className="stripe-input-text" placeholder="Jean Dupont" value={nom} onChange={e => setNom(e.target.value)} required />
       </div>
       <div className="stripe-field-group">
-        <label className="stripe-field-label">{contents.card_number || t('cart.card_number')}</label>
-        <div className="card-element-wrapper"><CardNumberElement options={STRIPE_STYLE} /></div>
+        <label className="stripe-field-label" htmlFor="numero-carte">{contents.card_number || t('cart.card_number')}</label>
+        <div className="card-element-wrapper"><CardNumberElement id="numero-carte" options={STRIPE_STYLE} /></div>
       </div>
       <div className="stripe-row">
         <div className="stripe-field-group">
-          <label className="stripe-field-label">{contents.expiry_date || t('cart.expiry_date')}</label>
-          <div className="card-element-wrapper"><CardExpiryElement options={STRIPE_STYLE} /></div>
+          <label className="stripe-field-label" htmlFor="expiration-carte">{contents.expiry_date || t('cart.expiry_date')}</label>
+          <div className="card-element-wrapper"><CardExpiryElement id="expiration-carte" options={STRIPE_STYLE} /></div>
         </div>
         <div className="stripe-field-group">
-          <label className="stripe-field-label">{contents.cvc || t('cart.cvc')}</label>
-          <div className="card-element-wrapper"><CardCvcElement options={STRIPE_STYLE} /></div>
+          <label className="stripe-field-label" htmlFor="cvc-carte">{contents.cvc || t('cart.cvc')}</label>
+          <div className="card-element-wrapper"><CardCvcElement id="cvc-carte" options={STRIPE_STYLE} /></div>
         </div>
       </div>
-      {erreur && <p className="stripe-error">{erreur}</p>}
+      {erreur && <p className="stripe-error" role="alert">{erreur}</p>}
       <button type="submit" className="btn-payer-carte" disabled={!stripe || loading}>
         {loading ? t('cart.processing') : `${contents.btn_payer || t('cart.pay')} ${total.toFixed(2)} EUR`}
       </button>
@@ -115,27 +142,6 @@ function SecuriteBadges() {
   );
 }
 
-function LoginNudge({ onLoginRedirect }) {
-  const { t } = useTranslation();
-  const { contents } = useContent();
-  return (
-    <div className="login-nudge-box">
-      <LogIn size={22} className="login-nudge-icon" />
-      <div className="login-nudge-content">
-        <p className="login-nudge-title">
-          {contents.login_nudge_title || t('cart.login_required_title')}
-        </p>
-        <p className="login-nudge-msg">
-          {contents.login_nudge_msg || t('cart.login_required_msg')}
-        </p>
-        <button className="btn-login-nudge" onClick={onLoginRedirect}>
-          {contents.btn_login || t('cart.btn_login')}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect }) {
   const { t } = useTranslation();
   const { contents } = useContent();
@@ -144,6 +150,8 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   const connecte = isLoggedIn();
 
   const [panierInvite, setPanierInvite] = useState(() => connecte ? [] : getGuestCart());
+  const [emailInvite, setEmailInvite] = useState('');
+  const [quantiteEnCours, setQuantiteEnCours] = useState(null);
 
   useEffect(() => {
     if (connecte) return;
@@ -157,7 +165,6 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   const [modePaiement, setModePaiement] = useState(null);
   const [paiementReussi, setPaiementReussi] = useState(false);
   const [erreurPaiement, setErreurPaiement] = useState('');
-  const [showLoginNudge, setShowLoginNudge] = useState(false);
   const [derniereCommande, setDerniereCommande] = useState(null);
 
   const total = panier.reduce((acc, item) => {
@@ -169,16 +176,14 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   }, 0);
 
   const indisponibles = panier.filter(item => item.isAvailable === false);
-  const peutPayer = connecte && panier.length > 0 && indisponibles.length === 0;
+  const peutPayer = panier.length > 0 && indisponibles.length === 0;
 
   const gererSuppression = async (id) => {
     if (connecte) {
       try {
         await removeFromCart(id);
         await rafraichirPanier();
-        console.log('TEST refreshCart appelé dans gererSuppression');
         await refreshCart();
-        console.log('TEST refreshCart terminé');
       } catch {
         alert(t('cart.err_delete'));
       }
@@ -188,15 +193,22 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   };
 
   const gererQuantite = async (id, qte, delta) => {
+    if (quantiteEnCours === id) return;
+
     const nouvelleQte = qte + delta;
     if (nouvelleQte < 1) { await gererSuppression(id); return; }
+    if (nouvelleQte > MAX_QUANTITE) return;
+
     if (connecte) {
+      setQuantiteEnCours(id);
       try {
         await updateCartItem(id, { quantity: nouvelleQte });
         await rafraichirPanier();
         await refreshCart();
       } catch {
         alert(t('cart.err_update'));
+      } finally {
+        setQuantiteEnCours(null);
       }
     } else {
       setPanierInvite(updateGuestCartItem(id, { quantity: nouvelleQte }));
@@ -217,7 +229,6 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
   };
 
   const handlePaiementClick = (mode) => {
-    if (!connecte) { setShowLoginNudge(true); return; }
     if (!peutPayer) return;
     setModePaiement(mode);
   };
@@ -226,13 +237,14 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
     const panierAvantVidage = [...panier];
     const totalAvantVidage = total;
     const methodeLabel = methode === 'paypal' ? 'PayPal' : 'Carte bancaire';
+    const emailCommande = connecte ? localStorage.getItem('userEmail') : emailInvite;
 
     try {
       const res = await fetch(`${BASE_URL}/api/profil/commandes/creer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: localStorage.getItem('userEmail'),
+          email: emailCommande,
           paymentMethod: methode,
           billingAddress: 'Adresse de facturation par défaut',
           cart: panierAvantVidage.map(item => ({
@@ -257,14 +269,16 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
     if (connecte) {
       await rafraichirPanier();
       await refreshCart();
+    } else {
+      setPanierInvite(getGuestCart());
     }
   };
 
   if (paiementReussi) {
     return (
       <div className="panier-container">
-        <div className="paiement-confirme">
-          <div className="confirme-icon"><ShieldCheck size={64} color="#2ecc71" /></div>
+        <div className="paiement-confirme" role="status">
+          <div className="confirme-icon"><ShieldCheck size={64} color="#2ecc71" aria-hidden="true" /></div>
           <h2>{contents.success_title || t('cart.success_title')}</h2>
           <p>{contents.success_msg || t('cart.success_msg')}</p>
 
@@ -294,9 +308,15 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
             </div>
           )}
 
-          <button className="btn-voir-souscriptions" onClick={() => navigate('/profil')}>
-            {contents.btn_view_subscriptions || t('cart.view_subscriptions')}
-          </button>
+          {connecte ? (
+            <button className="btn-voir-souscriptions" onClick={() => navigate('/profil')}>
+              {contents.btn_view_subscriptions || t('cart.view_subscriptions')}
+            </button>
+          ) : (
+            <button className="btn-voir-souscriptions" onClick={() => navigate('/')}>
+              {t('cart.back_home', "Retour à l'accueil")}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -326,7 +346,7 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
 
               return (
                 <div key={item.id} className={`item-row ${estIndisponible ? 'item-indisponible' : ''}`}>
-                  <img src={item.image} alt={item.name} className="item-img" />
+                  <img src={item.image} alt={`Visuel du service ${item.name}`} className="item-img" />
                   <div className="item-details">
                     <p className="item-title">
                       <strong>{item.name}</strong>
@@ -334,8 +354,14 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
                     </p>
                     {!estIndisponible && (
                       <div className="subscription-choice">
-                        <label>{contents.txt_periode || t('cart.period')}</label>
-                        <select value={item.subscriptionDuration || 'mensuel'} onChange={e => gererDuree(item.id, e.target.value)} className="duration-select">
+                        <label htmlFor={`duree-${item.id}`}>{contents.txt_periode || t('cart.period')}</label>
+                        <select
+                          id={`duree-${item.id}`}
+                          value={item.subscriptionDuration || 'mensuel'}
+                          onChange={e => gererDuree(item.id, e.target.value)}
+                          className="duration-select"
+                          aria-label={`Choisir la période d'abonnement pour ${item.name}`}
+                        >
                           <option value="mensuel">{t('cart.monthly')}</option>
                           <option value="annuel">{t('cart.yearly')}</option>
                         </select>
@@ -345,14 +371,36 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
                   <div className="item-actions">
                     {!estIndisponible && (
                       <div className="quantity-controls">
-                        <label>{contents.txt_licences || t('cart.licences')}</label>
-                        <button className="btn-quantite" onClick={() => gererQuantite(item.id, item.quantity, -1)}>-</button>
-                        <span className="qte-text">{item.quantity}</span>
-                        <button className="btn-quantite" onClick={() => gererQuantite(item.id, item.quantity, 1)}>+</button>
+                        <label id={`qte-label-${item.id}`}>{contents.txt_licences || t('cart.licences')}</label>
+                        <button
+                          className="btn-quantite"
+                          onClick={() => gererQuantite(item.id, item.quantity, -1)}
+                          disabled={quantiteEnCours === item.id}
+                          aria-label={item.quantity === 1 ? `Supprimer ${item.name} du panier` : `Diminuer la quantité de ${item.name}`}
+                        >
+                          -
+                        </button>
+                        <span className="qte-text" aria-live="polite" aria-labelledby={`qte-label-${item.id}`}>
+                          {item.quantity}
+                        </span>
+                        <button
+                          className="btn-quantite"
+                          onClick={() => gererQuantite(item.id, item.quantity, 1)}
+                          disabled={quantiteEnCours === item.id || item.quantity >= MAX_QUANTITE}
+                          aria-label={`Augmenter la quantité de ${item.name}`}
+                        >
+                          +
+                        </button>
                       </div>
                     )}
                     <p className="item-price">{(prixUnitaire * item.quantity).toFixed(2)} EUR</p>
-                    <button className="btn-supprimer" onClick={() => gererSuppression(item.id)}>X</button>
+                    <button
+                      className="btn-supprimer"
+                      onClick={() => gererSuppression(item.id)}
+                      aria-label={`Supprimer ${item.name} du panier`}
+                    >
+                      X
+                    </button>
                   </div>
                 </div>
               );
@@ -362,8 +410,8 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
           </div>
 
           {indisponibles.length > 0 && (
-            <div className="warning-bloque">
-              <AlertTriangle size={20} className="warning-bloque-icon" />
+            <div className="warning-bloque" role="alert">
+              <AlertTriangle size={20} className="warning-bloque-icon" aria-hidden="true" />
               <div className="warning-bloque-content">
                 <p className="warning-bloque-title">{contents.error_bloque_titre || t('cart.error_blocked_title')}</p>
                 <p className="warning-bloque-msg">{contents.error_bloque_msg || t('cart.error_blocked_msg')}</p>
@@ -373,15 +421,24 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
 
           <div className="paiement-section">
             <h3>{contents.paiement_titre || t('cart.payment_secure')}</h3>
-            {erreurPaiement && <div className="error-box">{erreurPaiement}</div>}
-            {showLoginNudge && !connecte && <LoginNudge onLoginRedirect={onLoginRedirect} />}
+            {erreurPaiement && <div className="error-box" role="alert">{erreurPaiement}</div>}
 
             {!modePaiement && (
               <div className="paiement-boutons">
-                <button className="btn-mastercard" onClick={() => handlePaiementClick('carte')} disabled={connecte && !peutPayer}>
+                <button
+                  className="btn-mastercard"
+                  onClick={() => handlePaiementClick('carte')}
+                  disabled={!peutPayer}
+                  aria-label="Payer par carte bancaire"
+                >
                   {contents.btn_carte || t('cart.btn_card')}
                 </button>
-                <button className="btn-paypal" onClick={() => handlePaiementClick('paypal')} disabled={connecte && !peutPayer}>
+                <button
+                  className="btn-paypal"
+                  onClick={() => handlePaiementClick('paypal')}
+                  disabled={!peutPayer}
+                  aria-label="Payer avec PayPal"
+                >
                   {contents.btn_paypal || t('cart.btn_paypal')}
                 </button>
               </div>
@@ -389,17 +446,55 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
 
             {(modePaiement === 'carte' || modePaiement === 'paypal') && (
               <div className="paiement-form-wrapper">
-                <button className="btn-retour" onClick={() => { setModePaiement(null); setErreurPaiement(''); }}>{contents.btn_retour || t('cart.btn_back')}</button>
+                <button
+                  className="btn-retour"
+                  onClick={() => { setModePaiement(null); setErreurPaiement(''); }}
+                  aria-label="Retour au choix du moyen de paiement"
+                >
+                  {contents.btn_retour || t('cart.btn_back')}
+                </button>
+
+                {!connecte && modePaiement === 'paypal' && (
+                  <div className="stripe-field-group" style={{ marginBottom: '16px' }}>
+                    <label className="stripe-field-label" htmlFor="email-invite-paypal">
+                      {t('cart.email_for_order', 'E-mail pour recevoir votre confirmation')}
+                    </label>
+                    <input
+                      id="email-invite-paypal"
+                      type="email"
+                      className="stripe-input-text"
+                      placeholder="vous@exemple.fr"
+                      value={emailInvite}
+                      onChange={e => setEmailInvite(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
                 {modePaiement === 'carte' ? (
-                  <Elements stripe={stripePromise}><StripeForm total={total} onSuccess={onSuccess} onError={setErreurPaiement} /></Elements>
+                  <Elements stripe={stripePromise}>
+                    <StripeForm
+                      total={total}
+                      connecte={connecte}
+                      emailInvite={emailInvite}
+                      setEmailInvite={setEmailInvite}
+                      onSuccess={onSuccess}
+                      onError={setErreurPaiement}
+                    />
+                  </Elements>
                 ) : (
                   <PayPalScriptProvider options={{ 'client-id': PAYPAL_CLIENT_ID, currency: 'EUR' }}>
                     <PayPalButtons
                       createOrder={async () => {
-                        const res = await fetch(`${BASE_URL}/api/paiement/paypal/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: total.toFixed(2), email: localStorage.getItem('userEmail') }) });
+                        const emailPourPaiement = connecte ? localStorage.getItem('userEmail') : emailInvite;
+                        const res = await fetch(`${BASE_URL}/api/paiement/paypal/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: total.toFixed(2), email: emailPourPaiement }) });
                         const { orderID } = await res.json(); return orderID;
                       }}
                       onApprove={async (data) => {
+                        if (!connecte && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInvite || '')) {
+                          setErreurPaiement(t('cart.err_email_required', 'Veuillez saisir une adresse e-mail valide.'));
+                          return;
+                        }
                         const res = await fetch(`${BASE_URL}/api/paiement/paypal/capture`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderID: data.orderID }) });
                         const result = await res.json();
                         if (result.status === 'COMPLETED') onSuccess('paypal');

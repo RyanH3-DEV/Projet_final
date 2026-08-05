@@ -65,7 +65,7 @@ class ServiceController extends AbstractController
             'category' => $s->getCategory(),
             'isAvailable' => $s->isAvailable(),
             'createdAt' => $s->getCreatedAt()->format('c'),
-            'images' => array_map(fn($img) => $img->getImageName(), $s->getImages()->toArray()),
+            'images' => array_map(fn($img) => 'http://127.0.0.1:8000/uploads/services/' . $img->getImageName(), $s->getImages()->toArray()),
         ], $services);
 
         return $this->json($data);
@@ -89,8 +89,7 @@ class ServiceController extends AbstractController
             'image'          => $service->getImage(),
             'isAvailable'    => $service->isAvailable(),
             'category'       => $service->getCategory(),
-            // Et j'ajoute la même chose pour la page détail
-            'images'         => array_map(fn($img) => $img->getImageName(), $service->getImages()->toArray()),
+            'images'         => array_map(fn($img) => 'http://127.0.0.1:8000/uploads/services/' . $img->getImageName(), $service->getImages()->toArray()),
         ]);
     }
 }

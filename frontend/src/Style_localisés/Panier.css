@@ -500,8 +500,8 @@
 }
 
 .confirmation-recap {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
   border-radius: 12px;
   padding: 24px;
   margin: 24px 0;
@@ -510,12 +510,12 @@
 
 .confirmation-order-id {
   font-size: 14px;
-  color: rgba(232, 234, 240, 0.6);
+  color: #888;
   margin: 0 0 16px;
 }
 
 .confirmation-order-id strong {
-  color: #00e5ff;
+  color: #c89b3c;
 }
 
 .confirmation-items {
@@ -524,14 +524,14 @@
   gap: 10px;
   margin-bottom: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .confirmation-item-row {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: #e8eaf0;
+  color: #1e2328;
 }
 
 .confirmation-total {
@@ -539,23 +539,24 @@
   justify-content: space-between;
   font-size: 16px;
   margin-bottom: 12px;
+  color: #1e2328;
 }
 
 .confirmation-total strong {
-  color: #00e5ff;
+  color: #c89b3c;
   font-size: 20px;
 }
 
 .confirmation-payment-method {
   font-size: 13px;
-  color: rgba(232, 234, 240, 0.5);
+  color: #888;
   margin: 0;
 }
 
 .btn-voir-souscriptions {
   padding: 14px 32px;
-  background: #00e5ff;
-  color: #050810;
+  background: #1e2328;
+  color: #fff;
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -566,5 +567,5 @@
 
 .btn-voir-souscriptions:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }

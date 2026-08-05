@@ -2,7 +2,7 @@
 const KEY = 'cyna_guest_cart';
 
 export function isLoggedIn() {
-  return !!localStorage.getItem('userEmail');
+  return !!(localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail'));
 }
 
 export function getGuestCart() {

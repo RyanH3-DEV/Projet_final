@@ -78,13 +78,13 @@ export default function Catalogue({ ajouterAuPanier }) {
       setLoading(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/services`, {
-          params: {
-            categorie: cat !== 'tous' ? cat : null,
-            search: search || null,
-            minPrice: minPrice !== "" ? minPrice : null,
-            maxPrice: maxPrice !== "" ? maxPrice : null,
-            sortBy: sortBy
-          }
+            params: {
+                categorie: cat !== 'tous' ? cat : null,
+                search: search || null,
+                minPrice: minPrice !== "" ? minPrice : null,
+                maxPrice: maxPrice !== "" ? maxPrice : null,
+                sortBy: sortBy
+            }
         });
 
         if (response.data && response.data.length > 0) {

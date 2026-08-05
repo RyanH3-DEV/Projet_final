@@ -11,8 +11,10 @@ import {
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const API_URL  = `${BASE_URL}/api/cart`;
 
+const getEmail = () => (localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail'))?.trim();
+
 const getHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -23,7 +25,7 @@ export const getCart = async (emailParam = null) => {
   if (!isLoggedIn()) {
     return { items: getGuestCart() };
   }
-  const email = (emailParam || localStorage.getItem('userEmail'))?.trim();
+  const email = (emailParam || getEmail());
   if (!email) return { items: [] };
   try {
     const res = await fetch(`${API_URL}/?email=${encodeURIComponent(email)}`, {
@@ -48,7 +50,7 @@ export const addToCart = async (service, quantity = 1) => {
     });
   }
 
-  const email = localStorage.getItem('userEmail')?.trim();
+  const email = getEmail();
   const res = await fetch(`${API_URL}/add`, {
     method: 'POST',
     headers: getHeaders(),
@@ -79,7 +81,7 @@ export const updateCartItem = async (id, updateData) => {
   if (!isLoggedIn()) {
     return updateGuestCartItem(id, updateData);
   }
-  const email = localStorage.getItem('userEmail')?.trim();
+  const email = getEmail();
   const res = await fetch(`${API_URL}/update/${id}`, {
     method: 'PUT',
     headers: getHeaders(),
@@ -92,7 +94,7 @@ export const removeFromCart = async (id) => {
   if (!isLoggedIn()) {
     return removeFromGuestCart(id);
   }
-  const email = localStorage.getItem('userEmail')?.trim();
+  const email = getEmail();
   const res = await fetch(`${API_URL}/remove/${id}?email=${encodeURIComponent(email)}`, {
     method: 'DELETE',
     headers: getHeaders(),

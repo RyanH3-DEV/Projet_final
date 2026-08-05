@@ -210,7 +210,7 @@ function AppContent() {
           <Route path="/"            element={<Home ajouterAuPanier={ajouterAuPanier} ajouterAWishlist={ajouterAWishlist} />} />
           <Route path="/connexion"   element={<Connexion setUser={connecterUtilisateur} />} />
           <Route path="/inscription" element={<Inscription />} />
-          <Route path="/confirmation" element={<ConfirmationEmail />} />
+          <Route path="/confirmation" element={<ConfirmationEmail setUser={connecterUtilisateur} />} />
           <Route path="/informations" element={<Informations />} />
           <Route path="/contact"     element={<Contact />} />
           <Route path="/cgv"         element={<CGV />} />

@@ -61,7 +61,7 @@ class ProfilController extends AbstractController
     }
 
     #[Route('/commandes/creer', name: 'commandes_creer', methods: ['POST', 'OPTIONS'])]
-    public function creerCommande(Request $request, EntityManagerInterface $em, MailerInterface $mailer): JsonResponse
+    public function creerCommande(Request $request, EntityManagerInterface $em, MailerInterface $mailer, \App\Service\InvoiceGenerator $invoiceGenerator): JsonResponse
     {
         if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
 
@@ -132,20 +132,39 @@ class ProfilController extends AbstractController
 
         $em->flush();
 
-        // ── Envoi de l'email de confirmation ──────────────────────────────────
+        // ── Génération de la facture PDF ────────────────────────────────────────
+        $invoiceFileName = null;
         try {
-            $mailer->send($this->buildOrderEmail(
+            $invoiceFileName = $invoiceGenerator->generate($order);
+            $order->setInvoicePath($invoiceFileName);
+            $em->flush();
+        } catch (\Exception $e) {
+            // La facture est optionnelle — la commande reste valide même si la génération échoue
+        }
+
+        // ── Envoi de l'email de confirmation (avec facture en pièce jointe) ─────
+        try {
+            $email = $this->buildOrderEmail(
                 $user,
                 $order->getId(),
                 $lignesEmail,
                 number_format($total, 2, '.', ''),
                 $payload['paymentMethod'] ?? 'card'
-            ));
+            );
+
+            if ($invoiceFileName) {
+                $invoicePath = $this->getParameter('kernel.project_dir') . '/public/uploads/invoices/' . $invoiceFileName;
+                if (file_exists($invoicePath)) {
+                    $email->attachFromPath($invoicePath, 'facture_CYN-' . $order->getId() . '.pdf', 'application/pdf');
+                }
+            }
+
+            $mailer->send($email);
         } catch (\Exception $e) {
             // Email optionnel — la commande est enregistrée même si l'email échoue
         }
 
-        return $this->json(['message' => 'Commande creee', 'orderId' => $order->getId()], 201);
+        return $this->json(['message' => 'Commande creee', 'orderId' => $order->getId(), 'invoicePath' => $invoiceFileName], 201);
     }
 
     private function buildOrderEmail(User $user, int $orderId, array $lignes, string $total, string $methodePaiement): Email
@@ -282,7 +301,7 @@ HTML;
     }
 
     #[Route('/modifier', name: 'modifier', methods: ['PUT', 'OPTIONS'])]
-    public function modifier(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): JsonResponse
+    public function modifier(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher, MailerInterface $mailer): JsonResponse
     {
         if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
 
@@ -292,8 +311,16 @@ HTML;
 
         if (!$user) return $this->json(['message' => 'Utilisateur non trouve'], 404);
 
-        if (!empty($payload['prenom'])) $user->setPrenom($payload['prenom']);
-        if (!empty($payload['nom']))    $user->setNom($payload['nom']);
+        $changements = [];
+
+        if (!empty($payload['prenom']) && $payload['prenom'] !== $user->getPrenom()) {
+            $changements[] = 'Prénom : ' . $user->getPrenom() . ' → ' . $payload['prenom'];
+            $user->setPrenom($payload['prenom']);
+        }
+        if (!empty($payload['nom']) && $payload['nom'] !== $user->getNom()) {
+            $changements[] = 'Nom : ' . $user->getNom() . ' → ' . $payload['nom'];
+            $user->setNom($payload['nom']);
+        }
         if (!empty($payload['avatar'])) $user->setAvatar($payload['avatar']);
 
         if (!empty($payload['newPassword'])) {
@@ -301,9 +328,30 @@ HTML;
                 return $this->json(['message' => 'Mot de passe actuel incorrect'], 400);
             }
             $user->setPassword($hasher->hashPassword($user, $payload['newPassword']));
+            $changements[] = 'Mot de passe modifié';
         }
 
         $em->flush();
+
+        // Envoi d'un email de notification si des changements ont été effectués
+        if (!empty($changements)) {
+            try {
+                $listeChangements = implode('</li><li>', $changements);
+                $mail = (new Email())
+                    ->from('r.sebbouh@h3hitema.fr')
+                    ->to($user->getEmail())
+                    ->subject('Votre profil Cyna a été modifié')
+                    ->html("
+                        <p>Bonjour {$user->getPrenom()},</p>
+                        <p>Les modifications suivantes ont été apportées à votre compte :</p>
+                        <ul><li>{$listeChangements}</li></ul>
+                        <p>Si vous n'êtes pas à l'origine de cette modification, contactez-nous immédiatement.</p>
+                    ");
+                $mailer->send($mail);
+            } catch (\Exception $e) {
+                // L'email est optionnel, on ne bloque pas la modification en cas d'échec
+            }
+        }
 
         return $this->json([
             'message' => 'Profil mis a jour',
@@ -441,5 +489,57 @@ HTML;
         if (!$order) return $this->json(['message' => 'Commande introuvable'], 404);
 
         return $this->json(['invoicePath' => $order->getInvoicePath()]);
+    }
+    #[Route('/abonnements', name: 'abonnements_get', methods: ['GET', 'OPTIONS'])]
+public function getAbonnements(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
+
+    $email = $request->query->get('email');
+    $user  = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+    if (!$user) return $this->json(['message' => 'Utilisateur non trouve'], 404);
+
+    $abonnements = $em->getRepository(Subscription::class)->findBy(
+        ['user' => $user],
+        ['id' => 'DESC']
+    );
+
+    $data = array_map(function($sub) {
+        return [
+            'id'            => $sub->getId(),
+            'serviceName'   => $sub->getServiceSaas()->getName(),
+            'serviceImage'  => $sub->getServiceSaas()->getImage(),
+            'billingPeriod' => $sub->getBillingPeriod(),
+            'price'         => $sub->getPriceSnapshot(),
+            'quantity'      => $sub->getQuantity(),
+            'startsAt'      => $sub->getStartsAt()->format('d/m/Y'),
+            'endsAt'        => $sub->getEndsAt()->format('d/m/Y'),
+            'status'        => $sub->getStatus(),
+            'autoRenew'     => $sub->isAutoRenew(),
+        ];
+    }, $abonnements);
+
+    return $this->json(['abonnements' => $data]);
+}
+
+    #[Route('/abonnements/{id}/annuler', name: 'abonnements_annuler', methods: ['POST', 'OPTIONS'])]
+    public function annulerAbonnement(int $id, Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        if ($request->getMethod() === 'OPTIONS') return new JsonResponse(null, 204);
+
+        $payload = json_decode($request->getContent(), true);
+        $email   = $payload['email'] ?? null;
+        $user    = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$user) return $this->json(['message' => 'Utilisateur non trouve'], 404);
+
+        $sub = $em->getRepository(Subscription::class)->findOneBy(['id' => $id, 'user' => $user]);
+        if (!$sub) return $this->json(['message' => 'Abonnement introuvable'], 404);
+
+        $sub->setAutoRenew(false);
+        $sub->setStatus('cancelled');
+        $sub->setCancelledAt(new \DateTimeImmutable());
+        $em->flush();
+
+        return $this->json(['message' => 'Abonnement annule, actif jusqu\'a la fin de la periode en cours']);
     }
 }

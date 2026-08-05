@@ -173,6 +173,17 @@ class SecurityController extends AbstractController
         $user->setConfirmationToken(null);
         $em->flush();
 
-        return new JsonResponse(['message' => 'Compte activé avec succès !'], 200);
+        return new JsonResponse([
+            'message' => 'Compte activé avec succès !',
+            'user' => [
+                'id'     => $user->getId(),
+                'email'  => $user->getEmail(),
+                'nom'    => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'roles'  => $user->getRoles(),
+                'avatar' => $user->getAvatar(),
+            ],
+            'token' => 'eyJhbGci.eyJzdWIiOiIxIn0.signature',
+        ], 200);
     }
 }

@@ -10,6 +10,99 @@ import '../style_localisés/MonProfil.css';
 const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 const API = `${BASE_URL}/api/profil`;
 
+function Abonnements({ email }) {
+  const { t } = useTranslation();
+  const [abonnements, setAbonnements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [annulationEnCours, setAnnulationEnCours] = useState(null);
+
+  const fetchAbonnements = () => {
+    setLoading(true);
+    fetch(`${API}/abonnements?email=${encodeURIComponent(email)}`)
+      .then(r => r.json())
+      .then(d => setAbonnements(d.abonnements || []))
+      .catch(() => setAbonnements([]))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => fetchAbonnements(), [email]);
+
+  const annuler = async (id) => {
+    if (!window.confirm(t('profil.confirm_cancel', 'Confirmer l\'annulation de cet abonnement ?'))) return;
+    setAnnulationEnCours(id);
+    try {
+      await fetch(`${API}/abonnements/${id}/annuler`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      fetchAbonnements();
+    } finally {
+      setAnnulationEnCours(null);
+    }
+  };
+
+  if (loading) return <div className="profil-loading"><Loader2 className="spinner" /></div>;
+
+  if (abonnements.length === 0) {
+    return (
+      <div className="profil-empty">
+        <Shield size={48} opacity={0.2} />
+        <p>{t('profil.no_active_subscriptions', 'Aucun abonnement actif pour le moment.')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="abonnements-list">
+      {abonnements.map(ab => (
+        <div key={ab.id} className={`abonnement-card status-${ab.status}`}>
+          <div className="abonnement-header">
+            <div className="abonnement-info">
+              <h4>{ab.serviceName}</h4>
+              <p className="abonnement-meta">
+                {ab.quantity} {t('profil.licences', 'licence(s)')} · {ab.billingPeriod === 'annuel' ? t('cart.yearly') : t('cart.monthly')}
+              </p>
+            </div>
+            <span className={`abonnement-badge badge-${ab.status}`}>
+              {ab.status === 'active' && <CheckCircle size={14} />}
+              {ab.status === 'cancelled' && <XCircle size={14} />}
+              {ab.status === 'active' ? t('profil.status_active', 'Actif') : t('profil.status_cancelled', 'Annulé')}
+            </span>
+          </div>
+
+          <div className="abonnement-details">
+            <div className="abonnement-detail-item">
+              <span className="detail-label">{t('profil.price', 'Prix')}</span>
+              <span className="detail-value">{Number(ab.price).toFixed(2)} EUR</span>
+            </div>
+            <div className="abonnement-detail-item">
+              <span className="detail-label">{t('profil.started_at', 'Débuté le')}</span>
+              <span className="detail-value">{ab.startsAt}</span>
+            </div>
+            <div className="abonnement-detail-item">
+              <span className="detail-label">
+                {ab.autoRenew ? t('profil.renews_at', 'Renouvellement') : t('profil.ends_at', 'Se termine le')}
+              </span>
+              <span className="detail-value">{ab.endsAt}</span>
+            </div>
+          </div>
+
+          {ab.status === 'active' && ab.autoRenew && (
+            <button
+              className="btn-annuler-abonnement"
+              onClick={() => annuler(ab.id)}
+              disabled={annulationEnCours === ab.id}
+            >
+              {annulationEnCours === ab.id ? t('profil.cancelling', 'Annulation...') : t('profil.cancel_subscription', 'Annuler l\'abonnement')}
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Historique({ email }) {
   const { t } = useTranslation();
   const [commandes, setCommandes] = useState([]);
@@ -318,11 +411,12 @@ function MonProfil({ user, setUser, ajouterAuPanier, wishlist = [], rafraichirWi
   const [onglet, setOnglet] = useState('historique');
 
   const tabs = [
-    { id: 'historique', label: t('profil.tabs.history'),  icon: <Shield size={18} /> },
-    { id: 'adresses',   label: t('profil.tabs.billing'),  icon: <MapPin size={18} /> },
-    { id: 'favoris',    label: t('profil.tabs.favorites'),icon: <Heart size={18} /> },
-    { id: 'infos',      label: t('profil.tabs.settings'), icon: <Settings size={18} /> },
-  ];
+  { id: 'abonnements', label: t('profil.tabs.subscriptions', 'Abonnements'), icon: <Shield size={18} /> },
+  { id: 'historique', label: t('profil.tabs.history'),  icon: <Shield size={18} /> },
+  { id: 'adresses',   label: t('profil.tabs.billing'),  icon: <MapPin size={18} /> },
+  { id: 'favoris',    label: t('profil.tabs.favorites'),icon: <Heart size={18} /> },
+  { id: 'infos',      label: t('profil.tabs.settings'), icon: <Settings size={18} /> },
+];
 
   return (
     <div className="profil-container">
@@ -354,18 +448,19 @@ function MonProfil({ user, setUser, ajouterAuPanier, wishlist = [], rafraichirWi
       </div>
 
       <div className="profil-content">
-        {onglet === 'historique' && <Historique email={user.email} />}
-        {onglet === 'adresses'   && <CarnetAdresses email={user.email} />}
-        {onglet === 'favoris'    && (
-          <FavorisTab
-            email={user.email}
-            ajouterAuPanier={ajouterAuPanier}
-            wishlist={wishlist}
-            rafraichirWishlist={rafraichirWishlist}
-          />
-        )}
-        {onglet === 'infos'      && <InfosPersonnelles user={user} setUser={setUser} />}
-      </div>
+          {onglet === 'abonnements' && <Abonnements email={user.email} />}
+          {onglet === 'historique' && <Historique email={user.email} />}
+          {onglet === 'adresses'   && <CarnetAdresses email={user.email} />}
+          {onglet === 'favoris'    && (
+            <FavorisTab
+              email={user.email}
+              ajouterAuPanier={ajouterAuPanier}
+              wishlist={wishlist}
+              rafraichirWishlist={rafraichirWishlist}
+            />
+          )}
+          {onglet === 'infos'      && <InfosPersonnelles user={user} setUser={setUser} />}
+        </div>
     </div>
   );
 }
