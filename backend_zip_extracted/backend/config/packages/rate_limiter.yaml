@@ -1,8 +1,0 @@
-# config/packages/rate_limiter.yaml
-framework:
-    rate_limiter:
-        # C'est ce NOM "login_limiter" qui est la clé de tout
-        login_limiter:
-            policy: 'fixed_window'
-            limit: 3
-            interval: '2 minutes'

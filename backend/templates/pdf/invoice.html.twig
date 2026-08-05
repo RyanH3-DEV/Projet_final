@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #1e2328;
+            margin: 0;
+            padding: 40px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid #00a8cc;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e2328;
+        }
+        .logo span {
+            color: #00a8cc;
+        }
+        .invoice-title {
+            text-align: right;
+        }
+        .invoice-title h1 {
+            font-size: 22px;
+            margin: 0;
+            color: #1e2328;
+        }
+        .invoice-title p {
+            margin: 4px 0 0;
+            color: #666;
+            font-size: 13px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .info-block {
+            width: 48%;
+        }
+        .info-block h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin: 0 0 8px;
+        }
+        .info-block p {
+            margin: 2px 0;
+            font-size: 13px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        thead tr {
+            background: #1e2328;
+            color: #fff;
+        }
+        th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        th.align-right, td.align-right {
+            text-align: right;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .total-box {
+            width: 260px;
+        }
+        .total-box .line {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+        .total-box .grand-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-top: 2px solid #1e2328;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+        }
+        .payment-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f7fa;
+            color: #00a8cc;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">CY<span>NA</span></div>
+        <div class="invoice-title">
+            <h1>FACTURE</h1>
+            <p>N° CYN-{{ order.id }}</p>
+            <p>{{ order.createdAt|date('d/m/Y') }}</p>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-block">
+            <h3>Facturé à</h3>
+            <p><strong>{{ user.prenom }} {{ user.nom }}</strong></p>
+            <p>{{ user.email }}</p>
+        </div>
+        <div class="info-block" style="text-align: right;">
+            <h3>Émetteur</h3>
+            <p><strong>Cyna</strong></p>
+            <p>Plateforme de cybersécurité SaaS</p>
+            <p>contact@cyna-it.fr</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Période</th>
+                <th class="align-right">Quantité</th>
+                <th class="align-right">Prix unitaire</th>
+                <th class="align-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>{{ item.serviceName }}</td>
+                <td>{{ item.subscriptionDuration == 'annuel' ? 'Annuel' : 'Mensuel' }}</td>
+                <td class="align-right">{{ item.quantity }}</td>
+                <td class="align-right">{{ item.price|number_format(2, ',', ' ') }} €</td>
+                <td class="align-right">{{ (item.price * item.quantity)|number_format(2, ',', ' ') }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-row">
+        <div class="total-box">
+            <div class="line">
+                <span>Total HT</span>
+                <span>{{ order.total|number_format(2, ',', ' ') }} €</span>
+            </div>
+            <div class="grand-total">
+                <span>Total TTC</span>
+                <span>{{ order.total|number_format(2, ',', ' ') }} €</span>
+            </div>
+        </div>
+    </div>
+
+    <p>
+        Moyen de paiement :
+        <span class="payment-badge">
+            {{ order.paymentMethod == 'paypal' ? 'PayPal' : 'Carte bancaire' }}
+        </span>
+    </p>
+
+    <div class="footer">
+        <p>Cyna — Plateforme SaaS de cybersécurité — ISO 27001 · SOC 2 Type II</p>
+        <p>Cette facture a été générée automatiquement et ne nécessite pas de signature.</p>
+    </div>
+
+</body>
+</html>

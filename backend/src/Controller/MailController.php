@@ -18,6 +18,7 @@ class MailController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
+        // Je récupère les champs spécifiés dans le cahier des charges
         $emailAddress = $data['email'] ?? null;
         $sujet = $data['sujet'] ?? 'Sans sujet';
         $messageContent = $data['message'] ?? '';
@@ -26,6 +27,7 @@ class MailController extends AbstractController
             return new JsonResponse(['status' => 'error', 'message' => 'Email et message obligatoires.'], 400);
         }
 
+        // J'enregistre le message en base pour qu'il soit visible depuis le backoffice
         $contactMessage = new ContactMessage();
         $contactMessage->setEmail($emailAddress);
         $contactMessage->setSubject($sujet);
@@ -36,13 +38,13 @@ class MailController extends AbstractController
         $em->persist($contactMessage);
         $em->flush();
 
-        // J'utilise l'adresse autorisée par mon compte Brevo comme expéditeur officiel
+        // Je conserve l'envoi de l'e-mail de notification
         $email = (new Email())
-            ->from('TON_ADRESSE_COMPTE@brevo.com') // ⚠️ À REMPLACER PAR TON EMAIL BREVO
-            ->replyTo($emailAddress) // Je permets à l'admin de répondre directement au visiteur
-            ->to('anonymous7649863275@gmail.com')
+            ->from($_ENV['MAILER_FROM'] ?? 'no-reply@cyna-it.fr')
+            ->replyTo($emailAddress)
+            ->to($_ENV['CONTACT_TO'] ?? 'anonymous7649863275@gmail.com')
             ->subject('NOUVELLE DEMANDE ASSISTANCE - ' . $sujet)
-            ->text("Message envoyé par : " . $emailAddress . "\n\n" . $messageContent);
+            ->text($messageContent);
 
         $mailer->send($email);
 
