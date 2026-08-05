@@ -1,0 +1,52 @@
+.unsub-container {
+  min-height: 100vh;
+  background: #050810;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  padding: 20px;
+}
+
+.unsub-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 50px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  color: #e8eaf0;
+}
+
+.unsub-card h2 { margin: 24px 0 12px; font-size: 22px; }
+.unsub-card p { color: rgba(232, 234, 240, 0.6); margin-bottom: 32px; line-height: 1.5; }
+
+.icon-succes { color: #00e676; }
+.icon-erreur { color: #ff5252; }
+
+.spinner {
+  color: #00e5ff;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.unsub-btn {
+  background: #00e5ff;
+  color: #050810;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.unsub-btn.secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e8eaf0;
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

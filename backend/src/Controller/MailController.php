@@ -40,8 +40,9 @@ class MailController extends AbstractController
 
         // Je conserve l'envoi de l'e-mail de notification
         $email = (new Email())
-            ->from($emailAddress)
-            ->to('anonymous7649863275@gmail.com')
+            ->from($_ENV['MAILER_FROM'] ?? 'no-reply@cyna-it.fr')
+            ->replyTo($emailAddress)
+            ->to($_ENV['CONTACT_TO'] ?? 'anonymous7649863275@gmail.com')
             ->subject('NOUVELLE DEMANDE ASSISTANCE - ' . $sujet)
             ->text($messageContent);
 

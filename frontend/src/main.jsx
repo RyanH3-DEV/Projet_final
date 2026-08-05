@@ -2,12 +2,18 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
-
-// J'importe la configuration i18n avant de charger l'application
 import './i18n';
+
+// J'importe les Contextes
+import { ContentProvider } from './context/ContentContext.jsx';
+import { CartProvider } from './context/CartContext.jsx'; // <-- Nouveau
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <ContentProvider>
+      <CartProvider> {/* <-- J'ajoute le Provider du panier ici */}
+        <App />
+      </CartProvider>
+    </ContentProvider>
   </StrictMode>,
 );

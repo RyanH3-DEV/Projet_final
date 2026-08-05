@@ -1,6 +1,7 @@
 # Je masque les dossiers de dépendances très lourds
 /backend/vendor/
 /frontend/node_modules/
+/backend/image_backend.tar
 
 # Je protège mes fichiers de variables d'environnement (mots de passe BDD)
 .env

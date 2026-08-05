@@ -15,6 +15,7 @@ class SecuritySubscriber implements EventSubscriberInterface
     private FilesystemAdapter $cache;
     private LoggerInterface $logger;
     private TranslatorInterface $translator;
+    private string $environment;
 
     private const MAX_REQUESTS_PER_MINUTE  = 60;
     private const MAX_LOGIN_ATTEMPTS       = 5;
@@ -37,10 +38,14 @@ class SecuritySubscriber implements EventSubscriberInterface
         'acunetix', 'nessus', 'openvas', 'w3af',
     ];
 
-    public function __construct(LoggerInterface $logger, TranslatorInterface $translator)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        TranslatorInterface $translator,
+        string $environment
+    ) {
         $this->logger = $logger;
         $this->translator = $translator;
+        $this->environment = $environment;
         $this->cache  = new FilesystemAdapter('security', 0, sys_get_temp_dir() . '/security_cache');
     }
 
@@ -52,6 +57,11 @@ class SecuritySubscriber implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) return;
+
+        // Désactivé en environnement de développement pour éviter
+        // les faux positifs (rate limit trop bas pour du dev actif,
+        // whitelist IP 127.0.0.1 ne fonctionnant pas derrière Docker)
+        if ($this->environment === 'dev') return;
 
         $request = $event->getRequest();
         $ip      = $request->getClientIp() ?? 'unknown';

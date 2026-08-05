@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Shield, User, Mail, Lock } from 'lucide-react';
 import '../style_localisés/Inscription.css';
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001";
 
 function Inscription() {
   const { t } = useTranslation();
@@ -17,7 +17,8 @@ function Inscription() {
     password: '',
     confirmPassword: '',
     avatar: '/avatars/default-user.png',
-    cgv: false
+    cgv: false,
+    newsletter: false
   });
   const [erreur, setErreur] = useState('');
   const [chargement, setChargement] = useState(false);
@@ -32,12 +33,18 @@ function Inscription() {
     setErreur('');
 
     if (!formData.cgv) {
-      setErreur(t('register.error_cgv', "Vous devez accepter les conditions générales pour créer un compte."));
+      setErreur(t('register.error_cgv'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setErreur(t('register.error_password_match', "Les mots de passe ne correspondent pas."));
+      setErreur(t('register.error_password_match'));
+      return;
+    }
+
+    const regexMdp = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-+=])[A-Za-z\d@$!%*?&_\-+=]{8,}$/;
+    if (!regexMdp.test(formData.password)) {
+      setErreur(t('register.error_password_weak'));
       return;
     }
 
@@ -53,6 +60,7 @@ function Inscription() {
           email: formData.email,
           password: formData.password,
           cgv: formData.cgv,
+          newsletter: formData.newsletter,
           avatar: formData.avatar
         }),
       });
@@ -60,13 +68,13 @@ function Inscription() {
       const data = await response.json();
 
       if (response.ok) {
-        alert(t('register.success_alert', "Compte créé avec succès ! Un e-mail de confirmation vous a été envoyé."));
+        alert(t('register.success_alert'));
         navigate('/connexion');
       } else {
-        setErreur(data.message || t('register.error_generic', "Une erreur est survenue lors de la création du compte."));
+        setErreur(data.message || t('register.error_generic'));
       }
     } catch (err) {
-      setErreur(t('alerts.server_unreachable', "Le serveur est injoignable. Veuillez vérifier votre connexion."));
+      setErreur(t('alerts.server_unreachable'));
     } finally {
       setChargement(false);
     }
@@ -77,8 +85,8 @@ function Inscription() {
       <div className="inscription-card">
         <div className="brand-header">
           <Shield className="brand-icon" size={40} />
-          <h2>{t('register.title', 'Rejoindre l\'infrastructure Cyna')}</h2>
-          <p className="subtitle">{t('register.subtitle', 'Créez votre compte pour accéder à nos solutions de cybersécurité.')}</p>
+          <h2>{t('register.title')}</h2>
+          <p className="subtitle">{t('register.subtitle')}</p>
         </div>
 
         {erreur && <div className="error-box">{erreur}</div>}
@@ -90,7 +98,7 @@ function Inscription() {
               <input
                 type="text"
                 name="prenom"
-                placeholder={t('register.firstname_placeholder', 'Prénom')}
+                placeholder={t('register.firstname_placeholder')}
                 value={formData.prenom}
                 onChange={handleChange}
                 required
@@ -102,7 +110,7 @@ function Inscription() {
               <input
                 type="text"
                 name="nom"
-                placeholder={t('register.lastname_placeholder', 'Nom')}
+                placeholder={t('register.lastname_placeholder')}
                 value={formData.nom}
                 onChange={handleChange}
                 required
@@ -114,7 +122,7 @@ function Inscription() {
               <input
                 type="email"
                 name="email"
-                placeholder={t('register.email_placeholder', 'E-mail professionnel')}
+                placeholder={t('register.email_placeholder')}
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -126,14 +134,14 @@ function Inscription() {
               <input
                 type="password"
                 name="password"
-                placeholder={t('register.password_placeholder', 'Mot de passe')}
+                placeholder={t('register.password_placeholder')}
                 value={formData.password}
                 onChange={handleChange}
                 required
               />
             </div>
             <p className="password-hint">
-              {t('register.password_hint', 'Minimum 8 caractères, incluant une majuscule, un chiffre et un symbole.')}
+              {t('register.password_hint')}
             </p>
 
             <div className="input-group">
@@ -141,7 +149,7 @@ function Inscription() {
               <input
                 type="password"
                 name="confirmPassword"
-                placeholder={t('register.confirm_password_placeholder', 'Confirmer le mot de passe')}
+                placeholder={t('register.confirm_password_placeholder')}
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
@@ -149,20 +157,27 @@ function Inscription() {
             </div>
 
             <div className="checkbox-group">
+              <input type="checkbox" name="newsletter" id="newsletter" checked={formData.newsletter} onChange={handleChange} />
+              <label htmlFor="newsletter" className="cgv-text">
+                {t('register.newsletter_optin')}
+              </label>
+            </div>
+
+            <div className="checkbox-group">
               <input type="checkbox" name="cgv" id="cgv" checked={formData.cgv} onChange={handleChange} />
               <label htmlFor="cgv" className="cgv-text">
-                {t('register.accept_terms', "J'accepte les conditions d'utilisation et la politique de confidentialité.")}
+                {t('register.accept_terms')}
               </label>
             </div>
 
             <button type="submit" className="btn-submit" disabled={chargement}>
-              {chargement ? t('register.loading', 'Traitement...') : t('register.submit_btn', 'Créer mon compte professionnel')}
+              {chargement ? t('register.loading') : t('register.submit_btn')}
             </button>
           </div>
         </form>
 
         <p className="footer-link">
-          {t('register.already_account', 'Déjà inscrit ?')} <a href="/connexion">{t('register.login_link', 'Se connecter')}</a>
+          {t('register.already_account')} <a href="/connexion">{t('register.login_link')}</a>
         </p>
       </div>
     </div>

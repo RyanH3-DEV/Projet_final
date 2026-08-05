@@ -46,19 +46,46 @@
   color: #000000;
 }
 
-/* --- Sélecteurs et Bouton --- */
-.filter-group { display: flex; gap: 1rem; align-items: center; }
+/* --- Sélecteurs, Inputs de prix et Bouton --- */
+.filter-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap; /* Je permets aux filtres de passer à la ligne si besoin */
+}
+
 .filter-icon { color: #000000; }
-.filter-select {
+
+.filter-select, .price-input {
   padding: 12px 20px;
   border: 1px solid #cccccc;
   background-color: #ffffff;
   color: #000000;
   font-size: 0.9rem;
-  cursor: pointer;
   outline: none;
-  appearance: none;
   border-radius: 0;
+}
+
+.filter-select {
+  cursor: pointer;
+  appearance: none;
+  min-width: 160px;
+}
+
+.price-input {
+  width: 100px; /* Taille fixe pour les champs prix min/max */
+  transition: border-color 0.3s ease;
+}
+
+.price-input:focus {
+  border-color: #000000;
+}
+
+/* Je masque les flèches par défaut des inputs number pour garder le design propre */
+.price-input::-webkit-inner-spin-button,
+.price-input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
 }
 
 .search-button {
@@ -148,102 +175,29 @@
 .loading-container, .no-results { text-align: center; padding: 4rem 0; color: #666666; }
 .spinner { color: #000000; }
 
-
 /* ── Tablette (≤ 768px) ── */
 @media (max-width: 768px) {
-  .catalogue-container {
-    padding: 2.5rem 1.5rem;
-  }
-
-  .catalogue-title {
-    font-size: 1.8rem;
-    letter-spacing: 1.5px;
-  }
-
-  .catalogue-header {
-    margin-bottom: 2.5rem;
-  }
-
-  .search-filter-form {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .search-bar-container {
-    max-width: 100%;
-  }
-
-  .filter-group {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .filter-select {
-    flex: 1;
-    min-width: 140px;
-  }
-
-  .search-button {
-    width: 100%;
-    text-align: center;
-  }
-
-  .books-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 2.5rem 1.5rem;
-  }
+  .catalogue-container { padding: 2.5rem 1.5rem; }
+  .catalogue-title { font-size: 1.8rem; letter-spacing: 1.5px; }
+  .search-filter-form { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+  .search-bar-container { max-width: 100%; }
+  .filter-group { gap: 0.75rem; }
+  .price-input { flex: 1; min-width: 80px; } /* Les inputs de prix s'étirent en tablette */
+  .filter-select { flex: 1.5; min-width: 140px; }
+  .search-button { width: 100%; text-align: center; }
+  .books-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 2.5rem 1.5rem; }
 }
-
 
 /* ── Mobile (≤ 480px) ── */
 @media (max-width: 480px) {
-  .catalogue-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .catalogue-title {
-    font-size: 1.4rem;
-    letter-spacing: 1px;
-    margin-bottom: 1.25rem;
-  }
-
-  .catalogue-header {
-    margin-bottom: 1.5rem;
-  }
-
-  .filter-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter-select {
-    width: 100%;
-    padding: 12px 16px;
-  }
-
-  /* Grille 2 colonnes serrées */
-  .books-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem 0.75rem;
-  }
-
-  .book-image-container {
-    height: 180px;
-    margin-bottom: 0.75rem;
-  }
-
+  .catalogue-container { padding: 1.5rem 1rem; }
+  .catalogue-title { font-size: 1.4rem; letter-spacing: 1px; margin-bottom: 1.25rem; }
+  .filter-group { flex-direction: column; align-items: stretch; }
+  .price-input, .filter-select { width: 100%; }
+  .books-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0.75rem; }
+  .book-image-container { height: 180px; margin-bottom: 0.75rem; }
   .book-title { font-size: 0.85rem; }
   .book-author { font-size: 0.78rem; margin-bottom: 0.75rem; }
   .book-price { font-size: 0.9rem; }
-
-  .cart-button {
-    width: 34px;
-    height: 34px;
-  }
-
-  .loading-container,
-  .no-results {
-    padding: 2rem 0;
-  }
+  .cart-button { width: 34px; height: 34px; }
 }

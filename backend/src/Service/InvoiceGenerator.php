@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\Commande;
+use App\Entity\Order;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -15,7 +15,7 @@ class InvoiceGenerator
         private ParameterBagInterface $params
     ) {}
 
-    public function generate(Commande $commande): string
+    public function generate(Order $order): string
     {
         $pdfOptions = new Options();
         $pdfOptions->set('defaultFont', 'Arial');
@@ -23,10 +23,9 @@ class InvoiceGenerator
 
         $dompdf = new Dompdf($pdfOptions);
 
-        // Je génère le HTML à partir d'un template Twig dédié
         $html = $this->twig->render('pdf/invoice.html.twig', [
-            'commande' => $commande,
-            'user' => $commande->getUser(),
+            'order' => $order,
+            'user'  => $order->getUser(),
         ]);
 
         $dompdf->loadHtml($html);
@@ -35,8 +34,7 @@ class InvoiceGenerator
 
         $output = $dompdf->output();
 
-        // Je crée le nom du fichier et le chemin de stockage
-        $fileName = 'facture_' . $commande->getId() . '_' . uniqid() . '.pdf';
+        $fileName = 'facture_' . $order->getId() . '_' . uniqid() . '.pdf';
         $publicDirectory = $this->params->get('kernel.project_dir') . '/public/uploads/invoices';
 
         if (!is_dir($publicDirectory)) {

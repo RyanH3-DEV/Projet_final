@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Search, ShoppingCart, Heart, ShieldCheck, ChevronRight, Zap, Lock, Eye, Server } from "lucide-react";
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000") + "/api";
 
 // ── Icône par catégorie
 const CATEGORY_ICONS = {

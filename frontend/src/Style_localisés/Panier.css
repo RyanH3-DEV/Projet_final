@@ -1,4 +1,4 @@
-/* --- CONTAINER GLOBAL --- */
+﻿/* --- CONTAINER GLOBAL --- */
 .panier-container {
   max-width: 900px;
   margin: 40px auto;
@@ -154,7 +154,7 @@
 .paiement-confirme h2 { color: #1e2328; font-size: 1.8rem; margin-bottom: 10px; }
 .paiement-confirme p { color: #666; font-size: 1rem; }
 
-/* --- BANDEAU SÉCURITÉ --- */
+/* --- BANDEAU S├ëCURIT├ë --- */
 .securite-bandeau {
   background: #fff; border-radius: 10px;
   padding: 20px 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -202,7 +202,7 @@
 /* --- PANIER VIDE --- */
 .panier-vide { text-align: center; color: #999; font-size: 1.1rem; margin-top: 60px; }
 
-/* --- CHAMPS STRIPE SÉPARÉS --- */
+/* --- CHAMPS STRIPE S├ëPAR├ëS --- */
 .stripe-field-group {
   display: flex; flex-direction: column; gap: 6px; flex: 1;
 }
@@ -255,9 +255,9 @@
 .page-dots { color: #aaa; font-size: 1.1rem; padding: 0 4px; user-select: none; }
 
 
-/* ═══════════════════════════════════════════════
-   TABLETTE (≤ 768px)
-   ═══════════════════════════════════════════════ */
+/* ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+   TABLETTE (Ôëñ 768px)
+   ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ */
 
 @media (max-width: 768px) {
   .panier-container {
@@ -285,9 +285,9 @@
 }
 
 
-/* ═══════════════════════════════════════════════
-   MOBILE (≤ 480px)
-   ═══════════════════════════════════════════════ */
+/* ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+   MOBILE (Ôëñ 480px)
+   ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ */
 
 @media (max-width: 480px) {
   .panier-container {
@@ -302,7 +302,7 @@
 
   .panier-items { padding: 12px 14px; }
 
-  /* Article : image + détails + actions réorganisés */
+  /* Article : image + d├®tails + actions r├®organis├®s */
   .item-row {
     flex-wrap: wrap;
     gap: 10px;
@@ -319,7 +319,7 @@
   .item-title  { font-size: 0.88rem; }
   .item-details p { font-size: 0.8rem; }
 
-  /* Actions sous l'article, alignées à droite */
+  /* Actions sous l'article, align├®es ├á droite */
   .item-actions {
     width: 100%;
     justify-content: flex-end;
@@ -349,7 +349,7 @@
     height: 48px;
   }
 
-  /* Stripe : date + CVC empilés */
+  /* Stripe : date + CVC empil├®s */
   .stripe-row { flex-direction: column; gap: 12px; }
 
   .btn-payer-carte { padding: 13px; font-size: 0.92rem; }
@@ -361,7 +361,7 @@
   .paiement-confirme h2 { font-size: 1.4rem; }
   .confirme-icon { font-size: 3rem; }
 
-  /* Bandeau sécurité */
+  /* Bandeau s├®curit├® */
   .securite-bandeau { padding: 16px 12px; }
   .securite-logos { gap: 8px; }
   .badge-item {
@@ -383,4 +383,189 @@
     font-size: 0.85rem;
     padding: 0 8px;
   }
+}
+
+
+/* --- Styles ajoutés récemment (indisponibilité, connexion invité) --- */
+
+/* --- Ã‰TATS DÃ‰SACTIVÃ‰S --- */
+.btn-mastercard:disabled,
+.btn-paypal:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- ARTICLES INDISPONIBLES --- */
+.item-indisponible {
+  opacity: 0.6;
+  border: 1px solid rgba(255, 82, 82, 0.4);
+  border-radius: 10px;
+  background: rgba(255, 82, 82, 0.04);
+}
+
+.badge-indisponible {
+  margin-left: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ff5252;
+  background: rgba(255, 82, 82, 0.12);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.warning-bloque {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255, 82, 82, 0.08);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.warning-bloque-icon {
+  color: #ff5252;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warning-bloque-title {
+  margin: 0;
+  font-weight: 600;
+  color: #ff5252;
+  font-size: 14px;
+}
+
+.warning-bloque-msg {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(232, 234, 240, 0.6);
+}
+
+/* --- MESSAGES & CONNEXION --- */
+.guest-notice {
+  font-size: 13px;
+  color: rgba(232, 234, 240, 0.45);
+  margin-bottom: 16px;
+  margin-top: -8px;
+}
+
+.login-nudge-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 24px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.login-nudge-icon {
+  color: #6366f1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.login-nudge-content {
+  flex: 1;
+}
+
+.login-nudge-title {
+  margin: 0;
+  font-weight: 700;
+  color: #6366f1;
+  font-size: 15px;
+}
+
+.login-nudge-msg {
+  margin: 6px 0 14px;
+  font-size: 13px;
+  color: rgba(232, 234, 240, 0.7);
+  line-height: 1.5;
+}
+
+.btn-login-nudge {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmation-recap {
+  background: #f8f9fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.confirmation-order-id {
+  font-size: 14px;
+  color: #888;
+  margin: 0 0 16px;
+}
+
+.confirmation-order-id strong {
+  color: #c89b3c;
+}
+
+.confirmation-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.confirmation-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #1e2328;
+}
+
+.confirmation-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #1e2328;
+}
+
+.confirmation-total strong {
+  color: #c89b3c;
+  font-size: 20px;
+}
+
+.confirmation-payment-method {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.btn-voir-souscriptions {
+  padding: 14px 32px;
+  background: #1e2328;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-voir-souscriptions:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }

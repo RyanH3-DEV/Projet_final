@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ShieldCheck, Zap, Eye, Server, ArrowRight,
-  Lock, CheckCircle, ChevronRight, Star
+  Lock, CheckCircle, ChevronRight, Star, ShoppingCart
 } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api';
 
 // ── Données statiques marketing ──────────────────────────────────────────────
 

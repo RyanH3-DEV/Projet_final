@@ -3,7 +3,8 @@
 .cookie-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  /* J'augmente le z-index au maximum pour passer au-dessus du header et du chatbot */
+  z-index: 999999;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -12,7 +13,8 @@
 }
 
 .cookie-banner {
-  pointer-events: all;
+  /* J'utilise 'auto' au lieu de 'all' pour une compatibilité parfaite sur tous les navigateurs */
+  pointer-events: auto;
   background: #1a1d21;
   border: 1px solid rgba(200,155,60,0.3);
   border-radius: 16px;

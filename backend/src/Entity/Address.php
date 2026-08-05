@@ -22,10 +22,10 @@ class Address
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'encrypted_string', length: 255)]
     private ?string $adresse1 = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'encrypted_string', length: 255, nullable: true)]
     private ?string $adresse2 = null;
 
     #[ORM\Column(length: 255)]
@@ -34,13 +34,13 @@ class Address
     #[ORM\Column(length: 255)]
     private ?string $region = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'encrypted_string', length: 255)]
     private ?string $codePostal = null;
 
     #[ORM\Column(length: 100)]
     private ?string $pays = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'encrypted_string', length: 255)]
     private ?string $telephone = null;
 
     public function getId(): ?int
