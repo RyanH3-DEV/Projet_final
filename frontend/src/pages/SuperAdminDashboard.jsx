@@ -30,7 +30,7 @@ export default function SuperAdminDashboard() {
 
   const headers = {
     'Content-Type': 'application/json',
-    'X-User-Email': localStorage.getItem('userEmail'),
+    'X-User-Email': localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail'),
   };
 
   const fetchUsers = async () => {

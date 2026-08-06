@@ -47,7 +47,7 @@ function StripeForm({ total, connecte, emailInvite, setEmailInvite, onSuccess, o
   const [erreur, setErreur] = useState('');
   const [nom, setNom] = useState('');
 
-  const emailPourPaiement = connecte ? localStorage.getItem('userEmail') : emailInvite;
+  const emailPourPaiement = connecte ? (localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail')) : emailInvite;
 
   const payer = async (e) => {
     e.preventDefault();
@@ -237,7 +237,7 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
     const panierAvantVidage = [...panier];
     const totalAvantVidage = total;
     const methodeLabel = methode === 'paypal' ? 'PayPal' : 'Carte bancaire';
-    const emailCommande = connecte ? localStorage.getItem('userEmail') : emailInvite;
+    const emailCommande = connecte ? (localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail')) : emailInvite;
 
     try {
       const res = await fetch(`${BASE_URL}/api/profil/commandes/creer`, {
@@ -486,7 +486,7 @@ function Panier({ panier: panierServeur = [], rafraichirPanier, onLoginRedirect 
                   <PayPalScriptProvider options={{ 'client-id': PAYPAL_CLIENT_ID, currency: 'EUR' }}>
                     <PayPalButtons
                       createOrder={async () => {
-                        const emailPourPaiement = connecte ? localStorage.getItem('userEmail') : emailInvite;
+                        const emailPourPaiement = connecte ? (localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail')) : emailInvite;
                         const res = await fetch(`${BASE_URL}/api/paiement/paypal/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: total.toFixed(2), email: emailPourPaiement }) });
                         const { orderID } = await res.json(); return orderID;
                       }}
