@@ -16,7 +16,7 @@ function Inscription() {
     email: '',
     password: '',
     confirmPassword: '',
-    avatar: '/avatars/default-user.png',
+    avatar: '',
     cgv: false,
     newsletter: false
   });
