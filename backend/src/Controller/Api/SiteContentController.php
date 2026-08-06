@@ -20,7 +20,7 @@ class SiteContentController extends AbstractController
                 'type' => $content->getContentType(),
                 'text' => $content->getTextContent(),
                 'image' => $content->getImagePath()
-                    ? 'http://127.0.0.1:8000/uploads/contents/' . $content->getImagePath()
+                    ? $content->getImagePath()
                     : null,
             ];
         }
